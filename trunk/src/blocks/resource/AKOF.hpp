@@ -12,7 +12,6 @@ class AKCD;
 class AKOF
 {
 private:
-	uint32_t _size;
 	vector<uint32_t> _akcdOffsets;
 	vector<uint16_t> _akciOffsets;
 public:

@@ -1,7 +1,7 @@
 INDEX_OBJ_FILES = blocks/index/AARY.o blocks/index/DCHR.o blocks/index/DCOS.o blocks/index/DOBJ.o blocks/index/DROO.o blocks/index/DRSC.o blocks/index/DSCR.o blocks/index/DSOU.o blocks/index/MAXS.o blocks/index/RNAM.o
 RESOURCE_OBJ_FILES = blocks/resource/AKCD.o blocks/resource/AKCH.o blocks/resource/AKCI.o blocks/resource/AKHD.o blocks/resource/AKOF.o blocks/resource/AKOS.o blocks/resource/AKPL.o blocks/resource/AKSQ.o blocks/resource/APAL.o blocks/resource/BOMP.o blocks/resource/BOXD.o blocks/resource/BOXM.o blocks/resource/BSTR.o blocks/resource/CDHD.o blocks/resource/CYCL.o blocks/resource/ENCD.o blocks/resource/EXCD.o blocks/resource/FRMT.o blocks/resource/IMAG.o blocks/resource/IMHD.o blocks/resource/iMUS.o blocks/resource/LECF.o blocks/resource/LFLF.o blocks/resource/LOFF.o blocks/resource/LSCR.o blocks/resource/MAP.o blocks/resource/OBCD.o blocks/resource/OBIM.o blocks/resource/OBNA.o blocks/resource/OFFS.o blocks/resource/PALS.o blocks/resource/RGBS.o blocks/resource/RMHD.o blocks/resource/RMSC.o blocks/resource/ROOM.o blocks/resource/SCAL.o blocks/resource/SCRP.o blocks/resource/SMAP.o blocks/resource/SOUN.o blocks/resource/VERB.o blocks/resource/WRAP.o blocks/resource/WRAP2.o blocks/resource/WRAP3.o blocks/resource/WRAP4.o blocks/resource/WRAP5.o blocks/resource/ZPLN.o blocks/resource/ZSTR.o
 BLOCKS_OBJ_FILES = $(INDEX_OBJ_FILES) $(RESOURCE_OBJ_FILES)
-TYPES_OBJ_FILES = types/Costume.o types/Game.o types/Image.o types/Object.o types/Palette.o types/Room.o types/Script.o
+TYPES_OBJ_FILES = types/Costume.o types/Game.o types/Image.o types/Map.o types/Object.o types/Palette.o types/Room.o types/Script.o
 UTIL_OBJ_FILES = util/BMPFile.o util/IO.o util/Log.o util/XMLFile.o
 OBJ_FILES = main.o Assembler.o $(BLOCKS_OBJ_FILES) $(UTIL_OBJ_FILES) $(TYPES_OBJ_FILES)
 
@@ -198,6 +198,9 @@ types/Game.o : types/Game.cpp
 
 types/Image.o : types/Image.cpp
 	g++ -o types/Image.o $(CPP_FLAGS) -c types/Image.cpp
+
+types/Map.o : types/Map.cpp
+	g++ -o types/Map.o $(CPP_FLAGS) -c types/Map.cpp
 
 types/Object.o : types/Object.cpp
 	g++ -o types/Object.o $(CPP_FLAGS) -c types/Object.cpp

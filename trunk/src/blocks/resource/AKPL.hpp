@@ -13,7 +13,6 @@ class AKPL
 private:
 	static const uint8_t N_CHANNELS;
 
-	uint32_t _size;
 	vector<uint8_t> _palette;
 public:
 	AKPL(Costume *costume);

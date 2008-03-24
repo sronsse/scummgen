@@ -6,15 +6,18 @@
 #include <vector>
 using namespace std;
 
+class Map;
+
 class BOXM
 {
 private:
-	uint32_t _size;
-	vector<uint8_t> _boxAs;
-	vector<uint8_t> _boxBs;
-	vector<uint8_t> _dests;
+	static const uint8_t BOX_END;
+
+	vector<vector<uint8_t> > _boxAs;
+	vector<vector<uint8_t> > _boxBs;
+	vector<vector<uint8_t> > _dests;
 public:
-	BOXM(ifstream &f);
+	BOXM(Map *map);
 	uint32_t getSize();
 	void write(ofstream &f);
 	~BOXM();

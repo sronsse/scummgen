@@ -11,7 +11,6 @@ class Costume;
 class AKSQ
 {
 private:
-	uint32_t _size;
 	vector<uint8_t> _commands;
 public:
 	AKSQ(Costume *costume);

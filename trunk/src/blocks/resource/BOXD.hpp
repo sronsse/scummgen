@@ -6,11 +6,13 @@
 #include <vector>
 using namespace std;
 
+class Map;
+
 class BOXD
 {
 private:
 	static const uint32_t UNKNOWN;
-	uint32_t _size;
+
 	uint32_t _nBoxes;
 	vector<int32_t> _ulxs, _ulys;
 	vector<int32_t> _urxs, _urys;
@@ -21,7 +23,7 @@ private:
 	vector<uint32_t> _scaleSlots;
 	vector<uint32_t> _scales;
 public:
-	BOXD(ifstream &f);
+	BOXD(Map *map);
 	uint32_t getSize();
 	void write(ofstream &f);
 	~BOXD();

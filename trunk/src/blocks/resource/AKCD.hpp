@@ -11,7 +11,6 @@ class Costume;
 class AKCD
 {
 private:
-	uint32_t _size;
 	vector<uint16_t> _lengths;
 	vector<vector<uint8_t> > _lines;
 	vector<uint32_t> _offsets;

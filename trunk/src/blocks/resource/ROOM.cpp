@@ -10,10 +10,7 @@
 #include "BOXM.hpp"
 #include "SCAL.hpp"
 
-ROOM::ROOM(Room *room):
-_boxd(NULL),
-_boxm(NULL),
-_scal(NULL)
+ROOM::ROOM(Room *room)
 {
 	_rmhd = new RMHD(room);
 	_cycl = new CYCL(room->getPalette());
@@ -21,6 +18,9 @@ _scal(NULL)
 	_imag = new IMAG(room->getBackground());
 	for (int i = 0; i < room->getNumberOfObjects(); i++)
 		_obims.push_back(new OBIM(room->getObject(i)));
+	_boxd = new BOXD(room->getMap());
+	_boxm = new BOXM(room->getMap());
+	_scal = new SCAL(room->getMap());
 }
 
 uint32_t ROOM::getSize()
@@ -34,9 +34,9 @@ uint32_t ROOM::getSize()
 	size += _imag->getSize(); // imag
 	for (int i = 0; i < _obims.size(); i++) // obims
 		size += _obims[i]->getSize();
-	/*size += _boxd->getSize(); // boxd
+	size += _boxd->getSize(); // boxd
 	size += _boxm->getSize(); // boxm
-	size += _scal->getSize(); // scal*/
+	size += _scal->getSize(); // scal
 	return size;
 }
 
@@ -50,9 +50,9 @@ void ROOM::write(ofstream &f)
 	_imag->write(f);
 	for (int i = 0; i < _obims.size(); i++)
 		_obims[i]->write(f);
-	/*_boxd->write(f);
+	_boxd->write(f);
 	_boxm->write(f);
-	_scal->write(f);*/
+	_scal->write(f);
 }
 
 ROOM::~ROOM()
@@ -63,11 +63,8 @@ ROOM::~ROOM()
 	delete _imag;
 	for (int i = 0; i < _obims.size(); i++)
 		delete _obims[i];
-	if (_boxd != NULL)
-		delete _boxd;
-	if (_boxm != NULL)
-		delete _boxm;
-	if (_scal != NULL)
-		delete _scal;
+	delete _boxd;
+	delete _boxm;
+	delete _scal;
 }
 

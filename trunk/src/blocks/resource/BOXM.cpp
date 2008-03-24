@@ -1,45 +1,26 @@
 #include "BOXM.hpp"
 #include "util/IO.hpp"
-#include "util/Log.hpp"
+#include "types/Map.hpp"
 
-BOXM::BOXM(ifstream &f)
+const uint8_t BOXM::BOX_END = 0xFF;
+
+BOXM::BOXM(Map *map)
 {
-	uint32_t basePos = (uint32_t)f.tellg() - 4;
-
-	_size = IO::readU32BE(f);
-	Log::getInstance().write("size: %d\n", _size);
-
-	Log::getInstance().indent();
-
-	uint8_t box = 0;
-	while ((uint32_t)f.tellg() < basePos + _size)
+	for (int i = 0; i < map->getNumberOfBoxes(); i++)
 	{
-		uint8_t boxA = IO::readU8(f);
-		if (boxA == 0xFF)
+		vector<uint8_t> boxAs;
+		vector<uint8_t> boxBs;
+		vector<uint8_t> dests;
+		for (int j = 0; j < map->getBox(i)->getMatrix()->getNumberOfEntries(); j++)
 		{
-			box++;
-			continue;
+			boxAs.push_back(map->getBox(i)->getMatrix()->getBoxA(j));
+			boxBs.push_back(map->getBox(i)->getMatrix()->getBoxB(j));
+			dests.push_back(map->getBox(i)->getMatrix()->getDest(j));
 		}
-
-		Log::getInstance().write("box %d\n", box);
-
-		Log::getInstance().indent();
-
-		_boxAs.push_back(boxA);
-		Log::getInstance().write("boxA: %d\n", boxA);
-
-		uint8_t boxB = IO::readU8(f);
-		_boxBs.push_back(boxB);
-		Log::getInstance().write("boxB: %d\n", boxB);
-
-		uint8_t dest = IO::readU8(f);
-		_dests.push_back(dest);
-		Log::getInstance().write("dest: %d\n", dest);
-
-		Log::getInstance().unIndent();
+		_boxAs.push_back(boxAs);
+		_boxBs.push_back(boxBs);
+		_dests.push_back(dests);
 	}
-
-	Log::getInstance().unIndent();
 }
 
 uint32_t BOXM::getSize()
@@ -47,18 +28,30 @@ uint32_t BOXM::getSize()
 	uint32_t size = 0;
 	size += 4 * sizeof(uint8_t); // identifier
 	size += sizeof(uint32_t); // size
-	size += sizeof(uint8_t); // 0xFF
+	for (int i = 0; i < _boxAs.size(); i++)
+	{
+		size += _boxAs[i].size() * sizeof(uint8_t);
+		size += _boxBs[i].size() * sizeof(uint8_t);
+		size += _dests[i].size() * sizeof(uint8_t);
+	}
+	size += _boxAs.size() * sizeof(uint8_t); // BOX_END
 	return size;
 }
 
 void BOXM::write(ofstream &f)
 {
-	uint32_t base = (uint32_t)f.tellp();
 	IO::writeString(f, "BOXM");
 	IO::writeU32BE(f, getSize());
-	IO::writeU8(f, 0xFF);
-	Log::getInstance().write("BOXM: %d\n", (uint32_t)f.tellp() - base);
-	Log::getInstance().write("Mais le getSize est %d\n", getSize());
+	for (int i = 0; i < _boxAs.size(); i++)
+	{
+		for (int j = 0; j < _boxAs[i].size(); j++)
+		{
+			IO::writeU8(f, _boxAs[i][j]);
+			IO::writeU8(f, _boxBs[i][j]);
+			IO::writeU8(f, _dests[i][j]);
+		}
+		IO::writeU8(f, BOX_END);
+	}
 }
 
 BOXM::~BOXM()

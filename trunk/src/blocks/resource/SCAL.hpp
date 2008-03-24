@@ -6,17 +6,17 @@
 #include <vector>
 using namespace std;
 
+class Map;
+
 class SCAL
 {
 private:
-	static const uint8_t N_ENTRIES;
-	uint32_t _size;
 	vector<uint32_t> _s1s;
 	vector<uint32_t> _y1s;
 	vector<uint32_t> _s2s;
 	vector<uint32_t> _y2s;
 public:
-	SCAL(ifstream &f);
+	SCAL(Map *map);
 	uint32_t getSize();
 	void write(ofstream &f);
 	~SCAL();

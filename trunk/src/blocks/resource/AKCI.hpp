@@ -11,7 +11,6 @@ class Costume;
 class AKCI
 {
 private:
-	uint32_t _size;
 	vector<uint16_t> _widths;
 	vector<uint16_t> _heights;
 public:

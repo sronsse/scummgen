@@ -5,6 +5,7 @@
 #include "Image.hpp"
 #include "Palette.hpp"
 #include "Object.hpp"
+#include "Map.hpp"
 #include "Script.hpp"
 #include "Costume.hpp"
 
@@ -44,6 +45,8 @@ Room::Room(string dirName)
 	for (int i = 0; i < nObjects; i++)
 		_objects.push_back(new Object(dirName + "objects/object_" + IO::getStringFromIndex(i, 3) + "/", nZPlanes));
 
+	_map = new Map(dirName);
+
 	_entryScript = new Script(dirName + "scripts/entry.txt");
 
 	_exitScript = new Script(dirName + "scripts/exit.txt");
@@ -66,6 +69,7 @@ Room::~Room()
 	delete _palette;
 	for (int i = 0; i < _objects.size(); i++)
 		delete _objects[i];
+	delete _map;
 	delete _entryScript;
 	delete _exitScript;
 	for (int i = 0; i < _localScripts.size(); i++)

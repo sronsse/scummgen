@@ -9,6 +9,7 @@ using namespace std;
 class Image;
 class Palette;
 class Object;
+class Map;
 class Script;
 class Costume;
 
@@ -20,6 +21,7 @@ private:
 	Image *_background;
 	Palette *_palette;
 	vector<Object *> _objects;
+	Map *_map;
 	Script *_entryScript;
 	Script *_exitScript;
 	vector<Script *> _localScripts;
@@ -33,6 +35,7 @@ public:
 	Palette *getPalette() { return _palette; }
 	uint32_t getNumberOfObjects() { return _objects.size(); }
 	Object *getObject(uint32_t index) { return _objects[index]; }
+	Map *getMap() { return _map; }
 	Script *getEntryScript() { return _entryScript; }
 	Script *getExitScript() { return _exitScript; }
 	uint32_t getNumberOfLocalScripts() { return _localScripts.size(); }
