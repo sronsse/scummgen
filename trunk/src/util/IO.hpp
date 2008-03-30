@@ -21,6 +21,8 @@ public:
 	static void writeU8(ofstream &f, uint8_t data);
 	static void writeU16LE(ofstream &f, uint16_t data);
 	static void writeU16BE(ofstream &f, uint16_t data);
+	static void writeU24LE(ofstream &f, uint32_t data);
+	static void writeU24BE(ofstream &f, uint32_t data);
 	static void writeU32LE(ofstream &f, uint32_t data);
 	static void writeU32BE(ofstream &f, uint32_t data);
 	static string getStringFromIndex(uint32_t index, uint8_t nDigits);

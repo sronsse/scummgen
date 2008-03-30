@@ -13,8 +13,8 @@ LFLF::LFLF(Room *room)
 	_rmsc = new RMSC(room);
 	for (int i = 0; i < room->getNumberOfGlobalScripts(); i++)
 		_scrps.push_back(new SCRP(room->getGlobalScript(i)));
-	/*for (int i = 0; i < room->getNumberOfSounds(); i++)
-		_souns.push_back(new SOUN(room->getSound(i)));*/
+	for (int i = 0; i < room->getNumberOfSounds(); i++)
+		_souns.push_back(new SOUN(room->getSound(i)));
 	for (int i = 0; i < room->getNumberOfCostumes(); i++)
 		_akoss.push_back(new AKOS(room->getCostume(i)));
 }
@@ -26,11 +26,11 @@ uint32_t LFLF::getSize()
 	size += sizeof(uint32_t); // size
 	size += _room->getSize(); // room
 	size += _rmsc->getSize(); // rmsc
-	for (int i = 0; i < _scrps.size(); i++)
+	for (int i = 0; i < _scrps.size(); i++) // scrps
 		size += _scrps[i]->getSize();
-	/*for (int i = 0; i < _souns.size(); i++)
-		size += _souns[i]->getSize();*/
-	for (int i = 0; i < _akoss.size(); i++)
+	for (int i = 0; i < _souns.size(); i++) // souns
+		size += _souns[i]->getSize();
+	for (int i = 0; i < _akoss.size(); i++) // akoss
 		size += _akoss[i]->getSize();
 	return size;
 }
@@ -47,6 +47,11 @@ void LFLF::write(ofstream &f)
 	{
 		_scrpOffsets.push_back((uint32_t)f.tellp() - roomOffset);
 		_scrps[i]->write(f);
+	}
+	for (int i = 0; i < _souns.size(); i++)
+	{
+		_sounOffsets.push_back((uint32_t)f.tellp() - roomOffset);
+		_souns[i]->write(f);
 	}
 	for (int i = 0; i < _akoss.size(); i++)
 	{

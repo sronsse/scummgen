@@ -5,15 +5,16 @@
 #include <stdint.h>
 using namespace std;
 
-class iMUS;
+class Sound;
+class VOC;
 
 class SOUN
 {
 private:
 	uint32_t _size;
-	iMUS *_imus;
+	VOC *_voc;
 public:
-	SOUN(ifstream &f);
+	SOUN(Sound *sound);
 	uint32_t getSize();
 	void write(ofstream &f);
 	~SOUN();

@@ -94,6 +94,28 @@ void IO::writeU16BE(ofstream &f, uint16_t data)
 	f.write((char *)&u8, 1);
 }
 
+void IO::writeU24LE(ofstream &f, uint32_t data)
+{
+	uint8_t u8;
+	u8 = data;
+	f.write((char *)&u8, 1);
+	u8 = data >> 8;
+	f.write((char *)&u8, 1);
+	u8 = data >> 16;
+	f.write((char *)&u8, 1);
+}
+
+void IO::writeU24BE(ofstream &f, uint32_t data)
+{
+	uint8_t u8;
+	u8 = data >> 16;
+	f.write((char *)&u8, 1);
+	u8 = data >> 8;
+	f.write((char *)&u8, 1);
+	u8 = data;
+	f.write((char *)&u8, 1);
+}
+
 void IO::writeU32LE(ofstream &f, uint32_t data)
 {
 	f.write((char *)&data, 4);

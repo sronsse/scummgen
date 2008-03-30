@@ -18,9 +18,9 @@ MAXS::MAXS(Game *game)
 	_nVariables = 1500;
 	_nBitVariables = 2048;
 	_nScripts = 2;
-	_nSounds = 789;
+	_nSounds = 2;
 	_nCharsets = 1;
-	_nCostumes = 446;
+	_nCostumes = 2;
 	_nRooms = game->getNumberOfRooms() + 1;
 	_nGlobalObjects = 1;
 	for (int i = 0; i < game->getNumberOfRooms(); i++)

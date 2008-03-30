@@ -33,9 +33,9 @@ void Assembler::writeIndexFile()
 	_droo = new DROO(_game);
 	_drsc = new DRSC(_game, _lecf);
 	_dscr = new DSCR(_game, _lecf);
-	/*_dsou = new DSOU(indexFile);
-	_dcos = new DCOS(indexFile);
-	_dchr = new DCHR(indexFile);*/
+	_dsou = new DSOU(_game, _lecf);
+	_dcos = new DCOS(_game, _lecf);
+	//_dchr = new DCHR(indexFile);
 	_dobj = new DOBJ(_game);
 	//_aary = new AARY(indexFile);
 	string indexFileName = _outputDirName + _game->getShortName() + INDEX_FILE_EXTENSION;
@@ -45,9 +45,9 @@ void Assembler::writeIndexFile()
 	_droo->write(indexFile);
 	_drsc->write(indexFile);
 	_dscr->write(indexFile);
-	/*_dsou->write(indexFile);
+	_dsou->write(indexFile);
 	_dcos->write(indexFile);
-	_dchr->write(indexFile);*/
+	//_dchr->write(indexFile);
 	_dobj->write(indexFile);
 	//_aary->write(indexFile);
 	indexFile.close();
@@ -69,9 +69,9 @@ Assembler::~Assembler()
 	delete _droo;
 	delete _drsc;
 	delete _dscr;
-	/*delete _dsou;
+	delete _dsou;
 	delete _dcos;
-	delete _dchr;*/
+	//delete _dchr;
 	delete _dobj;
 	//delete _aary;
 	delete _lecf;

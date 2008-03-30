@@ -6,17 +6,19 @@
 #include <vector>
 using namespace std;
 
+class Game;
+class LECF;
+
 class DCOS
 {
 private:
-	uint32_t _size;
 	uint32_t _nItems;
 	vector<uint8_t> _ids;
 	vector<uint32_t> _offsets;
 
 	uint32_t getSize();
 public:
-	DCOS(ifstream &f);
+	DCOS(Game *game, LECF *lecf);
 	void write(ofstream &f);
 	~DCOS();
 };

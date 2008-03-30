@@ -4,18 +4,49 @@
 
 SCRP::SCRP(Script *script)
 {
-	_bytes.push_back(0x01);
+	_bytes.push_back(0x01); // push
 	_bytes.push_back(0x01);
 	_bytes.push_back(0x00);
 	_bytes.push_back(0x00);
 	_bytes.push_back(0x00);
-	_bytes.push_back(0x9D);
+
+	_bytes.push_back(0x9D); // loadRoom
+
+	_bytes.push_back(0x01); // push
 	_bytes.push_back(0x01);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+
+	_bytes.push_back(0xAF); // startSound
+
+	/*_bytes.push_back(0x01); // push
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x10);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+
+	_bytes.push_back(0x01); // push
+	_bytes.push_back(0x01);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+
+	_bytes.push_back(0x01); // push
+	_bytes.push_back(0x02);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+	_bytes.push_back(0x00);
+
+	_bytes.push_back(0xB2); // soundKludge*/
+
+	_bytes.push_back(0x01); // push
 	_bytes.push_back(0xFF);
 	_bytes.push_back(0xFF);
 	_bytes.push_back(0xFE);
 	_bytes.push_back(0xFF);
-	_bytes.push_back(0x6A);
+
+	_bytes.push_back(0x6A); // delay
 }
 
 uint32_t SCRP::getSize()

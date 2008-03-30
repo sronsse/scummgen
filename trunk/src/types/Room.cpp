@@ -7,6 +7,7 @@
 #include "Object.hpp"
 #include "Map.hpp"
 #include "Script.hpp"
+#include "Sound.hpp"
 #include "Costume.hpp"
 
 Room::Room(string dirName)
@@ -38,6 +39,9 @@ Room::Room(string dirName)
 	uint32_t nCostumes = node->getChild("nCostumes")->getIntegerContent();
 	Log::getInstance().write("nCostumes: %u\n", nCostumes);
 
+	uint32_t nSounds = node->getChild("nSounds")->getIntegerContent();
+	Log::getInstance().write("nSounds: %u\n", nSounds);
+
 	_background = new Image(dirName, "background.bmp", false, nZPlanes);
 
 	_palette = new Palette(dirName);
@@ -56,6 +60,9 @@ Room::Room(string dirName)
 
 	for (int i = 0; i < nGlobalScripts; i++)
 		_globalScripts.push_back(new Script(dirName + "scripts/global/global_" + IO::getStringFromIndex(i, 3) + ".txt"));
+
+	for (int i = 0; i < nSounds; i++)
+		_sounds.push_back(new Sound(dirName + "sounds/sound_" + IO::getStringFromIndex(i, 3) + "/"));
 
 	for (int i = 0; i < nCostumes; i++)
 		_costumes.push_back(new Costume(dirName + "costumes/costume_" + IO::getStringFromIndex(i, 3) + "/"));

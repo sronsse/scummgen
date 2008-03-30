@@ -11,6 +11,7 @@ class Palette;
 class Object;
 class Map;
 class Script;
+class Sound;
 class Costume;
 
 class Room
@@ -26,6 +27,7 @@ private:
 	Script *_exitScript;
 	vector<Script *> _localScripts;
 	vector<Script *> _globalScripts;
+	vector<Sound *> _sounds;
 	vector<Costume *> _costumes;
 public:
 	Room(string dirName);
@@ -42,6 +44,8 @@ public:
 	Script *getLocalScript(uint32_t index) { return _localScripts[index]; }
 	uint32_t getNumberOfGlobalScripts() { return _globalScripts.size(); }
 	Script *getGlobalScript(uint32_t index) { return _globalScripts[index]; }
+	uint32_t getNumberOfSounds() { return _sounds.size(); }
+	Sound *getSound(uint32_t index) { return _sounds[index]; }
 	uint32_t getNumberOfCostumes() { return _costumes.size(); }
 	Costume *getCostume(uint32_t index) { return _costumes[index]; }
 	~Room();

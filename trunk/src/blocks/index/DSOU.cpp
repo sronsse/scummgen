@@ -1,32 +1,29 @@
 #include "DSOU.hpp"
 #include "util/IO.hpp"
-#include "util/Log.hpp"
+#include "types/Game.hpp"
+#include "types/Room.hpp"
+#include "types/Sound.hpp"
+#include "blocks/resource/LECF.hpp"
+#include "blocks/resource/LFLF.hpp"
 
-DSOU::DSOU(ifstream &f)
+DSOU::DSOU(Game *game, LECF *lecf)
 {
-	_size = IO::readU32BE(f);
-	Log::getInstance().write("size: %d\n", _size);
-
-	Log::getInstance().indent();
-
-	_nItems = IO::readU32LE(f);
-	Log::getInstance().write("nItems: %d\n", _nItems);
-
+	_nItems = 1;
+	for (int i = 0; i < game->getNumberOfRooms(); i++)
+		for (int j = 0; j < game->getRoom(i)->getNumberOfSounds(); j++)
+			if (game->getRoom(i)->getSound(j)->getID() + 1 > _nItems)
+				_nItems = game->getRoom(i)->getSound(j)->getID() + 1;
 	for (int i = 0; i < _nItems; i++)
 	{
-		uint8_t id = IO::readU8(f);
-		_ids.push_back(id);
-		Log::getInstance().write("id: %d\n", id);
+		_ids.push_back(0);
+		_offsets.push_back(0);
 	}
-
-	for (int i = 0; i < _nItems; i++)
-	{
-		uint32_t offset = IO::readU32LE(f);
-		_offsets.push_back(offset);
-		Log::getInstance().write("offset: %x\n", offset);
-	}
-
-	Log::getInstance().unIndent();
+	for (int i = 0; i < game->getNumberOfRooms(); i++)
+		for (int j = 0; j < game->getRoom(i)->getNumberOfSounds(); j++)
+		{
+			_ids[game->getRoom(i)->getSound(j)->getID()] = game->getRoom(i)->getSound(j)->getID();
+			_offsets[game->getRoom(i)->getSound(j)->getID()] = lecf->getLFLF(i)->getSOUNOffset(j);
+		}
 }
 
 uint32_t DSOU::getSize()

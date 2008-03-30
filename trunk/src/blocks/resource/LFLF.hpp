@@ -25,12 +25,15 @@ private:
 	vector<AKOS *> _akoss;
 	uint32_t _rmscOffset;
 	vector<uint32_t> _scrpOffsets;
+	vector<uint32_t> _sounOffsets;
 	vector<uint32_t> _akosOffsets;
 public:
 	LFLF(Room *room);
 	uint32_t getSize();
 	uint32_t getRMSCOffset() { return _rmscOffset; }
 	uint32_t getSCRPOffset(uint32_t index) { return _scrpOffsets[index]; }
+	uint32_t getSOUNOffset(uint32_t index) { return _sounOffsets[index]; }
+	uint32_t getAKOSOffset(uint32_t index) { return _akosOffsets[index]; }
 	void write(ofstream &f);
 	~LFLF();
 };
