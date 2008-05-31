@@ -12,47 +12,46 @@ class Script;
 class Object
 {
 private:
+	static vector<Object *> _instances;
+
 	string _name;
-	uint32_t _nImages;
-	vector<Image *> _images;
-	uint32_t _x;
-	uint32_t _y;
-	uint32_t _width;
-	uint32_t _height;
-	uint32_t _hotSpotX;
-	uint32_t _hotSpotY;
 	uint16_t _id;
+	vector<Image *> _images;
+	uint16_t _imageX;
+	uint16_t _imageY;
+	vector<int16_t> _hotspotXs;
+	vector<int16_t> _hotspotYs;
+	uint16_t _x;
+	uint16_t _y;
+	uint16_t _width;
+	uint16_t _height;
+	uint8_t _flags;
 	uint8_t _parent;
-	uint8_t _parentState;
-	string _displayName;
-	Script *_script;
+	uint8_t _actorDir;
+	Script *_script;	
 	uint32_t _classData;
 public:
+	static Object *getInstanceFromName(string objectName);
+
 	Object(string dirName, uint32_t nZPlanes);
 	string getName() { return _name; }
-	uint32_t getNumberOfImages() { return _nImages; }
-	Image *getImage(uint8_t index) { return _images[index]; }
-	uint32_t getX() { return _x; }
-	uint32_t getY() { return _y; }
-	uint32_t getWidth() { return _width; }
-	uint32_t getHeight() { return _height; }
-	uint32_t getHotSpotX() { return _hotSpotX; }
-	uint32_t getHotSpotY() { return _hotSpotY; }
 	uint16_t getID() { return _id; }
+	uint16_t getNumberOfImages() { return _images.size(); }
+	Image *getImage(uint16_t index) { return _images[index]; }
+	uint16_t getImageX() { return _imageX; }
+	uint16_t getImageY() { return _imageY; }
+	uint16_t getNumberOfHotspots() { return _hotspotXs.size(); }
+	int16_t getHotspotX(uint16_t index) { return _hotspotXs[index]; }
+	int16_t getHotspotY(uint16_t index) { return _hotspotYs[index]; }
+	uint16_t getX() { return _x; }
+	uint16_t getY() { return _y; }
+	uint16_t getWidth() { return _width; }
+	uint16_t getHeight() { return _height; }
+	uint8_t getFlags() { return _flags; }
 	uint8_t getParent() { return _parent; }
-	uint8_t getParentState() { return _parentState; }
-	string getDisplayName() { return _displayName; }
+	uint8_t getActorDir() { return _actorDir; }
 	Script *getScript() { return _script; }
 	uint32_t getClassData() { return _classData; }
-
-	//tmp
-	int getFlags() { return 0; }
-	int getWalkX() { return 0; }
-	int getWalkY() { return 0; }
-	int getActorDir() { return 0; }
-	int getNumberOfZPlanesPerImage() { return 0; }
-	int getImageX() { return 0; }
-	int getImageY() { return 0; }
 	~Object();
 };
 

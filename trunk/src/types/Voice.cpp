@@ -3,10 +3,25 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
+vector<Voice *> Voice::_instances;
+
+Voice *Voice::getInstanceFromName(string voiceName)
+{
+	for (int i = 0; i < _instances.size(); i++)
+		if (_instances[i]->getName() == voiceName)
+			return _instances[i];
+	return NULL;
+}
+
 Voice::Voice(string dirName)
 {
 	Log::getInstance().write("Voice\n");
 	Log::getInstance().indent();
+
+	int posB = dirName.find_last_of('/') - 1;
+	int posA = dirName.find_last_of('/', posB) + 1;
+	_name = dirName.substr(posA, posB + 1 - posA);
+	Log::getInstance().write("name: %s\n", _name.c_str());
 
 	XMLFile xmlFile(dirName + "voice.xml");
 	XMLNode *node = xmlFile.getRootNode();
@@ -95,4 +110,3 @@ void Voice::loadWAV(string fileName)
 Voice::~Voice()
 {
 }
-

@@ -8,7 +8,7 @@ const uint8_t DOBJ::N_CHARS = 40;
 
 DOBJ::DOBJ(Game *game)
 {
-	_nObjects = 1;
+	/*_nObjects = 1;
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		for (int j = 0; j < game->getRoom(i)->getNumberOfObjects(); j++)
 			if (game->getRoom(i)->getObject(j)->getID() + 1 > _nObjects)
@@ -30,7 +30,7 @@ DOBJ::DOBJ(Game *game)
 			_objectStates[game->getRoom(i)->getObject(j)->getID()] = game->getRoom(i)->getObject(j)->getParentState();
 			_objectRooms[game->getRoom(i)->getObject(j)->getID()] = game->getRoom(i)->getID();
 			_classData[game->getRoom(i)->getObject(j)->getID()] = game->getRoom(i)->getObject(j)->getClassData();
-		}
+		}*/
 }
 
 uint32_t DOBJ::getSize()

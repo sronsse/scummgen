@@ -33,10 +33,10 @@ void Assembler::writeIndexFile()
 	_rnam = new RNAM(_game);
 	_maxs = new MAXS(_game);
 	_droo = new DROO(_game);
-	_dscr = new DSCR(_game, _lecf);
+	_dscr = new DSCR(_game, _lecf->getLFLF(0));
 	//_dsou = new DSOU(_game, _lecf);
 	_dcos = new DCOS(_game, _lecf);
-	_dchr = new DCHR(_game, _lecf);
+	_dchr = new DCHR(_game, _lecf->getLFLF(0));
 	_dobj = new DOBJ(_game);
 	//_aary = new AARY(indexFile);
 	string indexFileName = _outputDirName + _game->getShortName() + INDEX_FILE_EXTENSION;

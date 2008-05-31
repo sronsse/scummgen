@@ -10,6 +10,8 @@ class Object;
 class CDHD
 {
 private:
+	static const uint16_t UNKNOWN_1;
+	static const uint16_t UNKNOWN_2;
 	uint16_t _id;
 	uint8_t _x;
 	uint8_t _y;

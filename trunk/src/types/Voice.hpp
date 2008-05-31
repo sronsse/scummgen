@@ -9,13 +9,19 @@ using namespace std;
 class Voice
 {
 private:
+	static vector<Voice *> _instances;
+
+	string _name;
 	vector<uint16_t> _syncTimes;
 	uint32_t _sampleRate;
 	vector<uint8_t> _dataBytes;
 
 	void loadWAV(string fileName);
 public:
+	static Voice *getInstanceFromName(string voiceName);
+
 	Voice(string dirName);
+	string getName() { return _name; }
 	uint8_t getNumberOfSyncTimes() { return _syncTimes.size(); }
 	uint16_t getSyncTime(uint8_t index) { return _syncTimes.at(index); }
 	uint32_t getSampleRate() { return _sampleRate; }
@@ -25,4 +31,3 @@ public:
 };
 
 #endif
-

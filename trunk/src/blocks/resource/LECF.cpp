@@ -7,7 +7,7 @@
 LECF::LECF(Game *game)
 {
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		_lflfs.push_back(new LFLF(game->getRoom(i)));
+		_lflfs.push_back(new LFLF(game, i));
 	_loff = new LOFF(game, _lflfs);
 }
 

@@ -1,29 +1,25 @@
 #include "DSCR.hpp"
 #include "util/IO.hpp"
 #include "types/Game.hpp"
-#include "types/Room.hpp"
 #include "types/Script.hpp"
-#include "blocks/resource/LECF.hpp"
 #include "blocks/resource/LFLF.hpp"
 
-DSCR::DSCR(Game *game, LECF *lecf)
+DSCR::DSCR(Game *game, LFLF *lflf)
 {
 	_nItems = 1;
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfGlobalScripts(); j++)
-			if (game->getRoom(i)->getGlobalScript(j)->getID() + 1 > _nItems)
-				_nItems = game->getRoom(i)->getGlobalScript(j)->getID() + 1;
+	for (int i = 0; i < game->getNumberOfScripts(); i++)
+		if (game->getScript(i)->getID() + 1 > _nItems)
+			_nItems = game->getScript(i)->getID() + 1;
 	for (int i = 0; i < _nItems; i++)
 	{
 		_ids.push_back(0);
 		_offsets.push_back(0);
 	}
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfGlobalScripts(); j++)
-		{
-			_ids[game->getRoom(i)->getGlobalScript(j)->getID()] = game->getRoom(i)->getGlobalScript(j)->getID();
-			_offsets[game->getRoom(i)->getGlobalScript(j)->getID()] = lecf->getLFLF(i)->getSCRPOffset(j);
-		}
+	for (int i = 0; i < game->getNumberOfScripts(); i++)
+	{
+		_ids[game->getScript(i)->getID()] = game->getScript(i)->getID();
+		_offsets[game->getScript(i)->getID()] = lflf->getSCRPOffset(i);
+	}
 }
 
 uint32_t DSCR::getSize()

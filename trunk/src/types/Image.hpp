@@ -20,14 +20,12 @@ public:
 class Image
 {
 private:
-	bool _bomp;
 	uint16_t _width;
 	uint16_t _height;
 	vector<vector<uint8_t> > _pixels;
 	vector<ZPlane *> _zPlanes;
 public:
-	Image(string dirName, string fileName, bool bomp, uint16_t nZPlanes);
-	bool isBomp() { return _bomp; }
+	Image(string dirName, string fileName, uint16_t nZPlanes);
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
 	uint8_t getPixel(uint32_t x, uint32_t y) { return _pixels[x][y]; }

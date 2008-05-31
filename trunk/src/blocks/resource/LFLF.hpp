@@ -7,7 +7,7 @@
 #include <vector>
 using namespace std;
 
-class Room;
+class Game;
 class ROOM;
 class SCRP;
 class COST;
@@ -25,7 +25,7 @@ private:
 	vector<uint32_t> _costOffsets;
 	vector<uint32_t> _charOffsets;
 public:
-	LFLF(Room *room);
+	LFLF(Game *game, uint8_t roomIndex);
 	uint32_t getSize();
 	uint32_t getSCRPOffset(uint32_t index) { return _scrpOffsets[index]; }
 	uint32_t getCOSTOffset(uint32_t index) { return _costOffsets[index]; }

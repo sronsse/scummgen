@@ -67,7 +67,9 @@ class Costume
 {
 private:
 	static const int N_LIMBS;
+	static vector<Costume *> _instances;
 
+	string _name;
 	uint16_t _id;
 	uint8_t _nAnims;
 	bool _mirror;
@@ -78,7 +80,10 @@ private:
 	vector<uint8_t> _commands;
 	vector<Frame *> _frames;
 public:
+	static Costume *getInstanceFromName(string costumeName);
+
 	Costume(string dirName);
+	string getName() { return _name; }
 	uint16_t getID() { return _id; }
 	uint8_t getNumberOfAnims() { return _nAnims; }
 	bool isMirror() { return _mirror; }

@@ -8,15 +8,15 @@ using namespace std;
 
 class Object;
 class CDHD;
-class OBNA;
 class VERB;
+class OBNA;
 
 class OBCD
 {
 private:
 	CDHD *_cdhd;
-	OBNA *_obna;
 	VERB *_verb;
+	OBNA *_obna;
 public:
 	OBCD(Object *object);
 	uint32_t getSize();

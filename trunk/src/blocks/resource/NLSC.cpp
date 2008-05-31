@@ -4,7 +4,7 @@
 
 NLSC::NLSC(Room *room)
 {
-	_nLocalScripts = room->getNumberOfLocalScripts();
+	_nLocalScripts = room->getNumberOfScripts();
 }
 
 uint32_t NLSC::getSize()

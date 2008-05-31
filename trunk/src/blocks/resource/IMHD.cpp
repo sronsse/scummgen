@@ -3,15 +3,22 @@
 #include "types/Object.hpp"
 #include "types/Image.hpp"
 
+const uint16_t IMHD::UNKNOWN = 0;
+
 IMHD::IMHD(Object *object)
 {
 	_id = object->getID();
 	_nImages = object->getNumberOfImages();
-	_nZPlanesPerImage = object->getNumberOfZPlanesPerImage();
+	_nZPlanesPerImage = _nImages > 0 ? object->getImage(0)->getNumberOfZPlanes() : 0;
 	_x = object->getImageX();
 	_y = object->getImageY();
-	_width = object->getImage(0)->getWidth();
-	_height = object->getImage(0)->getHeight();
+	_width = _nImages > 0 ? object->getImage(0)->getWidth() : 0;
+	_height = _nImages > 0 ? object->getImage(0)->getHeight() : 0;
+	for (int i = 0; i < object->getNumberOfHotspots(); i++)
+	{
+		_hotspotXs.push_back(object->getHotspotX(i));
+		_hotspotYs.push_back(object->getHotspotY(i));
+	}
 }
 
 uint32_t IMHD::getSize()
@@ -28,6 +35,8 @@ uint32_t IMHD::getSize()
 	size += sizeof(uint16_t); // width
 	size += sizeof(uint16_t); // height
 	size += sizeof(uint16_t); // nHotspots
+	size += _hotspotXs.size() * sizeof(int16_t); // hotspotXs
+	size += _hotspotYs.size() * sizeof(int16_t); // hotspotYs
 	return size;
 }
 
@@ -38,12 +47,17 @@ void IMHD::write(ofstream &f)
 	IO::writeU16LE(f, _id);
 	IO::writeU16LE(f, _nImages);
 	IO::writeU16LE(f, _nZPlanesPerImage);
-	IO::writeU16LE(f, 0);
+	IO::writeU16LE(f, UNKNOWN);
 	IO::writeU16LE(f, _x);
 	IO::writeU16LE(f, _y);
 	IO::writeU16LE(f, _width);
 	IO::writeU16LE(f, _height);
-	IO::writeU16LE(f, 0); // nHotspots
+	IO::writeU16LE(f, _hotspotXs.size());
+	for (int i = 0; i < _hotspotXs.size(); i++)
+	{
+		IO::writeU16LE(f, _hotspotXs[i]);
+		IO::writeU16LE(f, _hotspotYs[i]);
+	}
 }
 
 IMHD::~IMHD()
