@@ -1,6 +1,4 @@
-#summary Main page
-
-Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use ScummGEN, explain its technical design and architecture, and show its advancement.
+Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use ScummGEN, explain its architecture, and show its development status.
 
 ----
 
@@ -9,4 +7,4 @@ Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use Sc
   * Introduction
   * User guide
   * Technical information
-  * Advancement
+  * Current status
