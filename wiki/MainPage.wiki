@@ -1,10 +1,11 @@
-Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use ScummGEN, explain its architecture, and show its development status.
+Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use ScummGEN, explain its architecture, and show its current development status.
 
 ----
 
 = Index =
 
-  * Introduction
-  * User guide
-  * Technical information
-  * Current status
+* Introduction
+* User guide
+* Technical design
+* Current status
+* Contact information
