@@ -30,8 +30,8 @@ ROOM::ROOM(Room *room)
 	_excd = new EXCD(room->getExitScript());
 	_encd = new ENCD(room->getEntryScript());
 	_nlsc = new NLSC(room);
-	for (int i = 0; i < room->getNumberOfLocalScripts(); i++)
-		_lscrs.push_back(new LSCR(room->getLocalScript(i)));
+	for (int i = 0; i < room->getNumberOfScripts(); i++)
+		_lscrs.push_back(new LSCR(room->getScript(i)));
 	_boxd = new BOXD(room->getMap());
 	_boxm = new BOXM(room->getMap());
 	_scal = new SCAL(room->getMap());

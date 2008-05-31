@@ -4,6 +4,15 @@
 #include "util/XMLFile.hpp"
 
 const uint8_t Charset::N_COLORS = 15;
+vector<Charset *> Charset::_instances;
+
+Charset *Charset::getInstanceFromName(string charsetName)
+{
+	for (int i = 0; i < _instances.size(); i++)
+		if (_instances[i]->getName() == charsetName)
+			return _instances[i];
+	return NULL;
+}
 
 Char::Char(XMLNode *node)
 {
@@ -39,6 +48,13 @@ Charset::Charset(string dirName)
 	Log::getInstance().write("Charset\n");
 	Log::getInstance().indent();
 
+	_instances.push_back(this);
+
+	int posB = dirName.find_last_of('/') - 1;
+	int posA = dirName.find_last_of('/', posB) + 1;
+	_name = dirName.substr(posA, posB + 1 - posA);
+	Log::getInstance().write("name: %s\n", _name.c_str());
+
 	BMPFile bmpFile(dirName + "charset.bmp");
 	_width = bmpFile.getWidth();
 	_height = bmpFile.getHeight();
@@ -54,7 +70,7 @@ Charset::Charset(string dirName)
 	XMLFile xmlFile(dirName + "charset.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_id = rootNode->getChild("id")->getIntegerContent();
+	_id = _instances.size();
 	Log::getInstance().write("id: %u\n", _id);
 
 	_fontHeight = rootNode->getChild("fontHeight")->getIntegerContent();

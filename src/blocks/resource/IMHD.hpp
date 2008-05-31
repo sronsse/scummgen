@@ -12,6 +12,8 @@ class Object;
 class IMHD
 {
 private:
+	static const uint16_t UNKNOWN;
+
 	uint16_t _id;
 	uint16_t _nImages;
 	uint32_t _nZPlanesPerImage;
@@ -19,6 +21,8 @@ private:
 	uint16_t _y;
 	uint16_t _width;
 	uint16_t _height;
+	vector<int16_t> _hotspotXs;
+	vector<int16_t> _hotspotYs;
 public:
 	IMHD(Object *object);
 	uint32_t getSize();

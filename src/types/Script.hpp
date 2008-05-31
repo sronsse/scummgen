@@ -8,8 +8,11 @@ using namespace std;
 
 class Script
 {
+	string _name;
 	uint32_t _id;
 public:
+	static const string EXTENSION;
+
 	Script(string fileName);
 	uint32_t getID() { return _id; }
 	uint32_t getNumberOfBytes() { return 0; }

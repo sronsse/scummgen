@@ -17,6 +17,8 @@ class Charset;
 class Room
 {
 private:
+	static vector<Room *> _instances;
+
 	uint8_t _id;
 	string _name;
 	Image *_background;
@@ -25,11 +27,15 @@ private:
 	Map *_map;
 	Script *_entryScript;
 	Script *_exitScript;
-	vector<Script *> _localScripts;
-	vector<Script *> _globalScripts;
+	vector<Script *> _scripts;
 	vector<Costume *> _costumes;
-	vector<Charset *> _charsets;
+
+	void loadObjects(string dirName, uint32_t nZPlanes);
+	void loadScripts(string dirName);
+	void loadCostumes(string dirName);
 public:
+	static Room *getInstanceFromName(string roomName);
+
 	Room(string dirName);
 	uint8_t getID() { return _id; }
 	string getName() { return _name; }
@@ -40,14 +46,10 @@ public:
 	Map *getMap() { return _map; }
 	Script *getEntryScript() { return _entryScript; }
 	Script *getExitScript() { return _exitScript; }
-	uint32_t getNumberOfLocalScripts() { return _localScripts.size(); }
-	Script *getLocalScript(uint32_t index) { return _localScripts[index]; }
-	uint32_t getNumberOfGlobalScripts() { return _globalScripts.size(); }
-	Script *getGlobalScript(uint32_t index) { return _globalScripts[index]; }
+	uint32_t getNumberOfScripts() { return _scripts.size(); }
+	Script *getScript(uint32_t index) { return _scripts[index]; }
 	uint32_t getNumberOfCostumes() { return _costumes.size(); }
 	Costume *getCostume(uint32_t index) { return _costumes[index]; }
-	uint32_t getNumberOfCharsets() { return _charsets.size(); }
-	Charset *getCharset(uint32_t index) { return _charsets[index]; }
 	~Room();
 };
 

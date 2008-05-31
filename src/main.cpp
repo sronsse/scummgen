@@ -7,10 +7,16 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+	if (argc != 2)
+	{
+		cout << "Usage: " << argv[0] << " <game directory>\n";
+		return 0;
+	}
+
 	cout << "ScummGEN's assembler: version " << (int)Assembler::MAJOR_VERSION << '.' << (int)Assembler::MINOR_VERSION << '.' << Assembler::VERSION_TYPE << endl;
 	Log::getInstance().setActive(true);
 
-	string dirName = "data/loh/";
+	string dirName = argv[1];
 	cout << "Loading \"" << dirName << "\" game directory..." << endl;
 	Game game(dirName);
 

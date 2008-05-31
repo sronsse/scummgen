@@ -1,29 +1,25 @@
 #include "DCHR.hpp"
 #include "util/IO.hpp"
 #include "types/Game.hpp"
-#include "types/Room.hpp"
 #include "types/Charset.hpp"
-#include "blocks/resource/LECF.hpp"
 #include "blocks/resource/LFLF.hpp"
 
-DCHR::DCHR(Game *game, LECF *lecf)
+DCHR::DCHR(Game *game, LFLF *lflf)
 {
 	_nItems = 1;
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfCharsets(); j++)
-			if (game->getRoom(i)->getCharset(j)->getID() + 1 > _nItems)
-				_nItems = game->getRoom(i)->getCharset(j)->getID() + 1;
+	for (int i = 0; i < game->getNumberOfCharsets(); i++)
+		if (game->getCharset(i)->getID() + 1 > _nItems)
+			_nItems = game->getCharset(i)->getID() + 1;
 	for (int i = 0; i < _nItems; i++)
 	{
 		_ids.push_back(0);
 		_offsets.push_back(0);
 	}
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfCharsets(); j++)
-		{
-			_ids[game->getRoom(i)->getCharset(j)->getID()] = game->getRoom(i)->getCharset(j)->getID();
-			_offsets[game->getRoom(i)->getCharset(j)->getID()] = lecf->getLFLF(i)->getCHAROffset(j);
-		}
+	for (int i = 0; i < game->getNumberOfCharsets(); i++)
+	{
+		_ids[game->getCharset(i)->getID()] = game->getCharset(i)->getID();
+		_offsets[game->getCharset(i)->getID()] = lflf->getCHAROffset(i);
+	}
 }
 
 uint32_t DCHR::getSize()

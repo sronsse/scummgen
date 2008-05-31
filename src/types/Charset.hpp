@@ -2,6 +2,7 @@
 #define _CHARSET_HPP_
 
 #include <stdint.h>
+#include <string>
 #include <vector>
 using namespace std;
 
@@ -32,7 +33,9 @@ class Charset
 {
 private:
 	static const uint8_t N_COLORS;
+	static vector<Charset *> _instances;
 
+	string _name;
 	uint32_t _width;
 	uint32_t _height;
 	vector<vector<uint8_t> > _pixels;
@@ -42,7 +45,10 @@ private:
 	uint8_t _fontHeight;
 	vector<Char *>_chars;
 public:
+	static Charset *getInstanceFromName(string charsetName);
+
 	Charset(string dirName);
+	string getName() { return _name; }
 	uint32_t getWidth() { return _width; }
 	uint32_t getHeight() { return _height; }
 	uint8_t getPixel(uint32_t i, uint32_t j) { return _pixels[i][j]; }

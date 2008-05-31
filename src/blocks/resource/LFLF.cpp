@@ -1,20 +1,23 @@
 #include "LFLF.hpp"
 #include "util/IO.hpp"
+#include "types/Game.hpp"
 #include "types/Room.hpp"
 #include "ROOM.hpp"
 #include "SCRP.hpp"
 #include "COST.hpp"
 #include "CHAR.hpp"
 
-LFLF::LFLF(Room *room)
+LFLF::LFLF(Game *game, uint8_t roomIndex)
 {
-	_room = new ROOM(room);
-	for (int i = 0; i < room->getNumberOfGlobalScripts(); i++)
-		_scrps.push_back(new SCRP(room->getGlobalScript(i)));
-	for (int i = 0; i < room->getNumberOfCostumes(); i++)
-		_costs.push_back(new COST(room->getCostume(i)));
-	for (int i = 0; i < room->getNumberOfCharsets(); i++)
-		_chars.push_back(new CHAR(room->getCharset(i)));
+	_room = new ROOM(game->getRoom(roomIndex));
+	if (game->getRoom(roomIndex)->getID() == 1)
+		for (int i = 0; i < game->getNumberOfScripts(); i++)
+			_scrps.push_back(new SCRP(game->getScript(i)));
+	for (int i = 0; i < game->getRoom(roomIndex)->getNumberOfCostumes(); i++)
+		_costs.push_back(new COST(game->getRoom(roomIndex)->getCostume(i)));
+	if (game->getRoom(roomIndex)->getID() == 1)
+		for (int i = 0; i < game->getNumberOfCharsets(); i++)
+			_chars.push_back(new CHAR(game->getCharset(i)));
 }
 
 uint32_t LFLF::getSize()

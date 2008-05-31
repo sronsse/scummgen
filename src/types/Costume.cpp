@@ -5,6 +5,15 @@
 #include "util/XMLFile.hpp"
 
 const int Costume::N_LIMBS = 16;
+vector<Costume *> Costume::_instances;
+
+Costume *Costume::getInstanceFromName(string costumeName)
+{
+	for (int i = 0; i < _instances.size(); i++)
+		if (_instances[i]->getName() == costumeName)
+			return _instances[i];
+	return NULL;
+}
 
 Limb::Limb(XMLNode *node)
 {
@@ -104,10 +113,17 @@ Costume::Costume(string dirName)
 	Log::getInstance().write("Costume\n");
 	Log::getInstance().indent();
 
+	_instances.push_back(this);
+
+	int posB = dirName.find_last_of('/') - 1;
+	int posA = dirName.find_last_of('/', posB) + 1;
+	_name = dirName.substr(posA, posB + 1 - posA);
+	Log::getInstance().write("name: %s\n", _name.c_str());
+
 	XMLFile xmlFile(dirName + "costume.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_id = rootNode->getChild("id")->getIntegerContent();
+	_id = _instances.size();
 	Log::getInstance().write("id: %d\n", _id);
 
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
@@ -165,8 +181,7 @@ Costume::~Costume()
 {
 	for (int i = 0; i < _anims.size(); i++)
 		delete _anims[i];
-
 	for (int i = 0; i < _frames.size(); i++)
 		delete _frames[i];
-};
+}
 

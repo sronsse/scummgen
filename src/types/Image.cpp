@@ -31,13 +31,10 @@ ZPlane::~ZPlane()
 {
 }
 
-Image::Image(string dirName, string fileName, bool bomp, uint16_t nZPlanes)
+Image::Image(string dirName, string fileName, uint16_t nZPlanes)
 {
 	Log::getInstance().write("Image\n");
 	Log::getInstance().indent();
-
-	_bomp = bomp;
-	Log::getInstance().write("bomp: %s\n", bomp ? "true" : "false");
 
 	BMPFile bmpFile(dirName + fileName);
 

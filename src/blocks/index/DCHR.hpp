@@ -7,7 +7,7 @@
 using namespace std;
 
 class Game;
-class LECF;
+class LFLF;
 
 class DCHR
 {
@@ -18,7 +18,7 @@ private:
 
 	uint32_t getSize();
 public:
-	DCHR(Game *game, LECF *lecf);
+	DCHR(Game *game, LFLF *lflf);
 	void write(ofstream &f);
 	~DCHR();
 };
