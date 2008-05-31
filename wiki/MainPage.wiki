@@ -1,0 +1,12 @@
+#summary Main page
+
+Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use ScummGEN, explain its technical design and architecture, and show its advancement.
+
+----
+
+= Index =
+
+  * Introduction
+  * User guide
+  * Technical information
+  * Advancement
