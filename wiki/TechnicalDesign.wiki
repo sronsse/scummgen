@@ -1,0 +1,74 @@
+#summary Architecture of the project
+
+The following explains the design of ScummGEN.
+The project is divided into two sub-parts : the *editors* and the *assembler*.
+
+----
+
+= Editors =
+
+== Description ==
+
+Currently, no editor has been made. In the future, ScummGEN will have a set of editors which will allow the user to create a fully working SCUMM v6 game. Their role will be to easily create game contents and export them to a folder which will then be fed into the assembler described later.
+
+== Folder hierarchy ==
+
+The folder (which might turn into some tar-like file in the future) created by the set of editors is organized like this :
+
+ * *_game_*
+   * game.xml
+   * *charsets*
+     * charsets.xml
+     * *_charset_* {{{*}}}
+       * charset.xml
+       * charset.bmp
+   * *rooms*
+     * rooms.xml
+     * *_room_* {{{*}}}
+       * background.bmp
+       * map.xml
+       * palette.xml
+       * room.xml
+       * *costumes*
+         * costumes.xml
+         * *_costume_* {{{*}}}
+           * costume.xml
+           * frame{{{_}}}_xxx_.bmp {{{*}}}
+       * *objects*
+         * objects.xml
+         * *_object_* {{{*}}}
+           * object.xml
+           * verb.sgc
+           * *images*
+             * images.xml
+             * *_image_* {{{*}}}
+               * image.bmp
+               * *zplanes*
+                 * zplane{{{_}}}_xxx_.bmp {{{*}}}
+       * *scripts*
+         * entry.sgc
+         * exit.sgc
+         * scripts.xml
+         * _script_.sgc {{{*}}}
+       * *zplanes*
+         * zplane{{{_}}}_xxx_.bmp {{{*}}}
+   * *scripts*
+     * scripts.xml
+     * _script_.sgc {{{*}}}
+   * *voices*
+     * voice.xml
+     * *_voice_* {{{*}}}
+       * voice.wav
+       * voice.xml
+
+= Assembler =
+
+== Description ==
+
+The assembler is presently the only piece of software available from the source repository.
+
+=== blocks ===
+
+=== types ===
+
+=== util ===
