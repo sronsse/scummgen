@@ -1,3 +1,5 @@
+#summary ScummGEN's wiki main page
+
 Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use ScummGEN, explain its architecture, and show its current development status.
 
 ----
