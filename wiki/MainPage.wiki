@@ -4,8 +4,8 @@ Welcome to the ScummGEN wiki. The goal of this wiki is to describe how to use Sc
 
 = Index =
 
-* Introduction
-* User guide
-* Technical design
-* Current status
-* Contact information
+ * Introduction
+ * User guide
+ * Technical design
+ * Current status
+ * Contact information
