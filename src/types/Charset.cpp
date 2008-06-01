@@ -74,7 +74,7 @@ Charset::Charset(string dirName)
 	Log::getInstance().write("id: %u\n", _id);
 
 	_fontHeight = rootNode->getChild("fontHeight")->getIntegerContent();
-	Log::getInstance().write("fontHeight: %u\n", _id);
+	Log::getInstance().write("fontHeight: %u\n", _fontHeight);
 
 	int i = 0;
 	XMLNode *child;

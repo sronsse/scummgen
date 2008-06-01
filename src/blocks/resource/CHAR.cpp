@@ -41,7 +41,7 @@ CHAR::CHAR(Charset *charset)
 		_offsets[charset->getChar(i)->getID()] += sizeof(uint8_t); // height
 		_offsets[charset->getChar(i)->getID()] += sizeof(int8_t); // xOffset
 		_offsets[charset->getChar(i)->getID()] += sizeof(int8_t); // yOffset
-		_offsets[charset->getChar(i)->getID()] += _dataBytes[i].size() * sizeof(uint8_t);
+		_offsets[charset->getChar(i)->getID()] += _dataBytes[i].size() * sizeof(uint8_t); // dataBytes
 	}
 }
 

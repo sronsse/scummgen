@@ -9,14 +9,14 @@ ENCD::ENCD(Script *script)
 	_bytes.push_back(0x00);
 
 	_bytes.push_back(0x01); // pushWord
-	_bytes.push_back(0xC8);
+	_bytes.push_back(0x90);
 	_bytes.push_back(0x00);
 
 	_bytes.push_back(0x9C);
 	_bytes.push_back(0xAE);
 
 	_bytes.push_back(0x01); // pushWord
-	_bytes.push_back(0x05);
+	_bytes.push_back(0xEF);
 	_bytes.push_back(0x00);
 
 	_bytes.push_back(0xB1);

@@ -6,20 +6,16 @@
 
 DSCR::DSCR(Game *game, LFLF *lflf)
 {
-	_nItems = 1;
-	for (int i = 0; i < game->getNumberOfScripts(); i++)
-		if (game->getScript(i)->getID() + 1 > _nItems)
-			_nItems = game->getScript(i)->getID() + 1;
-	for (int i = 0; i < _nItems; i++)
-	{
-		_ids.push_back(0);
-		_offsets.push_back(0);
-	}
+	_ids.push_back(0);
+	_offsets.push_back(0);
+
 	for (int i = 0; i < game->getNumberOfScripts(); i++)
 	{
-		_ids[game->getScript(i)->getID()] = game->getScript(i)->getID();
-		_offsets[game->getScript(i)->getID()] = lflf->getSCRPOffset(i);
+		_ids.push_back(game->getScript(i)->getID());
+		_offsets.push_back(lflf->getSCRPOffset(i));
 	}
+
+	_nItems = _ids.size();
 }
 
 uint32_t DSCR::getSize()
@@ -28,8 +24,8 @@ uint32_t DSCR::getSize()
 	size += 4 * sizeof(uint8_t); // identifier
 	size += sizeof(uint32_t); // size
 	size += sizeof(uint16_t); // nItems
-	size += _nItems * sizeof(uint8_t); // ids
-	size += _nItems * sizeof(uint32_t); // offsets
+	size += _ids.size() * sizeof(uint8_t); // ids
+	size += _offsets.size() * sizeof(uint32_t); // offsets
 	return size;
 }
 

@@ -15,7 +15,7 @@ Object *Object::getInstanceFromName(string objectName)
 	return NULL;
 }
 
-Object::Object(string dirName, uint32_t nZPlanes)
+Object::Object(string dirName)
 {
 	XMLFile xmlFile(dirName + "object.xml");
 	XMLNode *node = xmlFile.getRootNode();
@@ -33,9 +33,6 @@ Object::Object(string dirName, uint32_t nZPlanes)
 	_id = _instances.size();
 	Log::getInstance().write("id: %u\n", _id);
 
-	uint16_t nImages = node->getChild("nImages")->getIntegerContent();
-	Log::getInstance().write("nImages: %u\n", nImages);
-
 	_imageX = node->getChild("imageX")->getIntegerContent();
 	Log::getInstance().write("imageX: %u\n", _imageX);
 
@@ -50,7 +47,6 @@ Object::Object(string dirName, uint32_t nZPlanes)
 	i = 0;
 	while ((child = node->getChild("hotspotY", i++)) != NULL)
 		_hotspotYs.push_back(child->getIntegerContent());
-
 	
 	for (i = 0; i < _hotspotXs.size(); i++)
 	{
@@ -60,6 +56,9 @@ Object::Object(string dirName, uint32_t nZPlanes)
 
 	_x = node->getChild("x")->getIntegerContent();
 	Log::getInstance().write("x: %u\n", _x);
+
+	uint16_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
+	Log::getInstance().write("nZPlanes: %u\n", nZPlanes);
 
 	_y = node->getChild("y")->getIntegerContent();
 	Log::getInstance().write("y: %u\n", _y);
@@ -82,12 +81,24 @@ Object::Object(string dirName, uint32_t nZPlanes)
 	_classData = node->getChild("classData")->getIntegerContent();
 	Log::getInstance().write("classData: %u\n", _classData);
 
-	for (int i = 0; i < nImages; i++)
-		_images.push_back(new Image(dirName + "images/image_" + IO::getStringFromIndex(i, 3) + "/", "image.bmp", nZPlanes));
-
+	loadImages(dirName + "images/", nZPlanes);
 	_script = new Script(dirName + "verb" + Script::EXTENSION);
 
 	Log::getInstance().unIndent();
+}
+
+void Object::loadImages(string dirName, uint16_t nZPlanes)
+{
+	XMLFile xmlFile(dirName + "images.xml");
+	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+		return;
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("image", i++)) != NULL)
+		_images.push_back(new Image(dirName + child->getStringContent() + "/", "image.bmp", nZPlanes));
 }
 
 Object::~Object()
