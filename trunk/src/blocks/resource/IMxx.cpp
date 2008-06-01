@@ -9,7 +9,7 @@ IMxx::IMxx(Image *image, uint8_t index)
 	_index = index;
 	_smap = new SMAP(image);
 	for (int i = 0; i < image->getNumberOfZPlanes(); i++)
-		_zpxxs[i] = new ZPxx(image->getZPlane(i), i + 1);
+		_zpxxs.push_back(new ZPxx(image->getZPlane(i), i + 1));
 }
 
 uint32_t IMxx::getSize()

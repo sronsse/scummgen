@@ -37,12 +37,12 @@ Room::Room(string dirName)
 	_name = dirName.substr(posA, posB + 1 - posA);
 	Log::getInstance().write("name: %s\n", _name.c_str());
 	
-	uint32_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
+	uint16_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
 	Log::getInstance().write("nZPlanes: %u\n", nZPlanes);
 
 	_background = new Image(dirName, "background.bmp", nZPlanes);
 	_palette = new Palette(dirName);
-	loadObjects(dirName + "objects/", nZPlanes);
+	loadObjects(dirName + "objects/");
 	_map = new Map(dirName);
 	_entryScript = new Script(dirName + "scripts/entry" + Script::EXTENSION);
 	_exitScript = new Script(dirName + "scripts/exit" + Script::EXTENSION);
@@ -52,21 +52,27 @@ Room::Room(string dirName)
 	Log::getInstance().unIndent();
 }
 
-void Room::loadObjects(string dirName, uint32_t nZPlanes)
+void Room::loadObjects(string dirName)
 {
 	XMLFile xmlFile(dirName + "objects.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
+	if (node == NULL)
+		return;
+
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
-		_objects.push_back(new Object(dirName + child->getStringContent() + "/", nZPlanes));
+		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
 }
 
 void Room::loadScripts(string dirName)
 {
 	XMLFile xmlFile(dirName + "scripts.xml");
 	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+		return;
 
 	int i = 0;
 	XMLNode *child;
@@ -78,6 +84,9 @@ void Room::loadCostumes(string dirName)
 {
 	XMLFile xmlFile(dirName + "costumes.xml");
 	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+		return;
 
 	int i = 0;
 	XMLNode *child;

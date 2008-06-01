@@ -11,8 +11,8 @@ class Palette;
 class Object;
 class Map;
 class Script;
+class Sound;
 class Costume;
-class Charset;
 
 class Room
 {
@@ -28,9 +28,10 @@ private:
 	Script *_entryScript;
 	Script *_exitScript;
 	vector<Script *> _scripts;
+	vector<Sound *> _sounds;
 	vector<Costume *> _costumes;
 
-	void loadObjects(string dirName, uint32_t nZPlanes);
+	void loadObjects(string dirName);
 	void loadScripts(string dirName);
 	void loadCostumes(string dirName);
 public:
@@ -41,15 +42,17 @@ public:
 	string getName() { return _name; }
 	Image *getBackground() { return _background; }
 	Palette *getPalette() { return _palette; }
-	uint32_t getNumberOfObjects() { return _objects.size(); }
-	Object *getObject(uint32_t index) { return _objects[index]; }
+	uint16_t getNumberOfObjects() { return _objects.size(); }
+	Object *getObject(uint16_t index) { return _objects[index]; }
 	Map *getMap() { return _map; }
 	Script *getEntryScript() { return _entryScript; }
 	Script *getExitScript() { return _exitScript; }
-	uint32_t getNumberOfScripts() { return _scripts.size(); }
-	Script *getScript(uint32_t index) { return _scripts[index]; }
-	uint32_t getNumberOfCostumes() { return _costumes.size(); }
-	Costume *getCostume(uint32_t index) { return _costumes[index]; }
+	uint16_t getNumberOfScripts() { return _scripts.size(); }
+	Script *getScript(uint16_t index) { return _scripts[index]; }
+	uint16_t getNumberOfSounds() { return _sounds.size(); }
+	Sound *getSound(uint16_t index) { return _sounds[index]; }
+	uint16_t getNumberOfCostumes() { return _costumes.size(); }
+	Costume *getCostume(uint16_t index) { return _costumes[index]; }
 	~Room();
 };
 

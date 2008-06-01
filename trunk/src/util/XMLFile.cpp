@@ -1,10 +1,10 @@
 #include "XMLFile.hpp"
 #include <libxml/parser.h>
 
-XMLNode::XMLNode(string name, string content):
-_name(name),
-_content(content)
+XMLNode::XMLNode(string name, string content)
 {
+	_name = name;
+	_content = content;
 }
 
 XMLNode *XMLNode::getChild(string name)
@@ -32,21 +32,20 @@ XMLNode::~XMLNode()
 		delete _children.at(i);
 }
 
-XMLFile::XMLFile(string fileName):
-_rootNode(NULL)
+XMLFile::XMLFile(string fileName)
 {
+	_rootNode = NULL;
+
 	LIBXML_TEST_VERSION
 
 	xmlDocPtr doc = xmlParseFile(fileName.c_str());
 	if (doc == NULL)
-		return;
-
-	xmlNode *rootNode = xmlDocGetRootElement(doc);
-	if (!rootNode || !rootNode->name) 
 	{
-     	xmlFreeDoc(doc);
+		xmlCleanupParser();
 		return;
 	}
+
+	xmlNode *rootNode = xmlDocGetRootElement(doc);
 
 	// Parsing the root node and filling our own data types
 	parse(_rootNode, rootNode);
@@ -74,6 +73,7 @@ void XMLFile::parse(XMLNode *&destNode, xmlNode *srcNode)
 
 XMLFile::~XMLFile()
 {
-	delete _rootNode;
+	if (_rootNode != NULL)
+		delete _rootNode;
 }
 

@@ -12,7 +12,7 @@ class LECF;
 class DSOU
 {
 private:
-	uint32_t _nItems;
+	uint16_t _nItems;
 	vector<uint8_t> _ids;
 	vector<uint32_t> _offsets;
 

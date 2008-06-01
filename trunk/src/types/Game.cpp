@@ -34,6 +34,9 @@ void Game::loadRooms(string dirName)
 	XMLFile xmlFile(dirName + "rooms.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
+	if (node == NULL)
+		return;
+
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("room", i++)) != NULL)
@@ -44,6 +47,9 @@ void Game::loadScripts(string dirName)
 {
 	XMLFile xmlFile(dirName + "scripts.xml");
 	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+		return;
 
 	int i = 0;
 	XMLNode *child;
@@ -56,6 +62,9 @@ void Game::loadCharsets(string dirName)
 	XMLFile xmlFile(dirName + "charsets.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
+	if (node == NULL)
+		return;
+
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("charset", i++)) != NULL)
@@ -66,6 +75,9 @@ void Game::loadVoices(string dirName)
 {
 	XMLFile xmlFile(dirName + "voices.xml");
 	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+		return;
 
 	int i = 0;
 	XMLNode *child;
@@ -81,6 +93,7 @@ Game::~Game()
 		delete _scripts[i];
 	for (int i = 0; i < _charsets.size(); i++)
 		delete _charsets[i];
-	for (int i = 0; i < _rooms.size(); i++)
+	for (int i = 0; i < _voices.size(); i++)
 		delete _voices[i];
 }
+

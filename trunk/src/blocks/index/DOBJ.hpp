@@ -11,12 +11,8 @@ class Game;
 class DOBJ
 {
 private:
-	static const uint8_t N_CHARS;
-
-	uint32_t _nObjects;
-	vector<string> _objectNames;
-	vector<uint8_t> _objectStates;
-	vector<uint8_t> _objectRooms;
+	uint16_t _nItems;
+	vector<uint8_t> _ownersAndStates;
 	vector<uint32_t> _classData;
 
 	uint32_t getSize();

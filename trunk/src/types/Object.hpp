@@ -30,10 +30,12 @@ private:
 	uint8_t _actorDir;
 	Script *_script;	
 	uint32_t _classData;
+
+	void loadImages(string dirName, uint16_t nZPlanes);
 public:
 	static Object *getInstanceFromName(string objectName);
 
-	Object(string dirName, uint32_t nZPlanes);
+	Object(string dirName);
 	string getName() { return _name; }
 	uint16_t getID() { return _id; }
 	uint16_t getNumberOfImages() { return _images.size(); }

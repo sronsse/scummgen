@@ -18,7 +18,7 @@ MAXS::MAXS(Game *game)
 	_nInventories = 80;
 	_nRooms = game->getNumberOfRooms() + 1;
 	_nScripts = 2;
-	_nSounds = 0;
+	_nSounds = 1;
 	_nCharsets = 5;
 	_nCostumes = 1;
 	_nGlobalObjects = 1;

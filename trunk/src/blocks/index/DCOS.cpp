@@ -8,22 +8,17 @@
 
 DCOS::DCOS(Game *game, LECF *lecf)
 {
-	_nItems = 1;
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfCostumes(); j++)
-			if (game->getRoom(i)->getCostume(j)->getID() + 1 > _nItems)
-				_nItems = game->getRoom(i)->getCostume(j)->getID() + 1;
-	for (int i = 0; i < _nItems; i++)
-	{
-		_ids.push_back(0);
-		_offsets.push_back(0);
-	}
+	_ids.push_back(0);
+	_offsets.push_back(0);
+
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		for (int j = 0; j < game->getRoom(i)->getNumberOfCostumes(); j++)
 		{
-			_ids[game->getRoom(i)->getCostume(j)->getID()] = game->getRoom(i)->getCostume(j)->getID();
-			_offsets[game->getRoom(i)->getCostume(j)->getID()] = 0;//lecf->getLFLF(i)->getCOSTOffset(j);
+			_ids.push_back(game->getRoom(i)->getCostume(j)->getID());
+			_offsets.push_back(lecf->getLFLF(i)->getCOSTOffset(j));
 		}
+
+	_nItems = _ids.size();
 }
 
 uint32_t DCOS::getSize()
@@ -31,9 +26,9 @@ uint32_t DCOS::getSize()
 	uint32_t size = 0;
 	size += 4 * sizeof(uint8_t); // identifier
 	size += sizeof(uint32_t); // size
-	size += sizeof(uint32_t); // nItems
-	size += _nItems * sizeof(uint8_t); // ids
-	size += _nItems * sizeof(uint32_t); // offsets
+	size += sizeof(uint16_t); // nItems
+	size += _ids.size() * sizeof(uint8_t); // ids
+	size += _offsets.size() * sizeof(uint32_t); // offsets
 	return size;
 }
 

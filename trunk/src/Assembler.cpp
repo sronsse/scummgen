@@ -19,10 +19,11 @@ const uint8_t Assembler::MAJOR_VERSION = 0;
 const uint8_t Assembler::MINOR_VERSION = 1;
 const char Assembler::VERSION_TYPE = 'a';
 
-Assembler::Assembler(Game *game, string outputDirName):
-_game(game),
-_outputDirName(outputDirName)
+Assembler::Assembler(Game *game, string outputDirName)
 {
+	_game = game;
+	_outputDirName = outputDirName;
+
 	writeResourceFile();
 	writeIndexFile();
 	writeVoiceFile();
@@ -34,7 +35,7 @@ void Assembler::writeIndexFile()
 	_maxs = new MAXS(_game);
 	_droo = new DROO(_game);
 	_dscr = new DSCR(_game, _lecf->getLFLF(0));
-	//_dsou = new DSOU(_game, _lecf);
+	_dsou = new DSOU(_game, _lecf);
 	_dcos = new DCOS(_game, _lecf);
 	_dchr = new DCHR(_game, _lecf->getLFLF(0));
 	_dobj = new DOBJ(_game);
@@ -45,7 +46,7 @@ void Assembler::writeIndexFile()
 	_maxs->write(indexFile);
 	_droo->write(indexFile);
 	_dscr->write(indexFile);
-	//_dsou->write(indexFile);
+	_dsou->write(indexFile);
 	_dcos->write(indexFile);
 	_dchr->write(indexFile);
 	_dobj->write(indexFile);
@@ -64,11 +65,14 @@ void Assembler::writeResourceFile()
 
 void Assembler::writeVoiceFile()
 {
-	_sou = new SOU(_game);
-	string voiceFileName = _outputDirName + VOICE_FILE_NAME;
-	ofstream voiceFile(voiceFileName.c_str(), ios::out | ios::binary);
-	_sou->write(voiceFile);
-	voiceFile.close();
+	if (_game->getNumberOfVoices() > 0)
+	{
+		_sou = new SOU(_game);
+		string voiceFileName = _outputDirName + VOICE_FILE_NAME;
+		ofstream voiceFile(voiceFileName.c_str(), ios::out | ios::binary);
+		_sou->write(voiceFile);
+		voiceFile.close();
+	}
 }
 
 Assembler::~Assembler()
@@ -77,12 +81,13 @@ Assembler::~Assembler()
 	delete _maxs;
 	delete _droo;
 	delete _dscr;
-	//delete _dsou;
+	delete _dsou;
 	delete _dcos;
 	delete _dchr;
 	delete _dobj;
 	//delete _aary;
 	delete _lecf;
-	delete _sou;
+	if (_game->getNumberOfVoices() > 0)
+		delete _sou;
 }
 
