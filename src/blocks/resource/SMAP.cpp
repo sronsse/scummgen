@@ -16,7 +16,10 @@ SMAP::SMAP(Image *image)
 				strip.push_back(image->getPixel(i * STRIP_WIDTH + k, j));
 		_strips.push_back(strip);
 	}
-	uint32_t firstOffset = 4 * sizeof(uint8_t) + sizeof(uint32_t) + _strips.size() * sizeof(uint32_t);
+	uint32_t firstOffset = 0;
+	firstOffset += 4 * sizeof(uint8_t); // identifier
+	firstOffset += sizeof(uint32_t); // size
+	firstOffset += _strips.size() * sizeof(uint32_t); // offsets
 	_offsets.push_back(firstOffset);
 	for (int i = 1; i < _strips.size(); i++)
 		_offsets.push_back(_offsets[i - 1] + _strips[i - 1].size());
