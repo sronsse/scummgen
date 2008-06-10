@@ -14,6 +14,9 @@ private:
 	vector<vector<uint8_t> > _pixels;
 public:
 	ZPlane(string fileName);
+	uint16_t getWidth() { return _width; }
+	uint16_t getHeight() { return _height; }
+	uint8_t getPixel(uint32_t x, uint32_t y) { return _pixels[x][y]; }
 	~ZPlane();
 };
 

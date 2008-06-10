@@ -26,12 +26,15 @@ Voice::Voice(string dirName)
 	XMLFile xmlFile(dirName + "voice.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("syncTime", i++)) != NULL)
+	if (node != NULL)
 	{
-		_syncTimes.push_back(child->getIntegerContent());
-		Log::getInstance().write("syncTime: %u\n", _syncTimes[_syncTimes.size() - 1]);
+		int i = 0;
+		XMLNode *child;
+		while ((child = node->getChild("syncTime", i++)) != NULL)
+		{
+			_syncTimes.push_back(child->getIntegerContent());
+			Log::getInstance().write("syncTime: %u\n", _syncTimes[i - 1]);
+		}
 	}
 
 	loadWAV(dirName + "voice.wav");
@@ -68,6 +71,7 @@ void Voice::loadWAV(string fileName)
 	// Only PCM is supported
 	if (audioFormat != 1)
 	{
+		Log::getInstance().write("Audio format not supported !\n");
 		file.close();
 		return;
 	}
@@ -88,6 +92,7 @@ void Voice::loadWAV(string fileName)
 	// Only 8bit is supported
 	if (bitsPerSample != 8)
 	{
+		Log::getInstance().write("Bits per sample not supported !\n");
 		file.close();
 		return;
 	}
@@ -110,3 +115,4 @@ void Voice::loadWAV(string fileName)
 Voice::~Voice()
 {
 }
+

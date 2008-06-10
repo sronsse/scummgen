@@ -14,7 +14,6 @@ private:
 	static const uint8_t STRIP_WIDTH;
 	static const uint8_t CID_NO_COMPRESSION;
 
-	uint16_t _nStrips;
 	uint16_t _height;
 	vector<vector<uint8_t> > _strips;
 	vector<uint32_t> _offsets;
