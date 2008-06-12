@@ -54,7 +54,7 @@ void Game::loadScripts(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("script", i++)) != NULL)
-		_scripts.push_back(new Script(dirName + child->getStringContent() + Script::EXTENSION));
+		_scripts.push_back(new Script(dirName + child->getStringContent() + Script::EXTENSION, Script::TYPE_GLOBAL));
 }
 
 void Game::loadCharsets(string dirName)

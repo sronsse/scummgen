@@ -11,6 +11,7 @@ class Script;
 class LSCR
 {
 private:
+	uint8_t _index;
 	vector<uint8_t> _bytes;
 public:
 	LSCR(Script *script);
