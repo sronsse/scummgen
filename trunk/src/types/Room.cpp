@@ -44,8 +44,8 @@ Room::Room(string dirName)
 	_palette = new Palette(dirName);
 	loadObjects(dirName + "objects/");
 	_map = new Map(dirName);
-	_entryScript = new Script(dirName + "scripts/entry" + Script::EXTENSION);
-	_exitScript = new Script(dirName + "scripts/exit" + Script::EXTENSION);
+	_entryScript = new Script(dirName + "scripts/entry" + Script::EXTENSION, Script::TYPE_OTHER);
+	_exitScript = new Script(dirName + "scripts/exit" + Script::EXTENSION, Script::TYPE_OTHER);
 	loadScripts(dirName + "scripts/");
 	loadCostumes(dirName + "costumes/");
 
@@ -77,7 +77,7 @@ void Room::loadScripts(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("script", i++)) != NULL)
-		_scripts.push_back(new Script(dirName + child->getStringContent() + Script::EXTENSION));
+		_scripts.push_back(new Script(dirName + child->getStringContent() + Script::EXTENSION, Script::TYPE_LOCAL));
 }
 
 void Room::loadCostumes(string dirName)

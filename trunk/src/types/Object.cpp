@@ -82,7 +82,7 @@ Object::Object(string dirName)
 	Log::getInstance().write("classData: %u\n", _classData);
 
 	loadImages(dirName + "images/", nZPlanes);
-	_script = new Script(dirName + "verb" + Script::EXTENSION);
+	_script = new Script(dirName + "verb" + Script::EXTENSION, Script::TYPE_OTHER);
 
 	Log::getInstance().unIndent();
 }
