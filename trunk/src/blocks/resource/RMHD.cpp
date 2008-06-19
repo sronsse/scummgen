@@ -21,7 +21,7 @@ uint32_t RMHD::getSize()
 	return size;
 }
 
-void RMHD::write(ofstream &f)
+void RMHD::write(fstream &f)
 {
 	IO::writeString(f, "RMHD");
 	IO::writeU32BE(f, getSize());

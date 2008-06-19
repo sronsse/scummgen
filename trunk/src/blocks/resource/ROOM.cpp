@@ -62,7 +62,7 @@ uint32_t ROOM::getSize()
 	return size;
 }
 
-void ROOM::write(ofstream &f)
+void ROOM::write(fstream &f)
 {
 	IO::writeString(f, "ROOM");
 	IO::writeU32BE(f, getSize());

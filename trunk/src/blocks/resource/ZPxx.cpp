@@ -47,7 +47,7 @@ uint32_t ZPxx::getSize()
 	return size;
 }
 
-void ZPxx::write(ofstream &f)
+void ZPxx::write(fstream &f)
 {
 	IO::writeString(f, "ZP" + IO::getStringFromIndex(_index, 2));
 	IO::writeU32BE(f, getSize());

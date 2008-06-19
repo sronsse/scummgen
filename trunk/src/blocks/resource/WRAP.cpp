@@ -20,7 +20,7 @@ uint32_t WRAP::getSize()
 	return size;
 }
 
-void WRAP::write(ofstream &f)
+void WRAP::write(fstream &f)
 {
 	IO::writeString(f, "WRAP");
 	IO::writeU32BE(f, getSize());

@@ -1,6 +1,6 @@
 #include "IO.hpp"
 
-string IO::readString(ifstream &f, uint8_t length)
+string IO::readString(fstream &f, uint8_t length)
 {
 	string s(length, 0); 
 	for (int i = 0; i < length; i++)
@@ -8,21 +8,21 @@ string IO::readString(ifstream &f, uint8_t length)
 	return s;
 }
 
-uint8_t IO::readU8(ifstream &f)
+uint8_t IO::readU8(fstream &f)
 {
 	uint8_t u8;
 	f.read((char *)&u8, 1);
 	return u8;
 }
 
-uint16_t IO::readU16LE(ifstream &f)
+uint16_t IO::readU16LE(fstream &f)
 {
 	uint16_t u16;
 	f.read((char *)&u16, 2);
 	return u16;
 }
 
-uint16_t IO::readU16BE(ifstream &f)
+uint16_t IO::readU16BE(fstream &f)
 {
 	uint16_t u16;
 	uint8_t u8;
@@ -33,14 +33,14 @@ uint16_t IO::readU16BE(ifstream &f)
 	return u16;
 }
 
-uint32_t IO::readU32LE(ifstream &f)
+uint32_t IO::readU32LE(fstream &f)
 {
 	uint32_t u32;
 	f.read((char *)&u32, 4);
 	return u32;
 }
 
-uint32_t IO::readU32BE(ifstream &f)
+uint32_t IO::readU32BE(fstream &f)
 {
 	uint32_t u32;
 	uint8_t u8;
@@ -55,7 +55,7 @@ uint32_t IO::readU32BE(ifstream &f)
 	return u32;
 }
 
-uint8_t IO::readBits(ifstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
+uint8_t IO::readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
 {
 	uint8_t result = 0;
 	for (int i = 0; i < nBits; i++)
@@ -69,23 +69,23 @@ uint8_t IO::readBits(ifstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
 	return result;
 }
 
-void IO::writeString(ofstream &f, string s)
+void IO::writeString(fstream &f, string s)
 {
 	for (int i = 0; i < s.length(); i++)
 		f.write(&s[i], 1);
 }
 
-void IO::writeU8(ofstream &f, uint8_t data)
+void IO::writeU8(fstream &f, uint8_t data)
 {
 	f.write((char *)&data, 1);
 }
 
-void IO::writeU16LE(ofstream &f, uint16_t data)
+void IO::writeU16LE(fstream &f, uint16_t data)
 {
 	f.write((char *)&data, 2);
 }
 
-void IO::writeU16BE(ofstream &f, uint16_t data)
+void IO::writeU16BE(fstream &f, uint16_t data)
 {
 	uint8_t u8;
 	u8 = data >> 8;
@@ -94,7 +94,7 @@ void IO::writeU16BE(ofstream &f, uint16_t data)
 	f.write((char *)&u8, 1);
 }
 
-void IO::writeU24LE(ofstream &f, uint32_t data)
+void IO::writeU24LE(fstream &f, uint32_t data)
 {
 	uint8_t u8;
 	u8 = data;
@@ -105,7 +105,7 @@ void IO::writeU24LE(ofstream &f, uint32_t data)
 	f.write((char *)&u8, 1);
 }
 
-void IO::writeU24BE(ofstream &f, uint32_t data)
+void IO::writeU24BE(fstream &f, uint32_t data)
 {
 	uint8_t u8;
 	u8 = data >> 16;
@@ -116,12 +116,12 @@ void IO::writeU24BE(ofstream &f, uint32_t data)
 	f.write((char *)&u8, 1);
 }
 
-void IO::writeU32LE(ofstream &f, uint32_t data)
+void IO::writeU32LE(fstream &f, uint32_t data)
 {
 	f.write((char *)&data, 4);
 }
 
-void IO::writeU32BE(ofstream &f, uint32_t data)
+void IO::writeU32BE(fstream &f, uint32_t data)
 {
 	uint8_t u8;
 	u8 = data >> 24;

@@ -35,7 +35,7 @@ uint32_t LFLF::getSize()
 	return size;
 }
 
-void LFLF::write(ofstream &f)
+void LFLF::write(fstream &f)
 {
 	IO::writeString(f, "LFLF");
 	IO::writeU32BE(f, getSize());

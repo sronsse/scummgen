@@ -21,6 +21,9 @@ Game::Game(string dirName)
 	_shortName = node->getChild("shortName")->getStringContent();
 	Log::getInstance().write("shortName: %s\n", _shortName.c_str());
 
+	_key = node->getChild("key")->getIntegerContent();
+	Log::getInstance().write("key: %02x\n", _key);
+
 	loadRooms(dirName + "rooms/");
 	loadScripts(dirName + "scripts/");
 	loadCharsets(dirName + "charsets/");

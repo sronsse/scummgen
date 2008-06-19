@@ -4,6 +4,14 @@
 
 SCRP::SCRP(Script *script)
 {
+	script->asm_printDebug();
+	script->asm_print_textstring(script->getName());
+	script->asm_pushWord(0x0105);
+	script->asm_roomOps();
+	script->asm_roomOps_roomFade();
+	for (int i = 0; i < script->getNumberOfBytes(); i++)
+		_bytes.push_back(script->getByte(i));
+
 	_bytes.push_back(0x01); // pushWord
 	_bytes.push_back(0x01);
 	_bytes.push_back(0x00);
@@ -15,30 +23,6 @@ SCRP::SCRP(Script *script)
 	_bytes.push_back(0x05);
 
 	_bytes.push_back(0xB1);
-
-	/*_bytes.push_back(0x01); // push
-	_bytes.push_back(0x01);
-	_bytes.push_back(0x00);
-	_bytes.push_back(0x00);
-	_bytes.push_back(0x00);
-
-	_bytes.push_back(0x9D); // loadRoom
-
-	_bytes.push_back(0x01); // push
-	_bytes.push_back(0x01);
-	_bytes.push_back(0x00);
-	_bytes.push_back(0x00);
-	_bytes.push_back(0x00);
-
-	_bytes.push_back(0xAF); // startSound
-
-	_bytes.push_back(0x01); // push
-	_bytes.push_back(0x0A);
-	_bytes.push_back(0x0B);
-	_bytes.push_back(0x0C);
-	_bytes.push_back(0x0D);
-
-	_bytes.push_back(0x6A); // delay*/
 }
 
 uint32_t SCRP::getSize()
@@ -50,7 +34,7 @@ uint32_t SCRP::getSize()
 	return size;
 }
 
-void SCRP::write(ofstream &f)
+void SCRP::write(fstream &f)
 {
 	IO::writeString(f, "SCRP");
 	IO::writeU32BE(f, getSize());

@@ -17,7 +17,7 @@ private:
 public:
 	RMIM(Image *roomImage);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~RMIM();
 };
 

@@ -34,7 +34,7 @@ uint32_t CYCL::getSize()
 	return size;
 }
 
-void CYCL::write(ofstream &f)
+void CYCL::write(fstream &f)
 {
 	IO::writeString(f, "CYCL");
 	IO::writeU32BE(f, getSize());

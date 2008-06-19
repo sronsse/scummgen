@@ -29,7 +29,7 @@ uint32_t DSCR::getSize()
 	return size;
 }
 
-void DSCR::write(ofstream &f)
+void DSCR::write(fstream &f)
 {
 	IO::writeString(f, "DSCR");
 	IO::writeU32BE(f, getSize());

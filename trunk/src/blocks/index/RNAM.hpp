@@ -21,7 +21,7 @@ private:
 	uint32_t getSize();
 public:
 	RNAM(Game *game);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~RNAM();
 };
 

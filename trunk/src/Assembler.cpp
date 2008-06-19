@@ -1,4 +1,5 @@
 #include "Assembler.hpp"
+#include "util/IO.hpp"
 #include "types/Game.hpp"
 #include "blocks/index/RNAM.hpp"
 #include "blocks/index/MAXS.hpp"
@@ -31,6 +32,7 @@ Assembler::Assembler(Game *game, string outputDirName)
 
 void Assembler::writeIndexFile()
 {
+	// Create and write the index file contents
 	_rnam = new RNAM(_game);
 	_maxs = new MAXS(_game);
 	_droo = new DROO(_game);
@@ -41,7 +43,7 @@ void Assembler::writeIndexFile()
 	_dobj = new DOBJ(_game);
 	//_aary = new AARY(indexFile);
 	string indexFileName = _outputDirName + _game->getShortName() + INDEX_FILE_EXTENSION;
-	ofstream indexFile(indexFileName.c_str(), ios::out | ios::binary);
+	fstream indexFile(indexFileName.c_str(), ios::in | ios::out | ios::binary | ios::trunc);
 	_rnam->write(indexFile);
 	_maxs->write(indexFile);
 	_droo->write(indexFile);
@@ -51,25 +53,51 @@ void Assembler::writeIndexFile()
 	_dchr->write(indexFile);
 	_dobj->write(indexFile);
 	//_aary->write(indexFile);
+
+	// Encrypt the file
+	uint32_t fileSize = indexFile.tellp();
+	uint8_t byte;
+	for (int i = 0; i < fileSize; i++)
+	{
+		indexFile.seekg(i, ios::beg);
+		byte = IO::readU8(indexFile);
+		indexFile.seekp(i, ios::beg);
+		IO::writeU8(indexFile, byte ^ _game->getKey());
+	}
+
 	indexFile.close();
 }
 
 void Assembler::writeResourceFile()
 {
+	// Create and write the resource file contents
 	_lecf = new LECF(_game);
 	string resourceFileName = _outputDirName + _game->getShortName() + RESOURCE_FILE_EXTENSION;
-	ofstream resourceFile(resourceFileName.c_str(), ios::out | ios::binary);
+	fstream resourceFile(resourceFileName.c_str(), ios::in | ios::out | ios::binary | ios::trunc);
 	_lecf->write(resourceFile);
+
+	// Encrypt the file
+	uint32_t fileSize = resourceFile.tellp();
+	uint8_t byte;
+	for (int i = 0; i < fileSize; i++)
+	{
+		resourceFile.seekg(i, ios::beg);
+		byte = IO::readU8(resourceFile);
+		resourceFile.seekp(i, ios::beg);
+		IO::writeU8(resourceFile, byte ^ _game->getKey());
+	}
+
 	resourceFile.close();
 }
 
 void Assembler::writeVoiceFile()
 {
+	// Create and write the voice file contents only if necessary
 	if (_game->getNumberOfVoices() > 0)
 	{
 		_sou = new SOU(_game);
 		string voiceFileName = _outputDirName + VOICE_FILE_NAME;
-		ofstream voiceFile(voiceFileName.c_str(), ios::out | ios::binary);
+		fstream voiceFile(voiceFileName.c_str(), ios::out | ios::binary | ios::trunc);
 		_sou->write(voiceFile);
 		voiceFile.close();
 	}

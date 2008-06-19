@@ -23,7 +23,7 @@ private:
 public:
 	VOC(Voice *voice);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~VOC();
 };
 

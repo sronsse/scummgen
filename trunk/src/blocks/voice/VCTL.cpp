@@ -17,7 +17,7 @@ uint32_t VCTL::getSize()
 	return size;
 }
 
-void VCTL::write(ofstream &f)
+void VCTL::write(fstream &f)
 {
 	IO::writeString(f, "VCTL");
 	IO::writeU32BE(f, getSize());

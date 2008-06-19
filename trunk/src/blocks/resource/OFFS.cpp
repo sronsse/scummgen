@@ -23,7 +23,7 @@ uint32_t OFFS::getSize()
 	return size;
 }
 
-void OFFS::write(ofstream &f)
+void OFFS::write(fstream &f)
 {
 	IO::writeString(f, "OFFS");
 	IO::writeU32BE(f, getSize());

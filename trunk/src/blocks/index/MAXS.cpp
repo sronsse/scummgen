@@ -17,7 +17,7 @@ MAXS::MAXS(Game *game)
 	_nFlObjects = 5;
 	_nInventories = 80;
 	_nRooms = game->getNumberOfRooms() + 1;
-	_nScripts = 2;
+	_nScripts = 3;
 	_nSounds = 1;
 	_nCharsets = 5;
 	_nCostumes = 1;
@@ -51,7 +51,7 @@ uint32_t MAXS::getSize()
 	return size;
 }
 
-void MAXS::write(ofstream &f)
+void MAXS::write(fstream &f)
 {
 	IO::writeString(f, "MAXS");
 	IO::writeU32BE(f, getSize());

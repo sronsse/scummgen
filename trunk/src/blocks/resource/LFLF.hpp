@@ -30,7 +30,7 @@ public:
 	uint32_t getSCRPOffset(uint32_t index) { return _scrpOffsets[index]; }
 	uint32_t getCOSTOffset(uint32_t index) { return _costOffsets[index]; }
 	uint32_t getCHAROffset(uint32_t index) { return _charOffsets[index]; }
-	void write(ofstream &f);
+	void write(fstream &f);
 	~LFLF();
 };
 

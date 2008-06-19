@@ -17,7 +17,7 @@ private:
 	uint32_t getSize();
 public:
 	AARY(ifstream &f);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~AARY();
 };
 

@@ -38,7 +38,7 @@ uint32_t BOXM::getSize()
 	return size;
 }
 
-void BOXM::write(ofstream &f)
+void BOXM::write(fstream &f)
 {
 	IO::writeString(f, "BOXM");
 	IO::writeU32BE(f, getSize());

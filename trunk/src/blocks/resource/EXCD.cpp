@@ -4,7 +4,13 @@
 
 EXCD::EXCD(Script *script)
 {
-  _bytes.push_back(0x00);
+	script->asm_printDebug();
+	script->asm_print_textstring(script->getName());
+	for (int i = 0; i < script->getNumberOfBytes(); i++)
+		_bytes.push_back(script->getByte(i));
+
+	for (int i = 0; i < script->getNumberOfBytes(); i++)
+		_bytes.push_back(script->getByte(i));
 }
 
 uint32_t EXCD::getSize()
@@ -16,7 +22,7 @@ uint32_t EXCD::getSize()
 	return size;
 }
 
-void EXCD::write(ofstream &f)
+void EXCD::write(fstream &f)
 {
 	IO::writeString(f, "EXCD");
 	IO::writeU32BE(f, getSize());

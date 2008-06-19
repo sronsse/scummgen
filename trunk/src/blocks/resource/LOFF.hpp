@@ -18,7 +18,7 @@ private:
 public:
 	LOFF(Game *game, vector<LFLF *> lflfs);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~LOFF();
 };
 

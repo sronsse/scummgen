@@ -23,7 +23,7 @@ uint32_t OBCD::getSize()
 	return size;
 }
 
-void OBCD::write(ofstream &f)
+void OBCD::write(fstream &f)
 {
 	IO::writeString(f, "OBCD");
 	IO::writeU32BE(f, getSize());

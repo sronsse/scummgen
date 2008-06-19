@@ -16,7 +16,7 @@ uint32_t RMIH::getSize()
 	return size;
 }
 
-void RMIH::write(ofstream &f)
+void RMIH::write(fstream &f)
 {
 	IO::writeString(f, "RMIH");
 	IO::writeU32BE(f, getSize());

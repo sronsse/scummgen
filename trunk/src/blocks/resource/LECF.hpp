@@ -20,7 +20,7 @@ private:
 public:
 	LECF(Game *game);
 	LFLF *getLFLF(uint8_t index) { return _lflfs[index]; }
-	void write(ofstream &f);
+	void write(fstream &f);
 	~LECF();
 };
 

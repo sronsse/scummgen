@@ -94,7 +94,7 @@ uint32_t CHAR::getSize()
 	return size;
 }
 
-void CHAR::write(ofstream &f)
+void CHAR::write(fstream &f)
 {
 	IO::writeString(f, "CHAR");
 	IO::writeU32BE(f, getSize());

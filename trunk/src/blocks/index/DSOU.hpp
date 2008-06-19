@@ -19,7 +19,7 @@ private:
 	uint32_t getSize();
 public:
 	DSOU(Game *game, LECF *lecf);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~DSOU();
 };
 

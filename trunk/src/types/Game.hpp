@@ -16,6 +16,7 @@ class Game
 private:
 	string _longName;
 	string _shortName;
+	uint8_t _key;
 	vector<Room *> _rooms;
 	vector<Script *> _scripts;
 	vector<Charset *> _charsets;
@@ -29,6 +30,7 @@ public:
 	Game(string dirName);
 	string getLongName() { return _longName; }
 	string getShortName() { return _shortName; }
+	uint8_t getKey() { return _key; }
 	uint8_t getNumberOfRooms() { return _rooms.size(); }
 	Room *getRoom(uint8_t index) { return _rooms[index]; }
 	uint8_t getNumberOfScripts() { return _scripts.size(); }
@@ -41,3 +43,4 @@ public:
 };
 
 #endif
+

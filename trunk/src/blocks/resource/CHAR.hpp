@@ -31,7 +31,7 @@ private:
 public:
 	CHAR(Charset *charset);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~CHAR();
 };
 

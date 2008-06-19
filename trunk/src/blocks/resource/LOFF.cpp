@@ -35,7 +35,7 @@ uint32_t LOFF::getSize()
 	return size;
 }
 
-void LOFF::write(ofstream &f)
+void LOFF::write(fstream &f)
 {
 	IO::writeString(f, "LOFF");
 	IO::writeU32BE(f, getSize());

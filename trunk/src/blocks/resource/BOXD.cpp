@@ -46,7 +46,7 @@ uint32_t BOXD::getSize()
 	return size;
 }
 
-void BOXD::write(ofstream &f)
+void BOXD::write(fstream &f)
 {
 	IO::writeString(f, "BOXD");
 	IO::writeU32BE(f, getSize());

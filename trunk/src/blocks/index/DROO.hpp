@@ -18,7 +18,7 @@ private:
 	uint32_t getSize();
 public:
 	DROO(Game *game);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~DROO();
 };
 

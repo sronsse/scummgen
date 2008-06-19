@@ -32,7 +32,7 @@ uint32_t DCOS::getSize()
 	return size;
 }
 
-void DCOS::write(ofstream &f)
+void DCOS::write(fstream &f)
 {
 	IO::writeString(f, "DCOS");
 	IO::writeU32BE(f, getSize());

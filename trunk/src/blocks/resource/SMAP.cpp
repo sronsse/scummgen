@@ -36,7 +36,7 @@ uint32_t SMAP::getSize()
 	return size;
 }
 
-void SMAP::write(ofstream &f)
+void SMAP::write(fstream &f)
 {
 	IO::writeString(f, "SMAP");
 	IO::writeU32BE(f, getSize());

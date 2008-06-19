@@ -18,7 +18,7 @@ private:
 	uint32_t getSize();
 public:
 	DOBJ(Game *game);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~DOBJ();
 };
 

@@ -31,7 +31,7 @@ private:
 	uint32_t getSize();
 public:
 	MAXS(Game *game);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~MAXS();
 };
 

@@ -30,7 +30,7 @@ uint32_t DOBJ::getSize()
 	return size;
 }
 
-void DOBJ::write(ofstream &f)
+void DOBJ::write(fstream &f)
 {
 	IO::writeString(f, "DOBJ");
 	IO::writeU32BE(f, getSize());

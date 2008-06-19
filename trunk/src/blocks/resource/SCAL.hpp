@@ -18,7 +18,7 @@ private:
 public:
 	SCAL(Map *map);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~SCAL();
 };
 

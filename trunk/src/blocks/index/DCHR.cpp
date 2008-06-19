@@ -29,7 +29,7 @@ uint32_t DCHR::getSize()
 	return size;
 }
 
-void DCHR::write(ofstream &f)
+void DCHR::write(fstream &f)
 {
 	IO::writeString(f, "DCHR");
 	IO::writeU32BE(f, getSize());

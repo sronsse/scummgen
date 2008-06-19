@@ -31,7 +31,7 @@ uint32_t APAL::getSize()
 	return size;
 }
 
-void APAL::write(ofstream &f)
+void APAL::write(fstream &f)
 {
 	IO::writeString(f, "APAL");
 	IO::writeU32BE(f, getSize());

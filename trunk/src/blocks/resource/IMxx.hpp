@@ -19,7 +19,7 @@ private:
 public:
 	IMxx(Image *image, uint8_t index);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~IMxx();
 };
 

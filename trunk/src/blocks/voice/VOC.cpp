@@ -33,7 +33,7 @@ uint32_t VOC::getSize()
 	return size;
 }
 
-void VOC::write(ofstream &f)
+void VOC::write(fstream &f)
 {
 	// First, we write the header, beginning with the identifier
 	IO::writeString(f, "Creative Voice File");
