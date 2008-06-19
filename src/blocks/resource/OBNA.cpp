@@ -17,7 +17,7 @@ uint32_t OBNA::getSize()
 	return size;
 }
 
-void OBNA::write(ofstream &f)
+void OBNA::write(fstream &f)
 {
 	IO::writeString(f, "OBNA");
 	IO::writeU32BE(f, getSize());

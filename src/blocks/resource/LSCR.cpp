@@ -19,7 +19,7 @@ uint32_t LSCR::getSize()
 	return size;
 }
 
-void LSCR::write(ofstream &f)
+void LSCR::write(fstream &f)
 {
 	IO::writeString(f, "LSCR");
 	IO::writeU32BE(f, getSize());

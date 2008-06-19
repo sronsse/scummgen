@@ -17,7 +17,7 @@ uint32_t NLSC::getSize()
 	return size;
 }
 
-void NLSC::write(ofstream &f)
+void NLSC::write(fstream &f)
 {
 	IO::writeString(f, "NLSC");
 	IO::writeU32BE(f, getSize());

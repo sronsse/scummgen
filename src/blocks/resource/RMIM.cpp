@@ -20,7 +20,7 @@ uint32_t RMIM::getSize()
 	return size;
 }
 
-void RMIM::write(ofstream &f)
+void RMIM::write(fstream &f)
 {
 	IO::writeString(f, "RMIM");
 	IO::writeU32BE(f, getSize());

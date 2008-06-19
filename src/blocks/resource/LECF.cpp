@@ -22,7 +22,7 @@ uint32_t LECF::getSize()
 	return size;
 }
 
-void LECF::write(ofstream &f)
+void LECF::write(fstream &f)
 {
 	IO::writeString(f, "LECF");
 	IO::writeU32BE(f, getSize());

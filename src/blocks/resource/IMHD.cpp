@@ -40,7 +40,7 @@ uint32_t IMHD::getSize()
 	return size;
 }
 
-void IMHD::write(ofstream &f)
+void IMHD::write(fstream &f)
 {
 	IO::writeString(f, "IMHD");
 	IO::writeU32BE(f, getSize());

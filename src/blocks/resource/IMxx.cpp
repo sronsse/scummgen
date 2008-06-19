@@ -23,7 +23,7 @@ uint32_t IMxx::getSize()
 	return size;
 }
 
-void IMxx::write(ofstream &f)
+void IMxx::write(fstream &f)
 {
 	IO::writeString(f, "IM" + IO::getStringFromIndex(_index, 2));
 	IO::writeU32BE(f, getSize());

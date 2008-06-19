@@ -16,7 +16,7 @@ private:
 public:
 	RMHD(Room *room);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~RMHD();
 };
 

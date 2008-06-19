@@ -30,7 +30,7 @@ uint32_t RNAM::getSize()
 	return size;
 }
 
-void RNAM::write(ofstream &f)
+void RNAM::write(fstream &f)
 {
 	IO::writeString(f, "RNAM");
 	IO::writeU32BE(f, getSize());

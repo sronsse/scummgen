@@ -17,7 +17,7 @@ uint32_t VERB::getSize()
 	return size;
 }
 
-void VERB::write(ofstream &f)
+void VERB::write(fstream &f)
 {
 	IO::writeString(f, "VERB");
 	IO::writeU32BE(f, getSize());

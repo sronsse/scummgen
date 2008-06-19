@@ -6,7 +6,7 @@ TYPES_OBJ_FILES = types/Costume.o types/Charset.o types/Game.o types/Image.o typ
 UTIL_OBJ_FILES = util/BMPFile.o util/IO.o util/Log.o util/XMLFile.o
 OBJ_FILES = main.o Assembler.o $(BLOCKS_OBJ_FILES) $(UTIL_OBJ_FILES) $(TYPES_OBJ_FILES)
 
-CPP_FLAGS = -g -I. `xml2-config --cflags`
+CPP_FLAGS = -Wall -Wno-sign-compare -g -I. `xml2-config --cflags`
 LD_FLAGS = `xml2-config --libs`
 
 all: assembler

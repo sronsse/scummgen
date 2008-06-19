@@ -17,7 +17,7 @@ uint32_t TRNS::getSize()
 	return size;
 }
 
-void TRNS::write(ofstream &f)
+void TRNS::write(fstream &f)
 {
 	// Identifier
 	IO::writeString(f, "TRNS");

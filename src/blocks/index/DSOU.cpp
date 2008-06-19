@@ -32,7 +32,7 @@ uint32_t DSOU::getSize()
 	return size;
 }
 
-void DSOU::write(ofstream &f)
+void DSOU::write(fstream &f)
 {
 	IO::writeString(f, "DSOU");
 	IO::writeU32BE(f, getSize());

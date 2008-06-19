@@ -35,7 +35,7 @@ uint32_t CDHD::getSize()
 	return size;
 }
 
-void CDHD::write(ofstream &f)
+void CDHD::write(fstream &f)
 {
 	IO::writeString(f, "CDHD");
 	IO::writeU32BE(f, getSize());

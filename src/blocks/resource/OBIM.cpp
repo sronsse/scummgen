@@ -22,9 +22,8 @@ uint32_t OBIM::getSize()
 	return size;
 }
 
-void OBIM::write(ofstream &f)
+void OBIM::write(fstream &f)
 {
-	uint32_t base = (uint32_t)f.tellp();
 	IO::writeString(f, "OBIM");
 	IO::writeU32BE(f, getSize());
 	_imhd->write(f);

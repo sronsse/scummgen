@@ -16,7 +16,7 @@ uint32_t PALS::getSize()
 	return size;
 }
 
-void PALS::write(ofstream &f)
+void PALS::write(fstream &f)
 {
 	IO::writeString(f, "PALS");
 	IO::writeU32BE(f, getSize());

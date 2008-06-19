@@ -28,7 +28,7 @@ uint32_t DROO::getSize()
 	return size;
 }
 
-void DROO::write(ofstream &f)
+void DROO::write(fstream &f)
 {
 	IO::writeString(f, "DROO");
 	IO::writeU32BE(f, getSize());

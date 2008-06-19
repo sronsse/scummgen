@@ -25,7 +25,7 @@ uint32_t SCAL::getSize()
 	return size;
 }
 
-void SCAL::write(ofstream &f)
+void SCAL::write(fstream &f)
 {
 	IO::writeString(f, "SCAL");
 	IO::writeU32BE(f, getSize());

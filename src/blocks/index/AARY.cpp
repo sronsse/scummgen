@@ -41,7 +41,7 @@ uint32_t AARY::getSize()
 	return size;
 }
 
-void AARY::write(ofstream &f)
+void AARY::write(fstream &f)
 {
 	IO::writeString(f, "AARY");
 	IO::writeU32BE(f, getSize());

@@ -16,7 +16,7 @@ private:
 public:
 	LSCR(Script *script);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~LSCR();
 };
 

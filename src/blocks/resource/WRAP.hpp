@@ -18,7 +18,7 @@ private:
 public:
 	WRAP(Palette *palette);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~WRAP();
 };
 

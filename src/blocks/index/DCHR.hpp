@@ -19,7 +19,7 @@ private:
 	uint32_t getSize();
 public:
 	DCHR(Game *game, LFLF *lflf);
-	void write(ofstream &f);
+	void write(fstream &f);
 	~DCHR();
 };
 

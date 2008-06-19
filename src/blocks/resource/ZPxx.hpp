@@ -20,7 +20,7 @@ private:
 public:
 	ZPxx(ZPlane *zPlane, uint8_t index);
 	uint32_t getSize();
-	void write(ofstream &f);
+	void write(fstream &f);
 	~ZPxx();
 };
 

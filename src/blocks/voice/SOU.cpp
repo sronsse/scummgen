@@ -25,7 +25,7 @@ uint32_t SOU::getSize()
 	return size;
 }
 
-void SOU::write(ofstream &f)
+void SOU::write(fstream &f)
 {
 	IO::writeString(f, "SOU ");
 	IO::writeU32BE(f, 0);
