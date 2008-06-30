@@ -4,65 +4,8 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-const int Costume::N_LIMBS = 16;
+vector<Anim *> Anim::_instances;
 vector<Costume *> Costume::_instances;
-
-Costume *Costume::getInstanceFromName(string costumeName)
-{
-	for (int i = 0; i < _instances.size(); i++)
-		if (_instances[i]->getName() == costumeName)
-			return _instances[i];
-	return NULL;
-}
-
-Limb::Limb(XMLNode *node)
-{
-	Log::getInstance().write("Limb\n");
-	Log::getInstance().indent();
-
-	_id = node->getChild("id")->getIntegerContent();
-	Log::getInstance().write("id: %d\n", _id);
-
-	_start = node->getChild("start")->getIntegerContent();
-	Log::getInstance().write("start: %d\n", _start);
-
-	_length = node->getChild("length")->getIntegerContent();
-	Log::getInstance().write("length: %d\n", _length);
-
-	_loop = node->getChild("loop")->getBooleanContent();
-	Log::getInstance().write("loop: %d\n", _loop);
-
-	Log::getInstance().unIndent();
-}
-
-Limb::~Limb()
-{
-}
-
-Anim::Anim(XMLNode *node)
-{
-	Log::getInstance().write("Anim\n");
-	Log::getInstance().indent();
-
-	_id = node->getChild("id")->getIntegerContent();
-	Log::getInstance().write("id: %d\n", _id);
-
-	_mask = node->getChild("mask")->getIntegerContent();
-	Log::getInstance().write("mask: %x\n", _mask);
-
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("limb", i++)) != NULL)
-		_limbs.push_back(new Limb(child));
-
-	Log::getInstance().unIndent();
-}
-
-Anim::~Anim()
-{
-	for (int i = 0; i < _limbs.size(); i++)
-		delete _limbs[i];
-}
 
 Frame::Frame(XMLNode *node, string fileName)
 {
@@ -73,10 +16,10 @@ Frame::Frame(XMLNode *node, string fileName)
 	Log::getInstance().write("fileName: %s\n", fileName.c_str());
 
 	_width = bmpFile.getWidth();
-	Log::getInstance().write("width: %d\n", _width);
+	Log::getInstance().write("width: %u\n", _width);
 
 	_height = bmpFile.getHeight();
-	Log::getInstance().write("height: %d\n", _height);
+	Log::getInstance().write("height: %u\n", _height);
 
 	for (int i = 0; i < _width; i++)
 	{
@@ -85,9 +28,6 @@ Frame::Frame(XMLNode *node, string fileName)
 			pixelColumn.push_back(bmpFile.getPixel(i, j));
 		_pixels.push_back(pixelColumn);
 	}
-
-	_id = node->getChild("id")->getIntegerContent();
-	Log::getInstance().write("id: %d\n", _id);
 
 	_x = node->getChild("x")->getIntegerContent();
 	Log::getInstance().write("x: %d\n", _x);
@@ -106,6 +46,66 @@ Frame::Frame(XMLNode *node, string fileName)
 
 Frame::~Frame()
 {
+}
+
+Anim *Anim::getInstanceFromName(string animName)
+{
+	for (int i = 0; i < _instances.size(); i++)
+		if (_instances[i]->getName() == animName)
+			return _instances[i];
+	return NULL;
+}
+
+Anim::Anim(string dirName, uint8_t id)
+{
+	Log::getInstance().write("Anim\n");
+	Log::getInstance().indent();
+
+	int posB = dirName.find_last_of('/') - 1;
+	int posA = dirName.find_last_of('/', posB) + 1;
+	_name = dirName.substr(posA, posB + 1 - posA);
+	Log::getInstance().write("name: %s\n", _name.c_str());
+
+	_id = id;
+	Log::getInstance().write("id: %u\n", _id);
+
+	XMLFile xmlFile(dirName + "anim.xml");
+	XMLNode *rootNode = xmlFile.getRootNode();
+
+	_loop = rootNode->getChild("loop")->getBooleanContent();
+	Log::getInstance().write("loop: %s\n", _loop ? "true" : "false");
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = rootNode->getChild("command", i)) != NULL)
+	{
+		_commands.push_back(child->getIntegerContent());
+		Log::getInstance().write("command: %d\n", _commands[i]);
+		i++;
+	}
+
+	i = 0;
+	while ((child = rootNode->getChild("frame", i)) != NULL)
+	{
+		_frames.push_back(new Frame(child, dirName + "frame_" + IO::getStringFromIndex(i, 2) + ".bmp"));
+		i++;
+	}
+
+	Log::getInstance().unIndent();
+}
+
+Anim::~Anim()
+{
+	for (int i = 0; i < _frames.size(); i++)
+		delete _frames[i];
+}
+
+Costume *Costume::getInstanceFromName(string costumeName)
+{
+	for (int i = 0; i < _instances.size(); i++)
+		if (_instances[i]->getName() == costumeName)
+			return _instances[i];
+	return NULL;
 }
 
 Costume::Costume(string dirName)
@@ -143,34 +143,11 @@ Costume::Costume(string dirName)
 	}
 	Log::getInstance().write("palette: %s\n", palette.c_str());
 
-	string table = rootNode->getChild("table")->getStringContent();
-	indexA = 0;
-	indexB = 0;
-	for (int i = 0; i < N_LIMBS; i++)
-	{
-		indexB = table.find(' ', indexA);
-		_table.push_back(atoi(table.substr(indexA, indexB).c_str()));
-		indexA = indexB + 1;
-	}
-	Log::getInstance().write("table: %s\n", table.c_str());
-
 	int i = 0;
 	XMLNode *child;
-	while ((child = rootNode->getChild("anim", i++)) != NULL)
-		_anims.push_back(new Anim(child));
-
-	i = 0;
-	while ((child = rootNode->getChild("command", i)) != NULL)
+	while ((child = rootNode->getChild("anim", i)) != NULL)
 	{
-		_commands.push_back(child->getIntegerContent());
-		Log::getInstance().write("command: %d\n", _commands[i]);
-		i++;
-	}
-
-	i = 0;
-	while ((child = rootNode->getChild("frame", i)) != NULL)
-	{
-		_frames.push_back(new Frame(child, dirName + "frame_" + IO::getStringFromIndex(i, 3) + ".bmp"));
+		_anims.push_back(new Anim(dirName + child->getStringContent() + "/", i + 1));
 		i++;
 	}
 
@@ -181,7 +158,5 @@ Costume::~Costume()
 {
 	for (int i = 0; i < _anims.size(); i++)
 		delete _anims[i];
-	for (int i = 0; i < _frames.size(); i++)
-		delete _frames[i];
 }
 
