@@ -8,41 +8,9 @@ using namespace std;
 
 class XMLNode;
 
-class Limb
-{
-private:
-	uint8_t _id;
-	uint16_t _start;
-	uint8_t _length;
-	bool _loop;
-public:
-	Limb(XMLNode *node);
-	uint8_t getID() { return _id; }
-	uint16_t getStart() { return _start; }
-	uint8_t getLength() { return _length; }
-	bool isLoop() { return _loop; }
-	~Limb();
-};
-
-class Anim
-{
-private:
-	uint8_t _id;
-	uint16_t _mask;
-	vector<Limb *> _limbs;
-public:
-	Anim(XMLNode *node);
-	uint8_t getID() { return _id; }
-	uint16_t getMask() { return _mask; }
-	uint8_t getNumberOfLimbs() { return _limbs.size(); }
-	Limb *getLimb(uint8_t index) { return _limbs.at(index); }
-	~Anim();
-};
-
 class Frame
 {
 private:
-	uint32_t _id;
 	uint16_t _width;
 	uint16_t _height;
 	int16_t _x;
@@ -52,7 +20,6 @@ private:
 	vector<vector<uint8_t> > _pixels;
 public:
 	Frame(XMLNode *node, string fileName);
-	uint32_t getID() { return _id; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
 	int16_t getX() { return _x; }
@@ -63,6 +30,30 @@ public:
 	~Frame();
 };
 
+class Anim
+{
+private:
+	static vector<Anim *> _instances;
+
+	string _name;
+	uint8_t _id;
+	bool _loop;
+	vector<uint8_t> _commands;
+	vector<Frame *> _frames;
+public:
+	static Anim *getInstanceFromName(string animName);
+
+	Anim(string dirName, uint8_t id);
+	string getName() { return _name; }
+	uint8_t getID() { return _id; }
+	bool isLoop() { return _loop; }
+	uint16_t getNumberOfCommands() { return _commands.size(); }
+	uint8_t getCommand(uint16_t index) { return _commands[index]; }
+	uint8_t getNumberOfFrames() { return _frames.size(); }
+	Frame *getFrame(uint8_t index) { return _frames[index]; }
+	~Anim();
+};
+
 class Costume
 {
 private:
@@ -71,31 +62,21 @@ private:
 
 	string _name;
 	uint16_t _id;
-	uint8_t _nAnims;
 	bool _mirror;
 	uint8_t _nColors;
 	vector<uint8_t> _palette;
-	vector<uint8_t> _table;
 	vector<Anim *> _anims;
-	vector<uint8_t> _commands;
-	vector<Frame *> _frames;
 public:
 	static Costume *getInstanceFromName(string costumeName);
 
 	Costume(string dirName);
 	string getName() { return _name; }
 	uint16_t getID() { return _id; }
-	uint8_t getNumberOfAnims() { return _nAnims; }
 	bool isMirror() { return _mirror; }
 	uint8_t getNumberOfColors() { return _nColors; }
 	uint8_t getColor(uint8_t index) { return _palette[index]; }
-	uint8_t getTableIndex(uint8_t index) { return _table[index]; }
-	uint32_t getNumberOfAnimEntries() { return _anims.size(); }
-	Anim *getAnim(uint32_t index) { return _anims.at(index); }
-	uint32_t getNumberOfCommands() { return _commands.size(); }
-	uint8_t getCommand(uint32_t index) { return _commands.at(index); }
-	uint32_t getNumberOfFrames() { return _frames.size(); }
-	Frame *getFrame(uint32_t index) { return _frames.at(index); }
+	uint32_t getNumberOfAnims() { return _anims.size(); }
+	Anim *getAnim(uint32_t index) { return _anims[index]; }
 	~Costume();
 };
 

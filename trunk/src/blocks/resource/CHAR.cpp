@@ -10,14 +10,19 @@ CHAR::CHAR(Charset *charset)
 {
 	for (int i = 0; i < N_COLORS; i++)
 		_palette.push_back(charset->getPaletteIndex(i));
+
 	_bpp = charset->getBPP();
+
 	_fontHeight = charset->getFontHeight();
+
 	_nChars = 0;
 	for (int i = 0; i < charset->getNumberOfChars(); i++)
 		if (charset->getChar(i)->getID() + 1 > _nChars)
 			_nChars = charset->getChar(i)->getID() + 1;
+
 	for (int i = 0; i < _nChars; i++)
 		_offsets.push_back(0);
+
 	for (int i = 0; i < charset->getNumberOfChars(); i++)
 	{
 		_widths.push_back(charset->getChar(i)->getWidth());
@@ -28,11 +33,13 @@ CHAR::CHAR(Charset *charset)
 		getDataBytes(charset, charset->getChar(i), dataBytes);
 		_dataBytes.push_back(dataBytes);
 	}
+
 	// First "real" char offset is relative to the position of the BPP field
 	_offsets[charset->getChar(0)->getID()] = sizeof(uint8_t); // bpp
 	_offsets[charset->getChar(0)->getID()] += sizeof(uint8_t); // fontHeight
 	_offsets[charset->getChar(0)->getID()] += sizeof(uint16_t); // nChars
 	_offsets[charset->getChar(0)->getID()] += _nChars * sizeof(uint32_t); // offsets
+
 	// We now calculate all the missing offsets according to the previous one
 	for (int i = 1; i < _widths.size(); i++)
 	{
@@ -48,7 +55,7 @@ CHAR::CHAR(Charset *charset)
 void CHAR::getDataBytes(Charset *charset, Char *chr, vector<uint8_t> &dataBytes)
 {
 	// This is SCUMM's way of calculating the number of bytes for pixel storage
-	// There are cases where an extra byte is added for no reason though
+	// There are cases where an extra byte is added for no obvious reason though
 	// (when _width * _height * bpp % 8 == 0)
 	uint16_t nDataBytes = (chr->getWidth() * chr->getHeight() * _bpp) / 8 + 1;
 	for (int i = 0; i < nDataBytes; i++)
