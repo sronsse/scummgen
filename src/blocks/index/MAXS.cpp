@@ -4,28 +4,37 @@
 #include "types/Room.hpp"
 #include "types/Object.hpp"
 
-const uint16_t MAXS::UNKNOWN1 = 0;
-const uint16_t MAXS::UNKNOWN2 = 0;
+const uint16_t MAXS::N_VARIABLES = 800;
+const uint8_t MAXS::UNKNOWN1 = 0;
+const uint16_t MAXS::N_BIT_VARIABLES = 2048;
+const uint8_t MAXS::N_LOCAL_OBJECTS = 200;
+const uint8_t MAXS::N_ARRAYS = 50;
+const uint8_t MAXS::UNKNOWN2 = 0;
+const uint8_t MAXS::N_VERBS = 50;
+const uint8_t MAXS::N_FL_OBJECTS = 5;
+const uint8_t MAXS::N_INVENTORIES = 80;
 
 MAXS::MAXS(Game *game)
 {
-	_nVariables = 800;
-	_nBitVariables = 2048;
-	_nLocalObjects = 200;
-	_nArrays = 50;
-	_nVerbs = 50;
-	_nFlObjects = 5;
-	_nInventories = 80;
+	_nVariables = N_VARIABLES;
+	_nBitVariables = N_BIT_VARIABLES;
+	_nLocalObjects = N_LOCAL_OBJECTS;
+	_nArrays = N_ARRAYS;
+	_nVerbs = N_VERBS;
+	_nFlObjects = N_FL_OBJECTS;
+	_nInventories = N_INVENTORIES;
 	_nRooms = game->getNumberOfRooms() + 1;
-	_nScripts = 3;
+	_nScripts = game->getNumberOfScripts() + 1;
 	_nSounds = 1;
-	_nCharsets = 5;
+	for (int i = 0; i < game->getNumberOfRooms(); i++)
+		_nSounds += game->getRoom(i)->getNumberOfSounds();
+	_nCharsets = game->getNumberOfCharsets() + 1;
 	_nCostumes = 1;
+	for (int i = 0; i < game->getNumberOfRooms(); i++)
+		_nCostumes += game->getRoom(i)->getNumberOfCostumes();
 	_nGlobalObjects = 1;
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfObjects(); j++)
-			if (game->getRoom(i)->getObject(j)->getID() + 1 > _nGlobalObjects)
-				_nGlobalObjects = game->getRoom(i)->getObject(j)->getID() + 1;
+		_nGlobalObjects += game->getRoom(i)->getNumberOfObjects();
 }
 
 uint32_t MAXS::getSize()

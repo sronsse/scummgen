@@ -11,8 +11,15 @@ class Game;
 class MAXS
 {
 private:
-	static const uint16_t UNKNOWN1;
-	static const uint16_t UNKNOWN2;
+	static const uint16_t N_VARIABLES;
+	static const uint8_t UNKNOWN1;
+	static const uint16_t N_BIT_VARIABLES;
+	static const uint8_t N_LOCAL_OBJECTS;
+	static const uint8_t N_ARRAYS;
+	static const uint8_t UNKNOWN2;
+	static const uint8_t N_VERBS;
+	static const uint8_t N_FL_OBJECTS;
+	static const uint8_t N_INVENTORIES;
 
 	uint16_t _nVariables;
 	uint16_t _nBitVariables;
