@@ -147,9 +147,9 @@ const uint8_t Script::OC_ROOM_OPS = 0x9C;
 	const uint8_t Script::SO_ROOM_FADE = 0xB5;
 	const uint8_t Script::SO_RGB_ROOM_INTENSITY = 0xB6;
 	const uint8_t Script::SO_ROOM_SHADOW = 0xB7;
-	const uint8_t Script::SO_ROOM_TRANSFORM = 0xB8;
-	const uint8_t Script::SO_CYCLE_SPEED = 0xB9;
-	const uint8_t Script::SO_ROOM_NEW_PALETTE = 0xBA;
+	const uint8_t Script::SO_ROOM_TRANSFORM = 0xBA;
+	const uint8_t Script::SO_CYCLE_SPEED = 0xBB;
+	const uint8_t Script::SO_ROOM_NEW_PALETTE = 0xD5;
 const uint8_t Script::OC_ACTOR_OPS = 0x9D;
 	const uint8_t Script::SO_ACTOR_SET_CURRENT = 0xC5;
 	const uint8_t Script::SO_COSTUME = 0x4C;
@@ -354,6 +354,35 @@ Script::Script(string fileName, ScriptType type)
 				asm_roomOps_roomShakeOff();
 
 				asm_pushByte(1);
+				asm_resourceRoutines();
+				asm_resourceRoutines_loadCostume();
+
+				asm_pushByte(1);
+				asm_actorOps();
+				asm_actorOps_actorSetCurrent();
+
+				asm_pushByte(1);
+				asm_actorOps();
+				asm_actorOps_default();
+
+				asm_pushByte(1);
+				asm_actorOps();
+				asm_actorOps_costume();
+
+				asm_actorOps();
+				asm_actorOps_ignoreBoxes();
+
+				asm_pushByte(60);
+				asm_actorOps();
+				asm_actorOps_animationSpeed();
+
+				asm_pushByte(1);
+				asm_pushByte(50);
+				asm_pushByte(75);
+				asm_pushByte(1);
+				asm_putActorAtXY();
+
+				asm_pushByte(10);
 				asm_delaySeconds();
 
 				asm_systemOps();

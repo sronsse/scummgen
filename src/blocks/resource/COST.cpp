@@ -5,13 +5,15 @@
 const uint32_t COST::UNKNOWN = 0;
 const uint8_t COST::N_LIMBS = 16;
 const uint16_t COST::LIMB_MASK = 0x0001;
+const uint8_t COST::REDIR_LIMB = 0xFF;
+const uint8_t COST::REDIR_PICT = 0xFF;
 
 COST::COST(Costume *costume)
 {
 	_format = !costume->isMirror() << 7; // If format's bit 7 is set, the animations are not mirrored
 
 	if (costume->getNumberOfColors() == 32) // If format's bit 0 is set, the number of colors is 32
-		_format |= 0x01;
+		_format |= 0x61;
 
 	for (int i = 0; i < costume->getNumberOfColors(); i++)
 		_palette.push_back(costume->getColor(i));
@@ -63,34 +65,32 @@ COST::COST(Costume *costume)
 	_animNoLoopAndEndOffsets.push_back(firstAnimNoLoopAndEndOffset);
 	for (int i = 1; i < costume->getNumberOfAnims(); i++)
 	{
-		_animStarts.push_back(costume->getAnim(i - 1)->getNumberOfCommands());
-		_animNoLoopAndEndOffsets.push_back((!costume->getAnim(i)->isLoop() << 7) | (costume->getAnim(i)->getNumberOfCommands()));
+		_animStarts.push_back(_animStarts[i - 1] + costume->getAnim(i - 1)->getNumberOfCommands());
+		_animNoLoopAndEndOffsets.push_back((!costume->getAnim(i)->isLoop() << 7) | (costume->getAnim(i)->getNumberOfCommands() - 1));
 	}
 
 	for (int i = 0; i < costume->getNumberOfAnims(); i++)
 		for (int j = 0; j < costume->getAnim(i)->getNumberOfCommands(); j++)
 			_animCmds.push_back(costume->getAnim(i)->getCommand(j));
 
-	for (int i = 0; i < costume->getNumberOfAnims(); i++)
-		for (int j = 0; j < costume->getAnim(i)->getNumberOfFrames(); j++)
-		{
-			_pictWidths.push_back(costume->getAnim(i)->getFrame(j)->getWidth());
-			_pictHeights.push_back(costume->getAnim(i)->getFrame(j)->getHeight());
-			_pictXs.push_back(costume->getAnim(i)->getFrame(j)->getX());
-			_pictYs.push_back(costume->getAnim(i)->getFrame(j)->getY());
-			_pictXIncs.push_back(costume->getAnim(i)->getFrame(j)->getXInc());
-			_pictYIncs.push_back(costume->getAnim(i)->getFrame(j)->getYInc());
-			vector<uint8_t> dataBytes;
-			getDataBytes(costume, costume->getAnim(i)->getFrame(j), dataBytes);
-			_dataBytes.push_back(dataBytes);
-		}
+	for (int i = 0; i < costume->getNumberOfFrames(); i++)
+	{
+		_pictWidths.push_back(costume->getFrame(i)->getWidth());
+		_pictHeights.push_back(costume->getFrame(i)->getHeight());
+		_pictXs.push_back(costume->getFrame(i)->getX());
+		_pictYs.push_back(costume->getFrame(i)->getY());
+		_pictXIncs.push_back(costume->getFrame(i)->getXInc());
+		_pictYIncs.push_back(costume->getFrame(i)->getYInc());
+		vector<uint8_t> dataBytes;
+		getDataBytes(costume, costume->getFrame(i), dataBytes);
+		_dataBytes.push_back(dataBytes);
+	}
 
 	uint16_t firstPictOffset = 0;
 	firstPictOffset += _animCmdsOffset; // from "CO" to the start of the anim commands
 	for (int i = 0; i < costume->getNumberOfAnims(); i++) // animCmds
 		firstPictOffset += costume->getAnim(i)->getNumberOfCommands() * sizeof(uint8_t);
-	for (int i = 0; i < costume->getNumberOfAnims(); i++) // pictOffsets
-		firstPictOffset += costume->getAnim(i)->getNumberOfFrames() * sizeof(uint16_t);
+	firstPictOffset += costume->getNumberOfFrames() * sizeof(uint16_t); // pictOffsets
 	_pictOffsets.push_back(firstPictOffset);
 	for (int i = 1; i < _pictWidths.size(); i++)
 	{
@@ -101,6 +101,8 @@ COST::COST(Costume *costume)
 		pictOffset += sizeof(int16_t); // pictY
 		pictOffset += sizeof(int16_t); // pictXInc
 		pictOffset += sizeof(int16_t); // pictYInc
+		pictOffset += sizeof(uint8_t); // redirLimb
+		pictOffset += sizeof(uint8_t); // redirPict
 		pictOffset += _dataBytes[i].size() * sizeof(uint8_t); // dataBytes
 		_pictOffsets.push_back(pictOffset);
 	}	
@@ -141,6 +143,8 @@ uint32_t COST::getSize()
 	size += _pictYs.size() * sizeof(int16_t); // pictYs
 	size += _pictXIncs.size() * sizeof(int16_t); // pictXIncs
 	size += _pictYIncs.size() * sizeof(int16_t); // pictYIncs
+	size += _pictWidths.size() * sizeof(uint8_t); // redirLimbs
+	size += _pictWidths.size() * sizeof(uint8_t); // redirPicts
 	for (int i = 0; i < _dataBytes.size(); i++) // dataBytes
 		size += _dataBytes[i].size() * sizeof(uint8_t);
 	return size;
@@ -179,6 +183,8 @@ void COST::write(fstream &f)
 		IO::writeU16LE(f, _pictYs[i]);
 		IO::writeU16LE(f, _pictXIncs[i]);
 		IO::writeU16LE(f, _pictYIncs[i]);
+		IO::writeU8(f, REDIR_LIMB);
+		IO::writeU8(f, REDIR_PICT);
 		for (int j = 0; j < _dataBytes[i].size(); j++)
 			IO::writeU8(f, _dataBytes[i][j]);
 	}

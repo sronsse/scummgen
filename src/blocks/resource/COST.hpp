@@ -15,6 +15,8 @@ private:
 	static const uint32_t UNKNOWN;
 	static const uint8_t N_LIMBS;
 	static const uint16_t LIMB_MASK;
+	static const uint8_t REDIR_LIMB;
+	static const uint8_t REDIR_PICT;
 
 	uint8_t _format;
 	vector<uint8_t> _palette;
