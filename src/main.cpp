@@ -1,4 +1,4 @@
-#include "Assembler.hpp"
+#include "ScummGEN.hpp"
 #include <iostream>
 #include <string>
 #include "util/Log.hpp"
@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	cout << "ScummGEN's assembler: version " << (int)Assembler::MAJOR_VERSION << '.' << (int)Assembler::MINOR_VERSION << '.' << Assembler::VERSION_TYPE << endl;
+	cout << "ScummGEN version " << (int)ScummGEN::MAJOR_VERSION << '.' << (int)ScummGEN::MINOR_VERSION << '.' << ScummGEN::VERSION_TYPE << endl;
 	Log::getInstance().setActive(true);
 
 	string dirName = argv[1];
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
 	string outputDirName = "";
 	cout << "Generating \"" << game.getLongName() << "\" resource files..." << endl;
-	Assembler assembler(&game, outputDirName);
+	ScummGEN scummgen(&game, outputDirName);
 
 	return 0;
 }

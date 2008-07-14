@@ -20,7 +20,7 @@ ZPxx::ZPxx(ZPlane *zPlane, uint8_t index)
 			{
 				uint8_t byte = 0;
 				for (int k = 0; k < STRIP_WIDTH; k++)
-					byte |= zPlane->getPixel(i * STRIP_WIDTH + k, zPlane->getHeight() - h) << STRIP_WIDTH - 1 - k;
+					byte |= zPlane->getPixel(i * STRIP_WIDTH + k, zPlane->getHeight() - h) << (STRIP_WIDTH - 1 - k);
 				strip.push_back(byte);
 				h--;
 			}

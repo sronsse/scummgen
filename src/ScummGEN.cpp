@@ -1,4 +1,4 @@
-#include "Assembler.hpp"
+#include "ScummGEN.hpp"
 #include "util/IO.hpp"
 #include "types/Game.hpp"
 #include "blocks/index/RNAM.hpp"
@@ -13,14 +13,14 @@
 #include "blocks/resource/LECF.hpp"
 #include "blocks/voice/SOU.hpp"
 
-const string Assembler::INDEX_FILE_EXTENSION = ".000";
-const string Assembler::RESOURCE_FILE_EXTENSION = ".001";
-const string Assembler::VOICE_FILE_NAME = "MONSTER.SOU";
-const uint8_t Assembler::MAJOR_VERSION = 0;
-const uint8_t Assembler::MINOR_VERSION = 1;
-const char Assembler::VERSION_TYPE = 'a';
+const string ScummGEN::INDEX_FILE_EXTENSION = ".000";
+const string ScummGEN::RESOURCE_FILE_EXTENSION = ".001";
+const string ScummGEN::VOICE_FILE_NAME = "MONSTER.SOU";
+const uint8_t ScummGEN::MAJOR_VERSION = 0;
+const uint8_t ScummGEN::MINOR_VERSION = 1;
+const char ScummGEN::VERSION_TYPE = 'a';
 
-Assembler::Assembler(Game *game, string outputDirName)
+ScummGEN::ScummGEN(Game *game, string outputDirName)
 {
 	_game = game;
 	_outputDirName = outputDirName;
@@ -30,7 +30,7 @@ Assembler::Assembler(Game *game, string outputDirName)
 	writeVoiceFile();
 }
 
-void Assembler::writeIndexFile()
+void ScummGEN::writeIndexFile()
 {
 	// Create and write the index file contents
 	_rnam = new RNAM(_game);
@@ -68,7 +68,7 @@ void Assembler::writeIndexFile()
 	indexFile.close();
 }
 
-void Assembler::writeResourceFile()
+void ScummGEN::writeResourceFile()
 {
 	// Create and write the resource file contents
 	_lecf = new LECF(_game);
@@ -90,7 +90,7 @@ void Assembler::writeResourceFile()
 	resourceFile.close();
 }
 
-void Assembler::writeVoiceFile()
+void ScummGEN::writeVoiceFile()
 {
 	// Create and write the voice file contents only if necessary
 	if (_game->getNumberOfVoices() > 0)
@@ -103,7 +103,7 @@ void Assembler::writeVoiceFile()
 	}
 }
 
-Assembler::~Assembler()
+ScummGEN::~ScummGEN()
 {
 	delete _rnam;
 	delete _maxs;
