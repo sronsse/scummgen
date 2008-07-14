@@ -4,21 +4,21 @@ VOICE_OBJ_FILES = blocks/voice/SOU.o blocks/voice/VCTL.o blocks/voice/VOC.o
 BLOCKS_OBJ_FILES = $(INDEX_OBJ_FILES) $(RESOURCE_OBJ_FILES) $(VOICE_OBJ_FILES)
 TYPES_OBJ_FILES = types/Costume.o types/Charset.o types/Game.o types/Image.o types/Map.o types/Object.o types/Palette.o types/Room.o types/Script.o types/Voice.o
 UTIL_OBJ_FILES = util/BMPFile.o util/IO.o util/Log.o util/XMLFile.o
-OBJ_FILES = main.o Assembler.o $(BLOCKS_OBJ_FILES) $(UTIL_OBJ_FILES) $(TYPES_OBJ_FILES)
+OBJ_FILES = main.o ScummGEN.o $(BLOCKS_OBJ_FILES) $(UTIL_OBJ_FILES) $(TYPES_OBJ_FILES)
 
 CPP_FLAGS = -Wall -Wno-sign-compare -g -I. `xml2-config --cflags`
 LD_FLAGS = `xml2-config --libs`
 
-all: assembler
+all: scummgen
 
-assembler : $(OBJ_FILES)
-	g++ -o assembler $(LD_FLAGS) $(OBJ_FILES)
+scummgen : $(OBJ_FILES)
+	g++ -o scummgen $(LD_FLAGS) $(OBJ_FILES)
 
 main.o : main.cpp
 	g++ -o main.o $(CPP_FLAGS) -c main.cpp
 
-Assembler.o : Assembler.cpp
-	g++ -o Assembler.o $(CPP_FLAGS) -c Assembler.cpp
+ScummGEN.o : ScummGEN.cpp
+	g++ -o ScummGEN.o $(CPP_FLAGS) -c ScummGEN.cpp
 
 blocks/index/AARY.o : blocks/index/AARY.cpp
 	g++ -o blocks/index/AARY.o $(CPP_FLAGS) -c blocks/index/AARY.cpp

@@ -1,5 +1,5 @@
-#ifndef _ASSEMBLER_HPP_
-#define _ASSEMBLER_HPP_
+#ifndef _SCUMMGEN_HPP_
+#define _SCUMMGEN_HPP_
 
 #include <string>
 using namespace std;
@@ -17,7 +17,7 @@ class AARY;
 class LECF;
 class SOU;
 
-class Assembler
+class ScummGEN
 {
 private:
 	static const string INDEX_FILE_EXTENSION;
@@ -46,8 +46,8 @@ public:
 	static const uint8_t MINOR_VERSION;
 	static const char VERSION_TYPE;
 
-	Assembler(Game *game, string outputDirName);
-	~Assembler();
+	ScummGEN(Game *game, string outputDirName);
+	~ScummGEN();
 };
 
 #endif
