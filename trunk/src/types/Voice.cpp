@@ -3,27 +3,29 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-vector<Voice *> Voice::_instances;
+map<string, Voice *> Voice::_instances;
 
 Voice *Voice::getInstanceFromName(string voiceName)
 {
-	for (int i = 0; i < _instances.size(); i++)
-		if (_instances[i]->getName() == voiceName)
-			return _instances[i];
-	return NULL;
+	if (_instances.find(voiceName) == _instances.end())
+		return NULL;
+	return _instances[voiceName];
 }
 
 Voice::Voice(string dirName)
 {
-	Log::getInstance().write("Voice\n");
+	Log::getInstance().write(LOG_INFO, "Voice\n");
 	Log::getInstance().indent();
 
 	int posB = dirName.find_last_of('/') - 1;
 	int posA = dirName.find_last_of('/', posB) + 1;
 	_name = dirName.substr(posA, posB + 1 - posA);
-	Log::getInstance().write("name: %s\n", _name.c_str());
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	XMLFile xmlFile(dirName + "voice.xml");
+	_instances[_name] = this;
+
+	XMLFile xmlFile;
+	xmlFile.open(dirName + "voice.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
 	if (node != NULL)
@@ -33,7 +35,7 @@ Voice::Voice(string dirName)
 		while ((child = node->getChild("syncTime", i++)) != NULL)
 		{
 			_syncTimes.push_back(child->getIntegerContent());
-			Log::getInstance().write("syncTime: %u\n", _syncTimes[i - 1]);
+			Log::getInstance().write(LOG_INFO, "syncTime: %u\n", _syncTimes[i - 1]);
 		}
 	}
 
@@ -47,7 +49,7 @@ void Voice::loadWAV(string fileName)
 	// We open the file, which should be an 8bit PCM Wave file
 	ifstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
-		return;
+		Log::getInstance().write(LOG_ERROR, "Could not open wave file !\n");
 
 	// We start by reading the "RIFF" block
 	char chunkID[5];
@@ -71,9 +73,8 @@ void Voice::loadWAV(string fileName)
 	// Only PCM is supported
 	if (audioFormat != 1)
 	{
-		Log::getInstance().write("Audio format not supported !\n");
 		file.close();
-		return;
+		Log::getInstance().write(LOG_ERROR, "Audio format not supported !\n");
 	}
 
 	uint16_t nChannels;
@@ -92,9 +93,8 @@ void Voice::loadWAV(string fileName)
 	// Only 8bit is supported
 	if (bitsPerSample != 8)
 	{
-		Log::getInstance().write("Bits per sample not supported !\n");
 		file.close();
-		return;
+		Log::getInstance().write(LOG_ERROR, "Bits per sample not supported !\n");
 	}
 
 	// We end by reading the "data" block

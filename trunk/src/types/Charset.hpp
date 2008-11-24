@@ -1,6 +1,7 @@
 #ifndef _CHARSET_HPP_
 #define _CHARSET_HPP_
 
+#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -33,7 +34,7 @@ class Charset
 {
 private:
 	static const uint8_t N_COLORS;
-	static vector<Charset *> _instances;
+	static map<string, Charset *> _instances;
 
 	string _name;
 	uint32_t _width;

@@ -5,7 +5,7 @@
 
 Midi::Midi(string dirName)
 {
-	Log::getInstance().write("Midi\n");
+	Log::getInstance().write(LOG_INFO, "Midi\n");
 	Log::getInstance().indent();
 
 	Log::getInstance().unIndent();

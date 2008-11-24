@@ -1,8 +1,7 @@
-#include "ScummGEN.hpp"
 #include <iostream>
 #include <string>
 #include "util/Log.hpp"
-#include "types/Game.hpp"
+#include "ScummGEN.hpp"
 using namespace std;
 
 int main(int argc, char **argv)
@@ -14,16 +13,24 @@ int main(int argc, char **argv)
 	}
 
 	cout << "ScummGEN version " << (int)ScummGEN::MAJOR_VERSION << '.' << (int)ScummGEN::MINOR_VERSION << '.' << ScummGEN::VERSION_TYPE << endl;
+
 	Log::getInstance().setActive(true);
 
-	string dirName = argv[1];
-	cout << "Loading \"" << dirName << "\" game directory..." << endl;
-	Game game(dirName);
+	// First, we load our game data structure using the game directory as an input,
+	// taking care of any exception which could occur
+	try
+	{
+		ScummGEN::getInstance().load(argv[1]);
+	}
+	catch (int e)
+	{
+		return e;
+	}
 
-	string outputDirName = "";
-	cout << "Generating \"" << game.getLongName() << "\" resource files..." << endl;
-	ScummGEN scummgen(&game, outputDirName);
+	// Then, we generate the final resources
+	ScummGEN::getInstance().generate("");
 
+	cout << "Game generated successfully !\n";
 	return 0;
 }
 

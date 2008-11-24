@@ -4,58 +4,40 @@
 #include "util/XMLFile.hpp"
 
 const uint8_t Charset::N_COLORS = 15;
-vector<Charset *> Charset::_instances;
+map<string, Charset *> Charset::_instances;
 
 Charset *Charset::getInstanceFromName(string charsetName)
 {
-	for (int i = 0; i < _instances.size(); i++)
-		if (_instances[i]->getName() == charsetName)
-			return _instances[i];
-	return NULL;
+	if (_instances.find(charsetName) == _instances.end())
+		return NULL;
+	return _instances[charsetName];
 }
 
 Char::Char(XMLNode *node)
 {
-	Log::getInstance().write("Char\n");
-	Log::getInstance().indent();
-
 	_id = node->getChild("id")->getIntegerContent();
-	Log::getInstance().write("id: %u\n", _id);
-
 	_x = node->getChild("x")->getIntegerContent();
-	Log::getInstance().write("x: %u\n", _x);
-
 	_y = node->getChild("y")->getIntegerContent();
-	Log::getInstance().write("y: %u\n", _y);
-
 	_width = node->getChild("width")->getIntegerContent();
-	Log::getInstance().write("width: %u\n", _width);
-
 	_height = node->getChild("height")->getIntegerContent();
-	Log::getInstance().write("height: %u\n", _height);
-
 	_xOffset = node->getChild("xOffset")->getIntegerContent();
-	Log::getInstance().write("xOffset: %d\n", _xOffset);
-
 	_yOffset = node->getChild("yOffset")->getIntegerContent();
-	Log::getInstance().write("yOffset: %d\n", _yOffset);
-
-	Log::getInstance().unIndent();
 }
 
 Charset::Charset(string dirName)
 {
-	Log::getInstance().write("Charset\n");
+	Log::getInstance().write(LOG_INFO, "Charset\n");
 	Log::getInstance().indent();
-
-	_instances.push_back(this);
 
 	int posB = dirName.find_last_of('/') - 1;
 	int posA = dirName.find_last_of('/', posB) + 1;
 	_name = dirName.substr(posA, posB + 1 - posA);
-	Log::getInstance().write("name: %s\n", _name.c_str());
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	BMPFile bmpFile(dirName + "charset.bmp");
+	_instances[_name] = this;
+
+	BMPFile bmpFile;
+	bmpFile.open(dirName + "charset.bmp");
 	_width = bmpFile.getWidth();
 	_height = bmpFile.getHeight();
 	_bpp = bmpFile.getBPP();
@@ -67,14 +49,15 @@ Charset::Charset(string dirName)
 		_pixels.push_back(pixelColumn);
 	}
 
-	XMLFile xmlFile(dirName + "charset.xml");
+	XMLFile xmlFile;
+	xmlFile.open(dirName + "charset.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
 	_id = _instances.size();
-	Log::getInstance().write("id: %u\n", _id);
+	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
 	_fontHeight = rootNode->getChild("fontHeight")->getIntegerContent();
-	Log::getInstance().write("fontHeight: %u\n", _fontHeight);
+	Log::getInstance().write(LOG_INFO, "fontHeight: %u\n", _fontHeight);
 
 	int i = 0;
 	XMLNode *child;

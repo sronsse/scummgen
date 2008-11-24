@@ -17,7 +17,8 @@ private:
 	vector<uint8_t> _colors;
 	vector<vector<uint8_t> > _pixels;
 public:
-	BMPFile(string fileName);
+	BMPFile();
+	bool open(string fileName);
 	uint32_t getWidth() { return _width; }
 	uint32_t getHeight() { return _height; }
 	uint16_t getBPP() { return _bpp; }

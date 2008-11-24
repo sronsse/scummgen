@@ -1,5 +1,8 @@
 #include "XMLFile.hpp"
+#include <fstream>
 #include <libxml/parser.h>
+#include "Log.hpp"
+using namespace std;
 
 XMLNode::XMLNode(string name, string content)
 {
@@ -29,20 +32,32 @@ XMLNode *XMLNode::getChild(string name, uint32_t index)
 XMLNode::~XMLNode()
 {
 	for (int i = 0; i < _children.size(); i++)
-		delete _children.at(i);
+		delete _children[i];
 }
 
-XMLFile::XMLFile(string fileName)
+XMLFile::XMLFile()
 {
 	_rootNode = NULL;
+}
 
+bool XMLFile::open(string fileName)
+{
 	LIBXML_TEST_VERSION
+
+	// Check if file exists
+	ifstream f(fileName.c_str(), ios::in);
+	if (!f.is_open())
+	{
+		Log::getInstance().write(LOG_WARNING, "Cannot open file \"%s\" !\n", fileName.c_str());
+		return false;
+	}
+	f.close();
 
 	xmlDocPtr doc = xmlParseFile(fileName.c_str());
 	if (doc == NULL)
 	{
 		xmlCleanupParser();
-		return;
+		return false;
 	}
 
 	xmlNode *rootNode = xmlDocGetRootElement(doc);
@@ -53,6 +68,7 @@ XMLFile::XMLFile(string fileName)
 	xmlFreeDoc(doc);
 
 	xmlCleanupParser();
+	return true;
 }
 
 void XMLFile::parse(XMLNode *&destNode, xmlNode *srcNode)
@@ -73,7 +89,6 @@ void XMLFile::parse(XMLNode *&destNode, xmlNode *srcNode)
 
 XMLFile::~XMLFile()
 {
-	if (_rootNode != NULL)
-		delete _rootNode;
+	delete _rootNode;
 }
 

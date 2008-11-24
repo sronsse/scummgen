@@ -5,16 +5,17 @@
 
 ZPlane::ZPlane(string fileName)
 {
-	Log::getInstance().write("ZPlane\n");
+	Log::getInstance().write(LOG_INFO, "ZPlane\n");
 	Log::getInstance().indent();
 
-	BMPFile bmpFile(fileName);
+	BMPFile bmpFile;
+	bmpFile.open(fileName);
 
 	_width = bmpFile.getWidth();
-	Log::getInstance().write("width: %u\n", _width);
+	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
 
 	_height = bmpFile.getHeight();
-	Log::getInstance().write("height: %u\n", _height);
+	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
 
 	for (int i = 0; i < _width; i++)
 	{
@@ -33,16 +34,17 @@ ZPlane::~ZPlane()
 
 Image::Image(string dirName, string fileName, uint16_t nZPlanes)
 {
-	Log::getInstance().write("Image\n");
+	Log::getInstance().write(LOG_INFO, "Image\n");
 	Log::getInstance().indent();
 
-	BMPFile bmpFile(dirName + fileName);
+	BMPFile bmpFile;
+	bmpFile.open(dirName + fileName);
 
 	_width = bmpFile.getWidth();
-	Log::getInstance().write("width: %u\n", _width);
+	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
 
 	_height = bmpFile.getHeight();
-	Log::getInstance().write("height: %u\n", _height);
+	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
 
 	for (int i = 0; i < _width; i++)
 	{

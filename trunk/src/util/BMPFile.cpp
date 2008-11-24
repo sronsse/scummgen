@@ -1,15 +1,20 @@
 #include "BMPFile.hpp"
 #include <fstream>
+#include "Log.hpp"
 
 const uint8_t BMPFile::BI_RGB = 0;
 const uint8_t BMPFile::N_CHANNELS = 3;
 
-BMPFile::BMPFile(string fileName)
+BMPFile::BMPFile()
+{
+}
+
+bool BMPFile::open(string fileName)
 {
 	// We open the file, which should be an indexed BMP file
 	ifstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
-		return;
+		return false;
 
 	uint16_t identifier;
 	file.read((char *)&identifier, 2);
@@ -38,7 +43,7 @@ BMPFile::BMPFile(string fileName)
 	if (_bpp > 8)
 	{
 		file.close();
-		return;
+		return false;
 	}
 
 	uint32_t compression;
@@ -47,7 +52,7 @@ BMPFile::BMPFile(string fileName)
 	if (compression != BI_RGB)
 	{
 		file.close();
-		return;
+		return false;
 	}
 	uint32_t bitmapDataSize;
 	file.read((char *)&bitmapDataSize, 4);
@@ -107,6 +112,7 @@ BMPFile::BMPFile(string fileName)
  	}
 
 	file.close();
+	return true;
 }
 
 BMPFile::~BMPFile()

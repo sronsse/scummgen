@@ -1,6 +1,7 @@
 #ifndef _COSTUME_HPP_
 #define _COSTUME_HPP_
 
+#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -11,15 +12,11 @@ class XMLNode;
 class Anim
 {
 private:
-	static vector<Anim *> _instances;
-
 	string _name;
 	uint8_t _id;
 	bool _loop;
 	vector<uint8_t> _commands;
 public:
-	static Anim *getInstanceFromName(string animName);
-
 	Anim(string fileName, uint8_t id);
 	string getName() { return _name; }
 	uint8_t getID() { return _id; }
@@ -55,7 +52,7 @@ class Costume
 {
 private:
 	static const int N_LIMBS;
-	static vector<Costume *> _instances;
+	static map<string, Costume *> _instances;
 
 	string _name;
 	uint16_t _id;
