@@ -1,0 +1,13 @@
+#summary ScummGEN's current status
+
+You can follow ScummGEN's advancement on this page.
+
+----
+
+== November 24, 2008 ==
+
+This is the first entry to the status page. I just updated the SVN today with all the work I did during the last four months. I didn't want to update it before as I was constantly changing the folder hierarchy and reorganizing the project architecture.
+
+Even though the SVN doesn't contain any example yet (which means it's hard to try to run the project and have valid resource files generated), it's still interesting to mention the new grammar subfolder which contains a work-in-progress ScummGEN script compiler. A lot of ideas have been taken from ScummC, even though there are a few important differences worth noticing - I'll make a wiki page on this later.
+
+As far as the features are concerned, I seriously started playing with SCUMM - using the compiler you can display characters, draw text, play sounds from the MONSTER.SOU file, have fun with palette cycling, interact with the game using your mouse and keyboard, and a lot of other stuff I forgot. The raw SCUMM opcodes are not always easy to understand which is why I'm creating, along with the compiler, an application programming interface (using ScummGEN's language) which will have clear function names so that people will easily be able to code something without looking at weird documentation all the time ;)
