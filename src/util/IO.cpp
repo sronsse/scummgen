@@ -1,5 +1,7 @@
 #include "IO.hpp"
 
+uint8_t IO::_key;
+
 string IO::readString(fstream &f, uint8_t length)
 {
 	string s(length, 0); 
@@ -71,66 +73,73 @@ uint8_t IO::readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
 
 void IO::writeString(fstream &f, string s)
 {
+	uint8_t data;
 	for (int i = 0; i < s.length(); i++)
-		f.write(&s[i], 1);
+	{
+		data = s[i] ^ _key;
+		f.write((char *)&data, 1);
+	}
 }
 
 void IO::writeU8(fstream &f, uint8_t data)
 {
+	data ^= _key;
 	f.write((char *)&data, 1);
 }
 
 void IO::writeU16LE(fstream &f, uint16_t data)
 {
+	data ^= (_key << 8) | _key;
 	f.write((char *)&data, 2);
 }
 
 void IO::writeU16BE(fstream &f, uint16_t data)
 {
 	uint8_t u8;
-	u8 = data >> 8;
+	u8 = (data >> 8) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data;
+	u8 = data ^ _key;
 	f.write((char *)&u8, 1);
 }
 
 void IO::writeU24LE(fstream &f, uint32_t data)
 {
 	uint8_t u8;
-	u8 = data;
+	u8 = data ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data >> 8;
+	u8 = (data >> 8) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data >> 16;
+	u8 = (data >> 16) ^ _key;
 	f.write((char *)&u8, 1);
 }
 
 void IO::writeU24BE(fstream &f, uint32_t data)
 {
 	uint8_t u8;
-	u8 = data >> 16;
+	u8 = (data >> 16) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data >> 8;
+	u8 = (data >> 8) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data;
+	u8 = data ^ _key;
 	f.write((char *)&u8, 1);
 }
 
 void IO::writeU32LE(fstream &f, uint32_t data)
 {
+	data ^= (_key << 24) | (_key << 16) | (_key << 8) | _key;
 	f.write((char *)&data, 4);
 }
 
 void IO::writeU32BE(fstream &f, uint32_t data)
 {
 	uint8_t u8;
-	u8 = data >> 24;
+	u8 = (data >> 24) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data >> 16;
+	u8 = (data >> 16) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data >> 8;
+	u8 = (data >> 8) ^ _key;
 	f.write((char *)&u8, 1);
-	u8 = data;
+	u8 = data ^ _key;
 	f.write((char *)&u8, 1);
 }
 

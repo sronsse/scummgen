@@ -6,6 +6,13 @@
 #include <string>
 using namespace std;
 
+typedef enum
+{
+	LOG_INFO,
+	LOG_WARNING,
+	LOG_ERROR
+} LogType;
+
 class Log
 {
 private:
@@ -19,10 +26,11 @@ private:
 	~Log();
 public:
 	static Log &getInstance();
+
 	void setActive(bool active);
 	void indent() { _indent++; }
 	void unIndent() { _indent--; }
-	void write(const char *s, ...);
+	void write(LogType type, const char *s, ...);
 };
 
 #endif

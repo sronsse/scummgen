@@ -1,6 +1,7 @@
 #ifndef _VOICE_HPP_
 #define _VOICE_HPP_
 
+#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -9,7 +10,7 @@ using namespace std;
 class Voice
 {
 private:
-	static vector<Voice *> _instances;
+	static map<string, Voice *> _instances;
 
 	string _name;
 	vector<uint16_t> _syncTimes;

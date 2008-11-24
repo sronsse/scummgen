@@ -31,7 +31,8 @@ private:
 
 	void parse(XMLNode *&destNode, xmlNode *srcNode);
 public:
-	XMLFile(string fileName);
+	XMLFile();
+	bool open(string fileName);
 	XMLNode *getRootNode() { return _rootNode; }
 	~XMLFile();
 };

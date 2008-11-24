@@ -1,18 +1,19 @@
 #ifndef _OBJECT_HPP_
 #define _OBJECT_HPP_
 
+#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
 using namespace std;
 
 class Image;
-class Script;
+class Function;
 
 class Object
 {
 private:
-	static vector<Object *> _instances;
+	static map<string, Object *> _instances;
 
 	string _name;
 	uint16_t _id;
@@ -27,9 +28,9 @@ private:
 	uint16_t _height;
 	uint8_t _flags;
 	uint8_t _parent;
-	uint8_t _actorDir;
-	Script *_script;	
+	uint8_t _actorDir;	
 	uint32_t _classData;
+	Function *_function;
 
 	void loadImages(string dirName, uint16_t nZPlanes);
 public:
@@ -52,8 +53,9 @@ public:
 	uint8_t getFlags() { return _flags; }
 	uint8_t getParent() { return _parent; }
 	uint8_t getActorDir() { return _actorDir; }
-	Script *getScript() { return _script; }
 	uint32_t getClassData() { return _classData; }
+	Function *getFunction() { return _function; }
+	void setFunction(Function *function) { _function = function; }
 	~Object();
 };
 
