@@ -8,21 +8,6 @@ using namespace std;
 
 class XMLNode;
 
-class Matrix
-{
-private:
-	vector<uint8_t> _boxAs;
-	vector<uint8_t> _boxBs;
-	vector<uint8_t> _dests;
-public:
-	Matrix(XMLNode *node);
-	uint8_t getNumberOfEntries() { return _boxAs.size(); }
-	uint8_t getBoxA(uint8_t index) { return _boxAs[index]; }
-	uint8_t getBoxB(uint8_t index) { return _boxBs[index]; }
-	uint8_t getDest(uint8_t index) { return _dests[index]; }
-	~Matrix();
-};
-
 class Box
 {
 private:
@@ -34,7 +19,9 @@ private:
 	uint32_t _flags;
 	uint32_t _scaleSlot;
 	uint32_t _scale;
-	Matrix *_matrix;
+	float _centerX;
+	float _centerY;
+	vector<uint8_t> _neighbours;
 public:
 	Box(XMLNode *node);
 	int32_t getULX() { return _ulx; }
@@ -49,7 +36,10 @@ public:
 	uint32_t getFlags() { return _flags; }
 	uint32_t getScaleSlot() { return _scaleSlot; }
 	uint32_t getScale() { return _scale; }
-	Matrix *getMatrix() { return _matrix; }
+	uint8_t getNumberOfNeighbours() { return _neighbours.size(); }
+	uint8_t getNeighbour(uint8_t index) { return _neighbours[index]; }
+	float getCenterX() { return _centerX; }
+	float getCenterY() { return _centerY; }
 	~Box();
 };
 
@@ -69,19 +59,63 @@ public:
 	~Scale();
 };
 
+class Node
+{
+private:
+	uint8_t _id;
+	Node *_parent;
+	float _fCost;
+	float _gCost;
+	float _posX;
+	float _posY;
+	vector<Node *> _neighbours;
+public:
+	static bool compare(Node *node1, Node *node2);
+
+	Node(uint8_t id, float posX, float posY);
+	void init();
+	uint8_t getID() { return _id; }
+	Node *getParent() { return _parent; }
+	void setParent(Node *parent) { _parent = parent; }
+	float getFCost() { return _fCost; }
+	void setFCost(float fCost) { _fCost = fCost; }
+	float getGCost() { return _gCost; }
+	void setGCost(float gCost) { _gCost = gCost; }
+	float getPosX() { return _posX; }
+	float getPosY() { return _posY; }
+	uint8_t getNumberOfNeighbours() { return _neighbours.size(); }
+	Node *getNeighbour(uint8_t index) { return _neighbours[index]; }
+	void addNeighbour(Node *neighbour) { _neighbours.push_back(neighbour); }
+	float distanceSquared(Node *node);
+	~Node();
+};
+
+class Matrix
+{
+private:
+	vector<vector<uint8_t> > _dests;
+
+	Node *AStar(vector<Node *> *open, vector<Node *> *closed, Node *goal);
+public:
+	Matrix(vector<Box *> *boxes);
+	uint8_t getDest(uint8_t indexA, uint8_t indexB) { return _dests[indexA][indexB]; }
+	~Matrix();
+};
+
 class Map
 {
 private:
 	vector<Box *> _boxes;
 	vector<Scale *> _scales;
+	Matrix *_matrix;
 public:
 	Map(string dirName);
 	uint32_t getNumberOfBoxes() { return _boxes.size(); }
 	Box *getBox(uint32_t index) { return _boxes[index]; }
 	uint8_t getNumberOfScales() { return _scales.size(); }
 	Scale *getScale(uint8_t index) { return _scales[index]; }
+	Matrix *getMatrix() { return _matrix; }
 	~Map();
 };
 
 #endif
-
