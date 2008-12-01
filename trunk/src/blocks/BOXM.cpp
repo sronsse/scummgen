@@ -11,11 +11,11 @@ BOXM::BOXM(Map *map)
 		vector<uint8_t> boxAs;
 		vector<uint8_t> boxBs;
 		vector<uint8_t> dests;
-		for (int j = 0; j < map->getBox(i)->getMatrix()->getNumberOfEntries(); j++)
+		for (int j = 0; j < map->getNumberOfBoxes(); j++)
 		{
-			boxAs.push_back(map->getBox(i)->getMatrix()->getBoxA(j));
-			boxBs.push_back(map->getBox(i)->getMatrix()->getBoxB(j));
-			dests.push_back(map->getBox(i)->getMatrix()->getDest(j));
+			boxAs.push_back(i);
+			boxBs.push_back(j);
+			dests.push_back(map->getMatrix()->getDest(i, j));
 		}
 		_boxAs.push_back(boxAs);
 		_boxBs.push_back(boxBs);
