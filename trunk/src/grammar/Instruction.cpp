@@ -324,6 +324,7 @@ void Instruction::setOpcodes()
 	_opcodes["lt"] = OC_LT;
 	_opcodes["loadCostume"] = SO_LOAD_COSTUME;
 	_opcodes["loadRoom"] = OC_LOAD_ROOM;
+	_opcodes["lockRoom"] = SO_LOCK_ROOM;
 	_opcodes["mul"] = OC_MUL;
 	_opcodes["not"] = OC_NOT;
 	_opcodes["pop"] = OC_POP;

@@ -179,7 +179,7 @@ void SwitchStatement::compile(vector<Instruction *> &instructions)
 	// We first consider all the case conditions
 	CaseStatement *defaultStatement = NULL;
 	Expression *caseExpression;
-	int defaultLabel;
+	int defaultLabel = -1;
 	set<int16_t> caseValues;
 	for (int i = 0; i < _caseStatements.size(); i++)
 	{

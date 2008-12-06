@@ -9,7 +9,7 @@ DSCR::DSCR(Game *game, LFLF *lflf)
 
 	for (int i = 0; i < lflf->getNumberOfSCRPOffsets(); i++)
 	{
-		_ids.push_back(1); // Global scripts are all in room n°1
+		_ids.push_back(1); // Global scripts are in the first room
 		_offsets.push_back(lflf->getSCRPOffset(i));
 	}
 

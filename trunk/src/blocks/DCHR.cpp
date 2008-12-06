@@ -9,7 +9,7 @@ DCHR::DCHR(Game *game, LFLF *lflf)
 
 	for (int i = 0; i < lflf->getNumberOfCHAROffsets(); i++)
 	{
-		_ids.push_back(1); // Charsets are in room n°1
+		_ids.push_back(1); // Charsets are in the first room
 		_offsets.push_back(lflf->getCHAROffset(i));
 	}
 
