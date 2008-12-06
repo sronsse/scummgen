@@ -195,9 +195,17 @@ Map::Map(string dirName)
 	Log::getInstance().write(LOG_INFO, "Map\n");
 	Log::getInstance().indent();
 
+	_matrix = NULL;
+
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "map.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
+
+	if (rootNode == NULL)
+	{
+		Log::getInstance().write(LOG_WARNING, "Room doesn't contain any map !\n");
+		return;
+	}
 
 	int i = 0;
 	XMLNode *child;
@@ -220,4 +228,7 @@ Map::~Map()
 
 	for (int i = 0; i < _scales.size(); i++)
 		delete _scales[i];
+
+	if (_matrix != NULL)
+		delete _matrix;
 }
