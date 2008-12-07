@@ -3,7 +3,7 @@
 #include "types/Voice.hpp"
 
 const int VOC::HEADER_SIZE = 26;
-const int VOC::VERSION = 0x10A;
+const int VOC::FILE_VERSION = 0x10A;
 const int VOC::MAGIC_NUMBER = 0x1234;
 const int VOC::TERMINATOR_BLOCK_ID = 0;
 const int VOC::SOUND_DATA_BLOCK_ID = 1;
@@ -22,7 +22,7 @@ uint32_t VOC::getSize()
 	size += 19 * sizeof(uint8_t); // identifier
 	size += sizeof(uint8_t); // EOF
 	size += sizeof(uint16_t); // HEADER_SIZE
-	size += sizeof(uint16_t); // VERSION
+	size += sizeof(uint16_t); // FILE_VERSION
 	size += sizeof(uint16_t); // ~VERSION + MAGIC_NUMBER
 	size += sizeof(uint8_t); // SOUND_DATA_BLOCK_ID
 	size += 3 * sizeof(uint8_t); // 2 + _nDataBytes
@@ -39,8 +39,8 @@ void VOC::write(fstream &f)
 	IO::writeString(f, "Creative Voice File");
 	IO::writeU8(f, 0x1A);
 	IO::writeU16LE(f, HEADER_SIZE);
-	IO::writeU16LE(f, VERSION);
-	IO::writeU16LE(f, ~VERSION + MAGIC_NUMBER);
+	IO::writeU16LE(f, FILE_VERSION);
+	IO::writeU16LE(f, ~FILE_VERSION + MAGIC_NUMBER);
 	IO::writeU8(f, SOUND_DATA_BLOCK_ID);
 	IO::writeU24LE(f, 2 + _dataBytes.size());
 	IO::writeU8(f, _freqDivisor);

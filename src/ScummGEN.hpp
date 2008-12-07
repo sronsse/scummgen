@@ -23,10 +23,6 @@ private:
 	void writeVoiceFile(string outputDirName);
 	~ScummGEN();
 public:
-	static const uint8_t MAJOR_VERSION;
-	static const uint8_t MINOR_VERSION;
-	static const char VERSION_TYPE;
-
 	static ScummGEN &getInstance();
 
 	void load(string gameDir);
