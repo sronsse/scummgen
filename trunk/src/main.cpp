@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <config.hpp>
 #include "util/Log.hpp"
 #include "ScummGEN.hpp"
 using namespace std;
@@ -12,7 +13,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	cout << "ScummGEN version " << (int)ScummGEN::MAJOR_VERSION << '.' << (int)ScummGEN::MINOR_VERSION << '.' << ScummGEN::VERSION_TYPE << endl;
+	cout << PACKAGE_STRING << endl;
 
 	Log::getInstance().setActive(true);
 

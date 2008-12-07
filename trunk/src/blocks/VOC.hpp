@@ -12,7 +12,7 @@ class VOC
 {
 private:
 	static const int HEADER_SIZE;
-	static const int VERSION;
+	static const int FILE_VERSION;
 	static const int MAGIC_NUMBER;
 	static const int TERMINATOR_BLOCK_ID;
 	static const int SOUND_DATA_BLOCK_ID;

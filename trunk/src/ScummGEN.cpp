@@ -19,9 +19,6 @@
 const string ScummGEN::INDEX_FILE_EXTENSION = ".000";
 const string ScummGEN::RESOURCE_FILE_EXTENSION = ".001";
 const string ScummGEN::VOICE_FILE_NAME = "MONSTER.SOU";
-const uint8_t ScummGEN::MAJOR_VERSION = 0;
-const uint8_t ScummGEN::MINOR_VERSION = 1;
-const char ScummGEN::VERSION_TYPE = 'a';
 
 ScummGEN &ScummGEN::getInstance()
 {

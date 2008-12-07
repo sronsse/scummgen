@@ -4,7 +4,7 @@
 #include "Expression.hpp"
 #include "Function.hpp"
 #include "Statement.hpp"
-#include "y.tab.h"
+#include "parser.h"
 %}
 
 %option yylineno
