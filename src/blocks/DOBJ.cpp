@@ -6,16 +6,29 @@
 
 DOBJ::DOBJ(Game *game)
 {
+	// Actor objects
 	for (int i = 0; i < Game::N_DEFAULT_ACTORS; i++)
 	{
 		_ownersAndStates.push_back(0);
 		_classData.push_back(0);
 	}
 
+	// Game global objects
+	for (int i = 0; i < game->getNumberOfObjects(); i++)
+	{
+		uint8_t ownerAndState = game->getObject(i)->getFlags() << 4;
+		ownerAndState |= game->getObject(i)->getParent();
+		_ownersAndStates.push_back(ownerAndState);
+		_classData.push_back(game->getObject(i)->getClassData());
+	}
+
+	// Room objects
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		for (int j = 0; j < game->getRoom(i)->getNumberOfObjects(); j++)
 		{
-			_ownersAndStates.push_back(game->getRoom(i)->getObject(j)->getFlags() << 4 | game->getRoom(i)->getObject(j)->getParent());
+			uint8_t ownerAndState = game->getRoom(i)->getObject(j)->getFlags() << 4;
+			ownerAndState |= game->getRoom(i)->getObject(j)->getParent();
+			_ownersAndStates.push_back(ownerAndState);
 			_classData.push_back(game->getRoom(i)->getObject(j)->getClassData());
 		}
 

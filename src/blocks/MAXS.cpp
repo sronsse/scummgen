@@ -27,10 +27,10 @@ MAXS::MAXS(Game *game)
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		_nSounds += game->getRoom(i)->getNumberOfSounds();
 	_nCharsets = game->getNumberOfCharsets() + 1;
-	_nCostumes = 1;
+	_nCostumes = game->getNumberOfCostumes() + 1;
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		_nCostumes += game->getRoom(i)->getNumberOfCostumes();
-	_nGlobalObjects = Game::N_DEFAULT_ACTORS;
+	_nGlobalObjects = Game::N_DEFAULT_ACTORS + game->getNumberOfObjects();
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		_nGlobalObjects += game->getRoom(i)->getNumberOfObjects();
 }

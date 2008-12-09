@@ -1,5 +1,6 @@
 #include "ROOM.hpp"
 #include "util/IO.hpp"
+#include "types/Game.hpp"
 #include "types/Room.hpp"
 #include "RMHD.hpp"
 #include "CYCL.hpp"
@@ -16,17 +17,30 @@
 #include "BOXM.hpp"
 #include "SCAL.hpp"
 
-ROOM::ROOM(Room *room)
+ROOM::ROOM(Game *game, uint8_t roomIndex)
 {
+	Room *room = game->getRoom(roomIndex);
+
 	_rmhd = new RMHD(room);
 	_cycl = new CYCL(room->getPalette());
 	_trns = new TRNS(room->getPalette());
 	_pals = new PALS(room->getPalette());
 	_rmim = new RMIM(room->getBackground());
+	
+	// Add global objects to the first room
+	if (room->getID() == 1)
+	{
+		for (int i = 0; i < game->getNumberOfObjects(); i++)
+			_obims.push_back(new OBIM(game->getObject(i)));
+		for (int i = 0; i < game->getNumberOfObjects(); i++)
+			_obcds.push_back(new OBCD(game->getObject(i)));
+	}
+	
 	for (int i = 0; i < room->getNumberOfObjects(); i++)
 		_obims.push_back(new OBIM(room->getObject(i)));
 	for (int i = 0; i < room->getNumberOfObjects(); i++)
 		_obcds.push_back(new OBCD(room->getObject(i)));
+
 	_excd = new EXCD(room->getExitFunction());
 	_encd = new ENCD(room->getEntryFunction());
 	_nlsc = new NLSC(room);

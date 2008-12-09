@@ -10,8 +10,8 @@ DCOS::DCOS(Game *game, LECF *lecf)
 	_ids.push_back(0);
 	_offsets.push_back(0);
 
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		for (int j = 0; j < game->getRoom(i)->getNumberOfCostumes(); j++)
+	for (int i = 0; i < lecf->getNumberOfLFLFs(); i++)
+		for (int j = 0; j < lecf->getLFLF(i)->getNumberOfCOSTOffsets(); j++)
 		{
 			_ids.push_back(game->getRoom(i)->getID());
 			_offsets.push_back(lecf->getLFLF(i)->getCOSTOffset(j));

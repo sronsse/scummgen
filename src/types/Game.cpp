@@ -6,6 +6,8 @@
 #include "grammar/Declaration.hpp"
 #include "grammar/Function.hpp"
 #include "Room.hpp"
+#include "Object.hpp"
+#include "Costume.hpp"
 #include "Charset.hpp"
 #include "Voice.hpp"
 
@@ -67,7 +69,9 @@ Game::Game(string dirName)
 		_arrays.push_back(new Array(child));
 
 	loadRooms(dirName + "rooms/");
+	loadObjects(dirName + "objects/");
 	loadScripts(dirName + "scripts/");
+	loadCostumes(dirName + "costumes/");
 	loadCharsets(dirName + "charsets/");
 	loadVoices(dirName + "voices/");
 
@@ -93,6 +97,21 @@ void Game::loadRooms(string dirName)
 
 	if (_rooms.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any room !\n");
+}
+
+void Game::loadObjects(string dirName)
+{
+	XMLFile xmlFile;
+	xmlFile.open(dirName + "objects.xml");
+	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+		return;
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("object", i++)) != NULL)
+		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
 }
 
 void Game::loadScripts(string dirName)
@@ -135,6 +154,27 @@ void Game::loadCharsets(string dirName)
 
 	if (_charsets.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any charset !\n");
+}
+
+void Game::loadCostumes(string dirName)
+{
+	XMLFile xmlFile;
+	xmlFile.open(dirName + "costumes.xml");
+	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+	{
+		Log::getInstance().write(LOG_WARNING, "Game does not contain any global costume !\n");
+		return;
+	}
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("costume", i++)) != NULL)
+		_costumes.push_back(new Costume(dirName + child->getStringContent() + "/"));
+
+	if (_charsets.empty())
+		Log::getInstance().write(LOG_WARNING, "Game does not contain any global costume !\n");
 }
 
 void Game::loadVoices(string dirName)
@@ -236,6 +276,8 @@ Game::~Game()
 		delete _arrays[i];
 	for (int i = 0; i < _rooms.size(); i++)
 		delete _rooms[i];
+	for (int i = 0; i < _costumes.size(); i++)
+		delete _costumes[i];
 	for (int i = 0; i < _charsets.size(); i++)
 		delete _charsets[i];
 	for (int i = 0; i < _voices.size(); i++)

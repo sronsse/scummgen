@@ -6,7 +6,6 @@
 #include <vector>
 using namespace std;
 
-class Game;
 class LFLF;
 
 class DCHR
@@ -18,7 +17,7 @@ private:
 
 	uint32_t getSize();
 public:
-	DCHR(Game *game, LFLF *lflf);
+	DCHR(LFLF *lflf);
 	void write(fstream &f);
 	~DCHR();
 };

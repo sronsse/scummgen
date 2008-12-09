@@ -9,15 +9,23 @@
 
 LFLF::LFLF(Game *game, uint8_t roomIndex)
 {
-	_room = new ROOM(game->getRoom(roomIndex));
+	_room = new ROOM(game, roomIndex);
+
+	// Add global resources to the first room
 	if (game->getRoom(roomIndex)->getID() == 1)
+	{
 		for (int i = 0; i < game->getNumberOfFunctions(); i++)
 			_scrps.push_back(new SCRP(game->getFunction(i)));
-	for (int i = 0; i < game->getRoom(roomIndex)->getNumberOfCostumes(); i++)
-		_costs.push_back(new COST(game->getRoom(roomIndex)->getCostume(i)));
-	if (game->getRoom(roomIndex)->getID() == 1)
+
+		for (int i = 0; i < game->getNumberOfCostumes(); i++)
+			_costs.push_back(new COST(game->getCostume(i)));
+
 		for (int i = 0; i < game->getNumberOfCharsets(); i++)
 			_chars.push_back(new CHAR(game->getCharset(i)));
+	}
+
+	for (int i = 0; i < game->getRoom(roomIndex)->getNumberOfCostumes(); i++)
+		_costs.push_back(new COST(game->getRoom(roomIndex)->getCostume(i)));
 }
 
 uint32_t LFLF::getSize()

@@ -8,6 +8,8 @@ using namespace std;
 
 class XMLNode;
 class Room;
+class Object;
+class Costume;
 class Charset;
 class Voice;
 class Declaration;
@@ -37,14 +39,18 @@ private:
 	uint8_t _key;
 	vector<Array *> _arrays;
 	vector<Room *> _rooms;
+	vector<Object *> _objects;
 	vector<string> _scripts;
+	vector<Costume *> _costumes;
 	vector<Charset *> _charsets;
 	vector<Voice *> _voices;
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
 
 	void loadRooms(string dirName);
+	void loadObjects(string dirName);
 	void loadScripts(string dirName);
+	void loadCostumes(string dirName);
 	void loadCharsets(string dirName);
 	void loadVoices(string dirName);
 public:
@@ -62,6 +68,10 @@ public:
 	Array *getArray(uint16_t index) { return _arrays[index]; }
 	uint8_t getNumberOfRooms() { return _rooms.size(); }
 	Room *getRoom(uint8_t index) { return _rooms[index]; }
+	uint16_t getNumberOfObjects() { return _objects.size(); }
+	Object *getObject(uint16_t index) { return _objects[index]; }
+	uint16_t getNumberOfCostumes() { return _costumes.size(); }
+	Costume *getCostume(uint16_t index) { return _costumes[index]; }
 	uint8_t getNumberOfCharsets() { return _charsets.size(); }
 	Charset *getCharset(uint8_t index) { return _charsets[index]; }
 	uint16_t getNumberOfVoices() { return _voices.size(); }

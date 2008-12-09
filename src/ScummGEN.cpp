@@ -40,10 +40,10 @@ void ScummGEN::writeIndexFile(string outputDirName)
 	RNAM rnam(_game);
 	MAXS maxs(_game);
 	DROO droo(_game);
-	DSCR dscr(_game, _lecf->getLFLF(0));
+	DSCR dscr(_lecf->getLFLF(0));
 	DSOU dsou(_game, _lecf);
 	DCOS dcos(_game, _lecf);
-	DCHR dchr(_game, _lecf->getLFLF(0));
+	DCHR dchr(_lecf->getLFLF(0));
 	DOBJ dobj(_game);
 	AARY aary(_game);
 	string indexFileName = outputDirName + _game->getShortName() + INDEX_FILE_EXTENSION;
