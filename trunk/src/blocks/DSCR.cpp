@@ -2,7 +2,7 @@
 #include "util/IO.hpp"
 #include "LFLF.hpp"
 
-DSCR::DSCR(Game *game, LFLF *lflf)
+DSCR::DSCR(LFLF *lflf)
 {
 	_ids.push_back(0);
 	_offsets.push_back(0);

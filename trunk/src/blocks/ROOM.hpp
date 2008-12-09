@@ -7,6 +7,7 @@
 #include <vector>
 using namespace std;
 
+class Game;
 class Room;
 class RMHD;
 class CYCL;
@@ -41,7 +42,7 @@ private:
 	BOXM *_boxm;
 	SCAL *_scal;
 public:
-	ROOM(Room *room);
+	ROOM(Game *game, uint8_t roomIndex);
 	uint32_t getSize();
 	void write(fstream &f);
 	~ROOM();

@@ -6,7 +6,6 @@
 #include <vector>
 using namespace std;
 
-class Game;
 class LFLF;
 
 class DSCR
@@ -18,7 +17,7 @@ private:
 
 	uint32_t getSize();
 public:
-	DSCR(Game *game, LFLF *lflf);
+	DSCR(LFLF *lflf);
 	void write(fstream &f);
 	~DSCR();
 };
