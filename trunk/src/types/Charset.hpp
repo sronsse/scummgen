@@ -1,7 +1,6 @@
 #ifndef _CHARSET_HPP_
 #define _CHARSET_HPP_
 
-#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -34,7 +33,6 @@ class Charset
 {
 private:
 	static const uint8_t N_COLORS;
-	static map<string, Charset *> _instances;
 
 	string _name;
 	uint32_t _width;
@@ -46,8 +44,6 @@ private:
 	uint8_t _fontHeight;
 	vector<Char *>_chars;
 public:
-	static Charset *getInstanceFromName(string charsetName);
-
 	Charset(string dirName);
 	string getName() { return _name; }
 	uint32_t getWidth() { return _width; }

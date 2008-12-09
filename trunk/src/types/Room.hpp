@@ -1,7 +1,6 @@
 #ifndef _ROOM_HPP_
 #define _ROOM_HPP_
 
-#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -21,8 +20,6 @@ class Room
 private:
 	static const uint8_t MIN_LOCAL_ID;
 
-	static map<string, Room *> _instances;
-
 	string _name;
 	uint8_t _id;
 	Image *_background;
@@ -34,14 +31,13 @@ private:
 	vector<Costume *> _costumes;
 	Function *_entryFunction;
 	Function *_exitFunction;
+	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
 
 	void loadObjects(string dirName);
 	void loadScripts(string dirName);
 	void loadCostumes(string dirName);
 public:
-	static Room *getInstanceFromName(string roomName);
-
 	Room(string dirName);
 	void parse(vector<Declaration *> &declarations);
 	void compile();

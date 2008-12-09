@@ -6,15 +6,6 @@
 #include "Game.hpp"
 #include "Image.hpp"
 
-map<string, Object *> Object::_instances;
-
-Object *Object::getInstanceFromName(string objectName)
-{
-	if (_instances.find(objectName) == _instances.end())
-		return NULL;
-	return _instances[objectName];
-}
-
 Object::Object(string dirName)
 {
 	XMLFile xmlFile;
@@ -29,10 +20,9 @@ Object::Object(string dirName)
 	_name = dirName.substr(posA, posB + 1 - posA);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_id = Game::N_DEFAULT_ACTORS + _instances.size();
+	static uint16_t currentID = Game::N_DEFAULT_ACTORS + 1;
+	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
-
-	_instances[_name] = this;
 
 	_imageX = node->getChild("imageX")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "imageX: %u\n", _imageX);

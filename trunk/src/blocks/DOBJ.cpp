@@ -6,6 +6,9 @@
 
 DOBJ::DOBJ(Game *game)
 {
+	_ownersAndStates.push_back(0);
+	_classData.push_back(0);
+
 	// Actor objects
 	for (int i = 0; i < Game::N_DEFAULT_ACTORS; i++)
 	{

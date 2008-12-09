@@ -1,7 +1,6 @@
 #ifndef _OBJECT_HPP_
 #define _OBJECT_HPP_
 
-#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -13,8 +12,6 @@ class Function;
 class Object
 {
 private:
-	static map<string, Object *> _instances;
-
 	string _name;
 	uint16_t _id;
 	vector<Image *> _images;
@@ -34,8 +31,6 @@ private:
 
 	void loadImages(string dirName, uint16_t nZPlanes);
 public:
-	static Object *getInstanceFromName(string objectName);
-
 	Object(string dirName);
 	string getName() { return _name; }
 	uint16_t getID() { return _id; }

@@ -47,10 +47,10 @@ private:
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
 
-	void loadRooms(string dirName);
 	void loadObjects(string dirName);
-	void loadScripts(string dirName);
 	void loadCostumes(string dirName);
+	void loadRooms(string dirName);
+	void loadScripts(string dirName);
 	void loadCharsets(string dirName);
 	void loadVoices(string dirName);
 public:
