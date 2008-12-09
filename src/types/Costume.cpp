@@ -4,8 +4,6 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-map<string, Costume *> Costume::_instances;
-
 Anim::Anim(string fileName, uint8_t id)
 {
 	Log::getInstance().write(LOG_INFO, "Anim\n");
@@ -76,13 +74,6 @@ Frame::~Frame()
 {
 }
 
-Costume *Costume::getInstanceFromName(string costumeName)
-{
-	if (_instances.find(costumeName) == _instances.end())
-		return NULL;
-	return _instances[costumeName];
-}
-
 Costume::Costume(string dirName)
 {
 	Log::getInstance().write(LOG_INFO, "Costume\n");
@@ -93,13 +84,12 @@ Costume::Costume(string dirName)
 	_name = dirName.substr(posA, posB + 1 - posA);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_instances[_name] = this;
-
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "costume.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_id = _instances.size();
+	static uint16_t currentID = 1;
+	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
 
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();

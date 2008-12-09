@@ -1,7 +1,6 @@
 #ifndef _COSTUME_HPP_
 #define _COSTUME_HPP_
 
-#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -52,7 +51,6 @@ class Costume
 {
 private:
 	static const int N_LIMBS;
-	static map<string, Costume *> _instances;
 
 	string _name;
 	uint16_t _id;
@@ -62,8 +60,6 @@ private:
 	vector<Anim *> _anims;
 	vector<Frame *> _frames;
 public:
-	static Costume *getInstanceFromName(string costumeName);
-
 	Costume(string dirName);
 	string getName() { return _name; }
 	uint16_t getID() { return _id; }

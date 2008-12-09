@@ -19,15 +19,6 @@ extern int yylineno;
 
 const uint8_t Room::MIN_LOCAL_ID = 200;
 
-map<string, Room *> Room::_instances;
-
-Room *Room::getInstanceFromName(string roomName)
-{
-	if (_instances.find(roomName) == _instances.end())
-		return NULL;
-	return _instances[roomName];
-}
-
 Room::Room(string dirName)
 {
 	Log::getInstance().write(LOG_INFO, "Room\n");
@@ -42,9 +33,8 @@ Room::Room(string dirName)
 	_name = dirName.substr(posA, posB + 1 - posA);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_instances[_name] = this;
-
-	_id = _instances.size();
+	static uint8_t currentID = 1;
+	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 	
 	uint16_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
@@ -75,6 +65,10 @@ void Room::loadObjects(string dirName)
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
 		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
+
+	// Add object declarations so that they can be used in scripts
+	for (int i = 0; i < _objects.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
 }
 
 void Room::loadScripts(string dirName)
@@ -108,6 +102,10 @@ void Room::loadCostumes(string dirName)
 	XMLNode *child;
 	while ((child = node->getChild("costume", i++)) != NULL)
 		_costumes.push_back(new Costume(dirName + child->getStringContent() + "/"));
+
+	// Add costume declarations so that they can be used in scripts
+	for (int i = 0; i < _costumes.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
 }
 
 void Room::parse(vector<Declaration *> &declarations)
@@ -188,7 +186,7 @@ void Room::compile()
 	Log::getInstance().write(LOG_INFO, "Compiling room \"%s\"...\n", _name.c_str());
 	Log::getInstance().indent();	
 
-	Context context(CONTEXT_ROOM, NULL, &_functions, -1, -1, -1);
+	Context context(CONTEXT_ROOM, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
 	
 	// We compile the common functions
@@ -218,6 +216,8 @@ Room::~Room()
 	delete _map;
 	for (int i = 0; i < _costumes.size(); i++)
 		delete _costumes[i];
+	for (int i = 0; i < _declarations.size(); i++)
+		delete _declarations[i];
 	delete _entryFunction;
 	delete _exitFunction;
 	for (int i = 0; i < _functions.size(); i++)
