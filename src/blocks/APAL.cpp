@@ -7,17 +7,11 @@ const uint16_t APAL::N_COLORS = 256;
 APAL::APAL(Palette *palette)
 {
 	for (int i = 0; i < palette->getNumberOfColors(); i++)
-	{
-		_rs.push_back(palette->getColor(i, 2));
-		_gs.push_back(palette->getColor(i, 1));
-		_bs.push_back(palette->getColor(i, 0));
-	}
+		_colors.push_back(palette->getColor(i));
+
+	Color black = { 0, 0, 0 };
 	for (int i = palette->getNumberOfColors(); i < N_COLORS; i++)
-	{
-		_rs.push_back(0);
-		_gs.push_back(0);
-		_bs.push_back(0);
-	}
+		_colors.push_back(black);
 }
 
 uint32_t APAL::getSize()
@@ -37,9 +31,9 @@ void APAL::write(fstream &f)
 	IO::writeU32BE(f, getSize());
 	for (int i = 0; i < N_COLORS; i++)
 	{
-		IO::writeU8(f, _rs[i]);
-		IO::writeU8(f, _gs[i]);
-		IO::writeU8(f, _bs[i]);
+		IO::writeU8(f, _colors[i].r);
+		IO::writeU8(f, _colors[i].g);
+		IO::writeU8(f, _colors[i].b);
 	}
 }
 

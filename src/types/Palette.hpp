@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include "util/BMPFile.hpp"
 using namespace std;
 
 class XMLNode;
@@ -29,15 +30,13 @@ public:
 class Palette
 {
 private:
-	static const uint8_t N_CHANNELS;
-
-	vector<uint8_t> _colors;
+	vector<Color> _colors;
 	vector<Cycle *> _cycles;
 	uint8_t _transparentIndex;
 public:
 	Palette(string dirName);
-	uint32_t getNumberOfColors() { return _colors.size() / N_CHANNELS; }
-	uint8_t getColor(uint32_t index, uint8_t channel) { return _colors[index * N_CHANNELS + channel]; }
+	uint32_t getNumberOfColors() { return _colors.size(); }
+	Color getColor(uint32_t index) { return _colors[index]; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint32_t index) { return _cycles.at(index); }
 	uint8_t getTransparentIndex() { return _transparentIndex; }

@@ -1,9 +1,6 @@
 #include "Palette.hpp"
-#include "util/BMPFile.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
-
-const uint8_t Palette::N_CHANNELS = 3;
 
 Cycle::Cycle(XMLNode *node)
 {
@@ -41,8 +38,7 @@ Palette::Palette(string dirName)
 	bmpFile.open(dirName +  "background.bmp");
 
 	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
-		for (int j = 0; j < 3; j++)
-			_colors.push_back(bmpFile.getColor(i, j));
+		_colors.push_back(bmpFile.getColor(i));
 
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "palette.xml");
