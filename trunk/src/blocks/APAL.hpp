@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "util/BMPFile.hpp"
 using namespace std;
 
 class Palette;
@@ -14,9 +15,7 @@ class APAL
 private:
 	static const uint16_t N_COLORS;
 
-	vector<uint8_t> _rs;
-	vector<uint8_t> _gs;
-	vector<uint8_t> _bs;
+	vector<Color> _colors;
 public:
 	APAL(Palette *palette);
 	uint32_t getSize();

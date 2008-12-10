@@ -3,7 +3,6 @@
 #include "Log.hpp"
 
 const uint8_t BMPFile::BI_RGB = 0;
-const uint8_t BMPFile::N_CHANNELS = 3;
 
 BMPFile::BMPFile()
 {
@@ -69,16 +68,15 @@ bool BMPFile::open(string fileName)
 	uint32_t nImportantColors;
 	file.read((char *)&nImportantColors, 4);
 
-	uint8_t r, g, b, unused;
+	Color color;
+	uint8_t unused;
 	for (int i = 0; i < nColors; i++)
 	{
-		file.read((char *)&r, 1);
-		file.read((char *)&g, 1);
-		file.read((char *)&b, 1);
+		file.read((char *)&color.b, 1);
+		file.read((char *)&color.g, 1);
+		file.read((char *)&color.r, 1);
 		file.read((char *)&unused, 1);
-		_colors.push_back(r);
-		_colors.push_back(g);
-		_colors.push_back(b);
+		_colors.push_back(color);
 	}
 
 	for (int i = 0; i < _width; i++)
