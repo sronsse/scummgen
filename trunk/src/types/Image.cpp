@@ -1,5 +1,4 @@
 #include "Image.hpp"
-#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 
@@ -46,6 +45,10 @@ Image::Image(string dirName, string fileName, uint16_t nZPlanes)
 	_height = bmpFile.getHeight();
 	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
 
+	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+		_colors.push_back(bmpFile.getColor(i));
+
+	_paletteBaseIndex = 0;
 	for (int i = 0; i < _width; i++)
 	{
 		vector<uint8_t> pixelColumn;

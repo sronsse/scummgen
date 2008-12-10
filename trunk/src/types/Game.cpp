@@ -10,6 +10,8 @@
 #include "Costume.hpp"
 #include "Charset.hpp"
 #include "Voice.hpp"
+#include "Image.hpp"
+#include "Palette.hpp"
 
 // External flex/bison declarations
 extern FILE *yyin;
@@ -75,6 +77,8 @@ Game::Game(string dirName)
 	loadCharsets(dirName + "charsets/");
 	loadVoices(dirName + "voices/");
 
+	updatePalettes();
+
 	Log::getInstance().unIndent();
 }
 
@@ -95,6 +99,18 @@ void Game::loadObjects(string dirName)
 	// Add object declarations so that they can be used in scripts
 	for (int i = 0; i < _objects.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+
+	// Add the colors of all the objects to our array of global colors
+	for (int i = 0; i < _objects.size(); i++)
+	{
+		if (_objects[i]->getNumberOfImages() == 0)
+			continue;
+
+		vector<Color> colors;
+		for (int j = 0; j < _objects[i]->getImage(0)->getNumberOfColors(); j++)
+			colors.push_back(_objects[i]->getImage(0)->getColor(j));
+		_globalColors.push_back(colors);
+	}
 }
 
 void Game::loadCostumes(string dirName)
@@ -120,6 +136,15 @@ void Game::loadCostumes(string dirName)
 	// Add costume declarations so that they can be used in scripts
 	for (int i = 0; i < _costumes.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+
+	// Add the colors of all the costumes to our array of global colors
+	for (int i = 0; i < _costumes.size(); i++)
+	{
+		vector<Color> colors;
+		for (int j = 0; j < _costumes[i]->getNumberOfColors(); j++)
+			colors.push_back(_costumes[i]->getColor(j));
+		_globalColors.push_back(colors);
+	}
 }
 
 void Game::loadRooms(string dirName)
@@ -213,7 +238,43 @@ void Game::loadVoices(string dirName)
 	if (_voices.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any voice !\n");
 
-	// TODO : add voice declarations
+	// TODO : add voice declarations for scripts
+}
+
+void Game::updatePalettes()
+{
+	// Calculate the number of global colors
+	uint16_t paletteSize = 0;
+	for (int i = 0; i < _globalColors.size(); i++)
+		paletteSize += _globalColors[i].size();
+
+	if (paletteSize > Palette::MAX_COLORS)
+		Log::getInstance().write(LOG_ERROR, "Global computed palette can't be bigger than %u !\n", Palette::MAX_COLORS);
+
+	// Update room palettes and compute palette base indices
+	vector<uint8_t> paletteBaseIndices;
+	for (int i = 0; i < _rooms.size(); i++)
+	{
+		uint8_t colorIndex = Palette::MAX_COLORS - paletteSize - 1;
+		for (int j = 0; j < _globalColors.size(); j++)
+		{
+			paletteBaseIndices.push_back(colorIndex);
+			for (int k = 0; k < _globalColors[j].size(); k++)
+				_rooms[i]->getPalette()->setColor(colorIndex++, _globalColors[j][k]);
+		}
+	}
+
+	// Update palette base indices
+	uint8_t index = 0;
+	for (int i = 0; i < _objects.size(); i++)
+	{
+		if (_objects[i]->getNumberOfImages() == 0)
+			continue;
+
+		_objects[i]->getImage(0)->setPaletteBaseIndex(paletteBaseIndices[index++]);
+	}
+	for (int i = 0; i < _costumes.size(); i++)
+		_costumes[i]->setPaletteBaseIndex(paletteBaseIndices[index++]);
 }
 
 void Game::parse()
@@ -305,4 +366,3 @@ Game::~Game()
 	for (int i = 0; i < _functions.size(); i++)
 		delete _functions[i];
 }
-

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "util/BMPFile.hpp"
 using namespace std;
 
 class XMLNode;
@@ -46,6 +47,7 @@ private:
 	vector<Voice *> _voices;
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
+	vector<vector<Color> > _globalColors;
 
 	void loadObjects(string dirName);
 	void loadCostumes(string dirName);
@@ -53,6 +55,7 @@ private:
 	void loadScripts(string dirName);
 	void loadCharsets(string dirName);
 	void loadVoices(string dirName);
+	void updatePalettes();
 public:
 	static const uint8_t N_DEFAULT_ACTORS;
 	static const uint16_t MAX_WORD_VARIABLES;

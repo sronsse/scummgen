@@ -13,8 +13,6 @@ class Palette;
 class APAL
 {
 private:
-	static const uint16_t N_COLORS;
-
 	vector<Color> _colors;
 public:
 	APAL(Palette *palette);

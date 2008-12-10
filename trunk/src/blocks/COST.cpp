@@ -12,11 +12,12 @@ COST::COST(Costume *costume)
 {
 	_format = !costume->isMirror() << 7; // If format's bit 7 is set, the animations are not mirrored
 
-	if (costume->getNumberOfColors() == 32) // If format's bit 0 is set, the number of colors is 32
+	uint8_t nColors = costume->getNumberOfColors() <= 16 ? 16 : 32;
+	if (nColors == 32) // If the number of colors is 32, the first bit of format should be set
 		_format |= 0x61;
 
-	for (int i = 0; i < costume->getNumberOfColors(); i++)
-		_palette.push_back(costume->getColor(i));
+	for (int i = 0; i < nColors; i++)
+		_palette.push_back(costume->getPaletteBaseIndex() + i);
 
 	_animCmdsOffset = 0;
 	_animCmdsOffset += sizeof(uint32_t); // unknown
@@ -111,7 +112,7 @@ COST::COST(Costume *costume)
 void COST::getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes)
 {
 	uint8_t shift = 4;
-	if (costume->getNumberOfColors() == 32)
+	if (costume->getNumberOfColors() > 16)
 		shift = 3;
 
 	for (int i = 0; i < frame->getWidth(); i++)
@@ -193,4 +194,3 @@ void COST::write(fstream &f)
 COST::~COST()
 {
 }
-

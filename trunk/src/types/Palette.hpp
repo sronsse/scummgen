@@ -34,11 +34,13 @@ private:
 	vector<Cycle *> _cycles;
 	uint8_t _transparentIndex;
 public:
+	static const uint16_t MAX_COLORS;
+
 	Palette(string dirName);
-	uint32_t getNumberOfColors() { return _colors.size(); }
-	Color getColor(uint32_t index) { return _colors[index]; }
+	Color getColor(uint8_t index) { return _colors[index]; }
+	void setColor(uint8_t index, Color color) { _colors[index] = color; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
-	Cycle *getCycle(uint32_t index) { return _cycles.at(index); }
+	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
 	uint8_t getTransparentIndex() { return _transparentIndex; }
 	~Palette();
 };

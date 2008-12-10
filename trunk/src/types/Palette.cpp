@@ -2,6 +2,8 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
+const uint16_t Palette::MAX_COLORS = 256;
+
 Cycle::Cycle(XMLNode *node)
 {
 	Log::getInstance().write(LOG_INFO, "Cycle\n");
@@ -39,6 +41,10 @@ Palette::Palette(string dirName)
 
 	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
 		_colors.push_back(bmpFile.getColor(i));
+
+	Color black = { 0, 0, 0 };
+	for (int i = _colors.size(); i < MAX_COLORS; i++)
+		_colors.push_back(black);
 
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "palette.xml");
