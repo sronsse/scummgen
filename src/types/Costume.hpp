@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "util/BMPFile.hpp"
 using namespace std;
 
 class XMLNode;
@@ -55,23 +56,24 @@ private:
 	string _name;
 	uint16_t _id;
 	bool _mirror;
-	uint8_t _nColors;
-	vector<uint8_t> _palette;
+	vector<Color> _colors;
 	vector<Anim *> _anims;
 	vector<Frame *> _frames;
+	uint8_t _paletteBaseIndex;
 public:
 	Costume(string dirName);
 	string getName() { return _name; }
 	uint16_t getID() { return _id; }
 	bool isMirror() { return _mirror; }
-	uint8_t getNumberOfColors() { return _nColors; }
-	uint8_t getColor(uint8_t index) { return _palette[index]; }
+	uint8_t getNumberOfColors() { return _colors.size(); }
+	Color getColor(uint8_t index) { return _colors[index]; }
 	uint32_t getNumberOfAnims() { return _anims.size(); }
 	Anim *getAnim(uint32_t index) { return _anims[index]; }
 	uint8_t getNumberOfFrames() { return _frames.size(); }
 	Frame *getFrame(uint8_t index) { return _frames[index]; }
+	uint8_t getPaletteBaseIndex() { return _paletteBaseIndex; }
+	void setPaletteBaseIndex(uint8_t paletteBaseIndex) { _paletteBaseIndex = paletteBaseIndex; }
 	~Costume();
 };
 
 #endif
-

@@ -1,5 +1,4 @@
 #include "Costume.hpp"
-#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
@@ -95,19 +94,6 @@ Costume::Costume(string dirName)
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "mirror: %d\n", _mirror);
 
-	_nColors = rootNode->getChild("nColors")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "nColors: %d\n", _nColors);
-
-	string palette = rootNode->getChild("palette")->getStringContent();
-	uint8_t indexA = 0;
-	uint8_t indexB = 0;
-	for (int i = 0; i < _nColors; i++)
-	{
-		indexB = palette.find(' ', indexA);
-		_palette.push_back(atoi(palette.substr(indexA, indexB).c_str()));
-		indexA = indexB + 1;
-	}
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("anim", i)) != NULL)
@@ -123,6 +109,16 @@ Costume::Costume(string dirName)
 		i++;
 	}
 
+	// Get the costume colors (all the frames have to use the same palette)
+	_paletteBaseIndex = 0;
+	if (!_frames.empty())
+	{
+		BMPFile bmpFile;
+		bmpFile.open("frames/frame_00.bmp");
+		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+			_colors.push_back(bmpFile.getColor(i));
+	}
+
 	Log::getInstance().unIndent();
 }
 
@@ -133,4 +129,3 @@ Costume::~Costume()
 	for (int i = 0; i < _frames.size(); i++)
 		delete _frames[i];
 }
-
