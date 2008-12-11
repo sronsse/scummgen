@@ -36,7 +36,7 @@ Room::Room(string dirName)
 	static uint8_t currentID = 1;
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
-	
+
 	uint16_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "nZPlanes: %u\n", nZPlanes);
 
@@ -48,6 +48,8 @@ Room::Room(string dirName)
 	_exitFunction = NULL;
 	loadScripts(dirName + "scripts/");
 	loadCostumes(dirName + "costumes/");
+
+	updatePalette();
 
 	Log::getInstance().unIndent();
 }
@@ -106,6 +108,41 @@ void Room::loadCostumes(string dirName)
 	// Add costume declarations so that they can be used in scripts
 	for (int i = 0; i < _costumes.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+}
+
+void Room::updatePalette()
+{
+	uint16_t nOriginalColors = _palette->getNumberOfColors();
+	vector<Color> localColors;
+
+	// Add the colors of the room objects to our array of local colors
+	for (int i = 0; i < _objects.size(); i++)
+		if (_objects[i]->getNumberOfImages() > 0)
+		{
+			for (int j = 0; j < _objects[i]->getNumberOfImages(); j++)
+				_objects[i]->getImage(j)->setPaletteBaseIndex(nOriginalColors + localColors.size());
+
+			for (int j = 0; j < _objects[i]->getImage(0)->getNumberOfColors(); j++)
+				localColors.push_back(_objects[i]->getImage(0)->getColor(j));
+		}
+
+	// Add the colors of the room costumes to our array of local colors
+	for (int i = 0; i < _costumes.size(); i++)
+	{
+		_costumes[i]->setPaletteBaseIndex(nOriginalColors + localColors.size());
+
+		for (int j = 0; j < _costumes[i]->getNumberOfColors(); j++)
+			localColors.push_back(_costumes[i]->getColor(j));
+	}
+
+	// Update room palette
+	if (_palette->getNumberOfColors() + localColors.size() > Palette::MAX_COLORS)
+		Log::getInstance().write(LOG_ERROR, "The local computed palette is too big to be inserted !\n");
+
+	_palette->resize(_palette->getNumberOfColors() + localColors.size());
+
+	for (int i = 0; i < localColors.size(); i++)
+		_palette->setColor(nOriginalColors + i, localColors[i]);
 }
 
 void Room::parse(vector<Declaration *> &declarations)
@@ -184,11 +221,11 @@ void Room::parse(vector<Declaration *> &declarations)
 void Room::compile()
 {
 	Log::getInstance().write(LOG_INFO, "Compiling room \"%s\"...\n", _name.c_str());
-	Log::getInstance().indent();	
+	Log::getInstance().indent();
 
 	Context context(CONTEXT_ROOM, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
-	
+
 	// We compile the common functions
 	for (int i = 0; i < _functions.size(); i++)
 		_functions[i]->compile();

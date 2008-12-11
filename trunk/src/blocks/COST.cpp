@@ -10,11 +10,12 @@ const uint8_t COST::REDIR_PICT = 0xFF;
 
 COST::COST(Costume *costume)
 {
-	_format = !costume->isMirror() << 7; // If format's bit 7 is set, the animations are not mirrored
+	_format = 0x60;
+	_format |= !costume->isMirror() << 7; // If the animations are not mirrored, format's bit 7 should be set
 
 	uint8_t nColors = costume->getNumberOfColors() <= 16 ? 16 : 32;
-	if (nColors == 32) // If the number of colors is 32, the first bit of format should be set
-		_format |= 0x61;
+	if (nColors == 32) // If the number of colors is 32, format's bit 0 should be set
+		_format |= 0x01;
 
 	for (int i = 0; i < nColors; i++)
 		_palette.push_back(costume->getPaletteBaseIndex() + i);
@@ -106,7 +107,7 @@ COST::COST(Costume *costume)
 		pictOffset += sizeof(uint8_t); // redirPict
 		pictOffset += _dataBytes[i].size() * sizeof(uint8_t); // dataBytes
 		_pictOffsets.push_back(pictOffset);
-	}	
+	}
 }
 
 void COST::getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes)

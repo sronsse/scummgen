@@ -37,6 +37,7 @@ private:
 	void loadObjects(string dirName);
 	void loadScripts(string dirName);
 	void loadCostumes(string dirName);
+	void updatePalette();
 public:
 	Room(string dirName);
 	void parse(vector<Declaration *> &declarations);

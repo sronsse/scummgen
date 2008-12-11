@@ -114,7 +114,7 @@ Costume::Costume(string dirName)
 	if (!_frames.empty())
 	{
 		BMPFile bmpFile;
-		bmpFile.open("frames/frame_00.bmp");
+		bmpFile.open(dirName + "frames/frame_00.bmp");
 		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
 			_colors.push_back(bmpFile.getColor(i));
 	}

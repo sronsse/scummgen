@@ -42,10 +42,6 @@ Palette::Palette(string dirName)
 	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
 		_colors.push_back(bmpFile.getColor(i));
 
-	Color black = { 0, 0, 0 };
-	for (int i = _colors.size(); i < MAX_COLORS; i++)
-		_colors.push_back(black);
-
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "palette.xml");
 	XMLNode *node = xmlFile.getRootNode();
