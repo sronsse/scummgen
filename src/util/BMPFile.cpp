@@ -1,5 +1,6 @@
 #include "BMPFile.hpp"
 #include <fstream>
+#include "IO.hpp"
 #include "Log.hpp"
 
 const uint8_t BMPFile::BI_RGB = 0;
@@ -11,71 +12,52 @@ BMPFile::BMPFile()
 bool BMPFile::open(string fileName)
 {
 	// We open the file, which should be an indexed BMP file
-	ifstream file(fileName.c_str(), ios::in | ios::binary);
+	fstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
 		return false;
 
-	uint16_t identifier;
-	file.read((char *)&identifier, 2);
+	uint16_t identifier = IO::readU16LE(file);
+	uint32_t fileSize = IO::readU32LE(file);
+	uint32_t reserved = IO::readU32LE(file);
 
-	uint32_t fileSize;
-	file.read((char *)&fileSize, 4);
+	uint32_t bitmapDataOffset = IO::readU32LE(file);
+	uint32_t bitmapHeaderSize = IO::readU32LE(file);
 
-	uint32_t reserved;
-	file.read((char *)&reserved, 4);
+	_width = IO::readU32LE(file);
+	_height = IO::readU32LE(file);
 
-	uint32_t bitmapDataOffset;
-	file.read((char *)&bitmapDataOffset, 4);
-
-	uint32_t bitmapHeaderSize;
-	file.read((char *)&bitmapHeaderSize, 4);
-
-	file.read((char *)&_width, 4);
-
-	file.read((char *)&_height, 4);
-
-	uint16_t nPlanes;
-	file.read((char *)&nPlanes, 2);
-
-	file.read((char *)&_bpp, 2);
+	uint16_t nPlanes = IO::readU16LE(file);
+	
 	// The number of bits per pixel cannot be above 8
+	_bpp = IO::readU16LE(file);
 	if (_bpp > 8)
 	{
 		file.close();
 		return false;
 	}
 
-	uint32_t compression;
-	file.read((char *)&compression, 4);
-	// We support only non-encoded BMP files
+	// Only non-encoded BMP files are supported
+	uint32_t compression = IO::readU32LE(file);
+	
 	if (compression != BI_RGB)
 	{
 		file.close();
 		return false;
 	}
-	uint32_t bitmapDataSize;
-	file.read((char *)&bitmapDataSize, 4);
 
-	uint32_t hResolution;
-	file.read((char *)&hResolution, 4);
-
-	uint32_t vResolution;
-	file.read((char *)&vResolution, 4);
-
-	uint32_t nColors;
-	file.read((char *)&nColors, 4);
-
-	uint32_t nImportantColors;
-	file.read((char *)&nImportantColors, 4);
+	uint32_t bitmapDataSize = IO::readU32LE(file);
+	uint32_t hResolution = IO::readU32LE(file);
+	uint32_t vResolution = IO::readU32LE(file);
+	uint32_t nColors = IO::readU32LE(file);
+	uint32_t nImportantColors = IO::readU32LE(file);
 
 	Color color;
-	uint8_t unused;
 	for (int i = 0; i < nColors; i++)
 	{
-		file.read((char *)&color.b, 1);
-		file.read((char *)&color.g, 1);
-		file.read((char *)&color.r, 1);
-		file.read((char *)&unused, 1);
+		color.b = IO::readU8(file);
+		color.g = IO::readU8(file);
+		color.r = IO::readU8(file);
+		IO::readU8(file);
 		_colors.push_back(color);
 	}
 
@@ -88,26 +70,16 @@ bool BMPFile::open(string fileName)
 	}
 
 	// Decoding pixel data
-	uint8_t bitPos = 7, byte;
-	uint8_t modulo = (_width * _bpp) % 32;
+	uint8_t padding = (_width * _bpp) % 32;
 	for (int i = _height - 1; i >= 0; i--)
 	{
+		uint8_t byte;
+		uint8_t bitPos = 0;
 		for (int j = 0; j < _width; j++)
-			for (int k = _bpp - 1; k >= 0; k--)
-			{
-				if (bitPos == 7)
-					file.read((char *)&byte, 1);
-				_pixels[j][i] |= ((byte >> bitPos) & 0x1) << k;
-				if (bitPos == 0)
-					bitPos = 7;
-				else
-					bitPos--;
-			}
-		
-		if (modulo != 0)
-			for (int j = 0; j < (32 - modulo) / 8; j++)
-				file.read((char *)&unused, 1);
- 	}
+			_pixels[j][i] = IO::readBits(file, byte, bitPos, _bpp);
+		bitPos = 0;
+		IO::readBits(file, byte, bitPos, padding);
+	}
 
 	file.close();
 	return true;

@@ -37,11 +37,13 @@ public:
 	static const uint16_t MAX_COLORS;
 
 	Palette(string dirName);
+	uint16_t getNumberOfColors() { return _colors.size(); }
 	Color getColor(uint8_t index) { return _colors[index]; }
 	void setColor(uint8_t index, Color color) { _colors[index] = color; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
 	uint8_t getTransparentIndex() { return _transparentIndex; }
+	void resize(uint16_t size) { Color black = { 0, 0, 0 }; _colors.resize(size, black); }
 	~Palette();
 };
 

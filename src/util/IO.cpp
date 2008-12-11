@@ -60,12 +60,12 @@ uint32_t IO::readU32BE(fstream &f)
 uint8_t IO::readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
 {
 	uint8_t result = 0;
-	for (int i = 0; i < nBits; i++)
+	for (int i = nBits - 1; i >= 0; i--)
 	{
 		if (bitPos == 0)
 			f.read((char *)&byte, 1);
-		result |= ((byte >> bitPos++) & 0x01) << i;
-		if (bitPos == 8)
+		result |= ((byte >> (7 - bitPos)) & 0x01) << i;
+		if (++bitPos == 8)
 			bitPos = 0;
 	}
 	return result;

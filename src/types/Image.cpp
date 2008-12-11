@@ -68,4 +68,3 @@ Image::~Image()
 	for (int i = 0; i < _zPlanes.size(); i++)
 		delete _zPlanes[i];
 }
-

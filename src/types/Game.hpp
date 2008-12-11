@@ -47,7 +47,6 @@ private:
 	vector<Voice *> _voices;
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
-	vector<vector<Color> > _globalColors;
 
 	void loadObjects(string dirName);
 	void loadCostumes(string dirName);
