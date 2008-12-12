@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <config.hpp>
+#include <config.h>
 #include "util/Log.hpp"
 #include "ScummGEN.hpp"
 using namespace std;
