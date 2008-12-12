@@ -61,6 +61,7 @@ vector<string> assemblyTokens;
 %left '*' '/'
 %nonassoc T_UMINUS
 %nonassoc T_NOT
+%nonassoc T_INC T_DEC
 
 // Inputs to yyparse
 %parse-param {vector<Declaration *> &declarations}
@@ -375,6 +376,26 @@ expression:
 		Expression *expression1 = expressionCollector.back();
 		expressionCollector.pop_back();
 		Expression *expression = Expression::simplifyBinaryExpression(EXPRESSION_LOR, expression1, expression2);
+		expressionCollector.push_back(expression);
+	}
+	| T_INC T_IDENTIFIER
+	{
+		Expression *expression = new UnaryExpression(EXPRESSION_PREINC, new VariableExpression($2));
+		expressionCollector.push_back(expression);
+	}
+	| T_IDENTIFIER T_INC
+	{
+		Expression *expression = new UnaryExpression(EXPRESSION_POSTINC, new VariableExpression($1));
+		expressionCollector.push_back(expression);
+	}
+	| T_DEC T_IDENTIFIER
+	{
+		Expression *expression = new UnaryExpression(EXPRESSION_PREDEC, new VariableExpression($2));
+		expressionCollector.push_back(expression);
+	}
+	| T_IDENTIFIER T_DEC
+	{
+		Expression *expression = new UnaryExpression(EXPRESSION_POSTDEC, new VariableExpression($1));
 		expressionCollector.push_back(expression);
 	}
 	| callExpression

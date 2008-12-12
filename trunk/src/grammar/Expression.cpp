@@ -182,7 +182,6 @@ char StringExpression::parseEscapeCharacter(string s, int &pos)
 			break;
 		default:
 			Log::getInstance().write(LOG_ERROR, "Unknown escape character in string \"%s\" !\n", s.c_str());
-			break;
 	}
 
 	return c;
@@ -291,15 +290,60 @@ Expression(type)
 
 void UnaryExpression::compile(vector<Instruction *> &instructions)
 {
-	_e->compile(instructions);
+	switch (_type)
+	{
+		case EXPRESSION_UMINUS:
+			_e->compile(instructions);
+			instructions.push_back(new Instruction("uminus"));
+			return;
+		case EXPRESSION_NOT:
+			_e->compile(instructions);
+			instructions.push_back(new Instruction("not"));
+			return;
+		default:
+			break;
+	}
+
+	// If we're here, it means the expression has to be a variable
+	string identifier = ((VariableExpression *)_e)->getIdentifier();
+	uint16_t value;
+	SymbolType symbolType;
+	if (!Context::resolveSymbol(identifier, value, symbolType))
+		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
+	if (symbolType != SYMBOL_VARIABLE)
+		Log::getInstance().write(LOG_ERROR, "Only variables can be incremented or decremented !\n");
+	ostringstream oss;
+	oss << value;
 
 	switch (_type)
 	{
 		case EXPRESSION_UMINUS:
+			_e->compile(instructions);
 			instructions.push_back(new Instruction("uminus"));
 			break;
 		case EXPRESSION_NOT:
+			_e->compile(instructions);
 			instructions.push_back(new Instruction("not"));
+			break;
+		case EXPRESSION_PREINC:
+			instructions.push_back(new Instruction("wordVarInc"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+			_e->compile(instructions);
+			break;
+		case EXPRESSION_POSTINC:
+			_e->compile(instructions);
+			instructions.push_back(new Instruction("wordVarInc"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+			break;
+		case EXPRESSION_PREDEC:
+			instructions.push_back(new Instruction("wordVarDec"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+			_e->compile(instructions);
+			break;
+		case EXPRESSION_POSTDEC:
+			_e->compile(instructions);
+			instructions.push_back(new Instruction("wordVarDec"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 			break;
 		default:
 			break;
@@ -456,21 +500,21 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 
 	// startScriptQuick instruction
 	instructions.push_back(new Instruction("startScriptQuick2"));
-	
+
 	// If the function is not treated as a thread, we just wait until its execution is over
 	if (!function->isThread())
 	{
 		// Prepare labels first
 		uint32_t labelCounter = Context::labelCounter;
 		Context::labelCounter++;
-		
+
 		instructions.push_back(new Instruction(labelCounter));
 
 		// We let the scheduler take care of other threads
 		instructions.push_back(new Instruction("pushByte"));
 		instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 		instructions.push_back(new Instruction("delaySeconds"));
-		
+
 		// push function ID
 		instructions.push_back(new Instruction("pushWord"));
 		instructions.push_back(new Instruction(VALUE_WORD, functionID));
@@ -495,6 +539,6 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 CallExpression::~CallExpression()
 {
 	for (int i = 0; i < _parameters.size(); i++)
-		delete _parameters[i]; 
+		delete _parameters[i];
 }
 

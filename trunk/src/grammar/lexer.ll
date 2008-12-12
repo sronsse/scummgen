@@ -23,7 +23,7 @@
 
 "/*"							BEGIN MULTIPLE_LINES_COMMENT;
 <MULTIPLE_LINES_COMMENT>"*/"	BEGIN INITIAL;
-<MULTIPLE_LINES_COMMENT>.|\n	;				
+<MULTIPLE_LINES_COMMENT>.|\n	;
 
  /* Strings */
 \"	{
@@ -51,7 +51,6 @@
 	}
 
  /* Other tokens */
-[-()<>=+*/;{},!&|@:]			return *yytext;
 "const"							return T_CONST;
 "var"							return T_VAR;
 "function"         				return T_FUNCTION;
@@ -73,6 +72,9 @@
 "!="            				return T_NE;
 "&&"							return T_LAND;
 "||"							return T_LOR;
+"++"							return T_INC;
+"--"							return T_DEC;
+[-()<>=+*/;{},!&|@:]			return *yytext;
 [0-9]+							{ yylval.number = atoi(yytext); return T_NUMBER; }
 "0x"[a-fA-F0-9]+				{ yylval.number = strtol(yytext, NULL, 16); return T_NUMBER; }
 \'.\'							{ yylval.number = (int)yytext[1]; return T_NUMBER; }
