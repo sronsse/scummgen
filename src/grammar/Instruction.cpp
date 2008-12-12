@@ -354,6 +354,8 @@ void Instruction::setOpcodes()
 	_opcodes["userPutOff"] = SO_USERPUT_OFF;
 	_opcodes["userPutOn"] = SO_USERPUT_ON;
 	_opcodes["walkActorTo"] = OC_WALK_ACTOR_TO;
+	_opcodes["wordVarInc"] = OC_WORD_VAR_INC;
+	_opcodes["wordVarDec"] = OC_WORD_VAR_DEC;
 	_opcodes["writeWordVar"] = OC_WRITE_WORD_VAR;
 }
 

@@ -16,7 +16,7 @@ AC_SUBST(XML_CFLAGS)
 AC_SUBST(XML_LIBS)
 
 AC_CONFIG_SRCDIR([src/main.cpp])
-AC_CONFIG_HEADERS([config.hpp])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \
                  src/Makefile \
                  src/blocks/Makefile \
