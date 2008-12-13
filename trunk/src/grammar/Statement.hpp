@@ -133,10 +133,8 @@ public:
 
 class ReturnStatement: public Statement
 {
-private:
-	Expression *_expression;
 public:
-	ReturnStatement(Expression *e = NULL);
+	ReturnStatement();
 	void compile(vector<Instruction *> &instructions);
 	~ReturnStatement();
 };

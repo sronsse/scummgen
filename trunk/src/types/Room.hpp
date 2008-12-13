@@ -37,6 +37,7 @@ private:
 	void loadObjects(string dirName);
 	void loadScripts(string dirName);
 	void loadCostumes(string dirName);
+	void addDeclarations();
 	void updatePalette();
 public:
 	Room(string dirName);

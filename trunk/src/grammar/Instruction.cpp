@@ -311,6 +311,7 @@ void Instruction::setOpcodes()
 	_opcodes["cursorOn"] = SO_CURSOR_ON;
 	_opcodes["cursorTransparent"] = SO_CURSOR_TRANSPARENT;
 	_opcodes["cycleSpeed"] = SO_CYCLE_SPEED;
+	_opcodes["delay"] = OC_DELAY;
 	_opcodes["delaySeconds"] = OC_DELAY_SECONDS;
 	_opcodes["dimArray"] = OC_DIM_ARRAY;
 	_opcodes["eq"] = OC_EQ;
@@ -345,6 +346,7 @@ void Instruction::setOpcodes()
 	_opcodes["startScriptQuick"] = OC_START_SCRIPT_QUICK;
 	_opcodes["startScriptQuick2"] = OC_START_SCRIPT_QUICK_2;
 	_opcodes["startSound"] = OC_START_SOUND;
+	_opcodes["stepDist"] = SO_STEP_DIST;
 	_opcodes["stopObjectCode"] = OC_STOP_OBJECT_CODE;
 	_opcodes["stringArray"] = SO_STRING_ARRAY;
 	_opcodes["sub"] = OC_SUB;
@@ -354,6 +356,8 @@ void Instruction::setOpcodes()
 	_opcodes["userPutOff"] = SO_USERPUT_OFF;
 	_opcodes["userPutOn"] = SO_USERPUT_ON;
 	_opcodes["walkActorTo"] = OC_WALK_ACTOR_TO;
+	_opcodes["wordArrayIndexedRead"] = OC_WORD_ARRAY_INDEXED_READ;
+	_opcodes["wordArrayIndexedWrite"] = OC_WORD_ARRAY_INDEXED_WRITE;
 	_opcodes["wordVarInc"] = OC_WORD_VAR_INC;
 	_opcodes["wordVarDec"] = OC_WORD_VAR_DEC;
 	_opcodes["writeWordVar"] = OC_WRITE_WORD_VAR;

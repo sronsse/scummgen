@@ -9,7 +9,11 @@ Cycle::Cycle(XMLNode *node)
 	Log::getInstance().write(LOG_INFO, "Cycle\n");
 	Log::getInstance().indent();
 
-	_id = node->getChild("id")->getIntegerContent();
+	_name = node->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	static uint8_t currentID = 1;
+	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
 	_start = node->getChild("start")->getIntegerContent();

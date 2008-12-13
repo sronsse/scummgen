@@ -192,10 +192,10 @@ Matrix::~Matrix()
 
 Map::Map(string dirName)
 {
+	_matrix = NULL;
+
 	Log::getInstance().write(LOG_INFO, "Map\n");
 	Log::getInstance().indent();
-
-	_matrix = NULL;
 
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "map.xml");
@@ -204,6 +204,7 @@ Map::Map(string dirName)
 	if (rootNode == NULL)
 	{
 		Log::getInstance().write(LOG_WARNING, "Room doesn't contain any map !\n");
+		Log::getInstance().unIndent();
 		return;
 	}
 

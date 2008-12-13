@@ -59,20 +59,11 @@ void Function::compile()
 	Log::getInstance().write(LOG_INFO, "Compiling function \"%s\"...\n", _name.c_str());
 	Log::getInstance().indent();
 
-	// We add an invisible argument which eventually tells if the 
-	// function has been called directly by ScummVM or via the code
-	vector<Declaration *> arguments;
-	Declaration invisibleArgument(DECLARATION_VAR, "__caller");
-	for (int i = 0; i < _arguments.size(); i++)
-		arguments.push_back(_arguments[i]);
-	arguments.push_back(&invisibleArgument);
-
-	// Push the function context specifying LABEL_0 as the return label
-	Context context(_thread ? CONTEXT_THREAD : CONTEXT_FUNCTION, &arguments, NULL, -1, -1, 0);
+	Context context(_thread ? CONTEXT_THREAD : CONTEXT_FUNCTION, &_arguments, NULL, -1, -1, 0);
 	Context::pushContext(&context);
 
 	// Prepare labels first
-	Context::labelCounter += _thread ? 1 : 2;
+	Context::labelCounter++;
 
 	// Compile block statement
 	_blockStatement->compile(_instructions);
@@ -80,28 +71,8 @@ void Function::compile()
 	// label 0
 	_instructions.push_back(new Instruction(0));
 
-	if (!_thread)
-	{
-		// Push 0 as a return value in case the current function has been called from within the code
-		// and not by ScummVM directly
-		uint16_t value;
-		SymbolType symbolType;
-		ostringstream oss;
-		Context::resolveSymbol("__caller", value, symbolType);
-		oss << value;
-		_instructions.push_back(new Instruction("pushWordVar"));
-		_instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-		_instructions.push_back(new Instruction("ifNot"));
-		_instructions.push_back(new Instruction(VALUE_WORD, "LABEL_1"));
-		_instructions.push_back(new Instruction("pushByte"));
-		_instructions.push_back(new Instruction(VALUE_BYTE, "0"));
-
-		// label 1
-		_instructions.push_back(new Instruction(1));
-	}
-
 	// stopObjectCode instruction
-	if (!_instructions.empty() && _instructions.back()->getOpcodeName() != "stopObjectCode")
+	if (_instructions.empty() || (!_instructions.empty() && _instructions.back()->getOpcodeName() != "stopObjectCode"))
 		_instructions.push_back(new Instruction("stopObjectCode"));
 
 	Context::popContext();

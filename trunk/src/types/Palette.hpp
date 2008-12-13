@@ -12,6 +12,7 @@ class XMLNode;
 class Cycle
 {
 private:
+	string _name;
 	uint8_t _id;
 	uint8_t _start;
 	uint8_t _end;
@@ -19,6 +20,7 @@ private:
 	bool _forward;
 public:
 	Cycle(XMLNode *node);
+	string getName() { return _name; }
 	uint8_t getID()  { return _id; }
 	uint8_t getStart()  { return _start; }
 	uint8_t getEnd() { return _end; }

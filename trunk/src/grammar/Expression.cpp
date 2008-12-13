@@ -499,7 +499,7 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 	instructions.push_back(new Instruction(VALUE_BYTE, oss.str()));
 
 	// startScriptQuick instruction
-	instructions.push_back(new Instruction("startScriptQuick2"));
+	instructions.push_back(new Instruction("startScriptQuick"));
 
 	// If the function is not treated as a thread, we just wait until its execution is over
 	if (!function->isThread())
@@ -513,7 +513,7 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		// We let the scheduler take care of other threads
 		instructions.push_back(new Instruction("pushByte"));
 		instructions.push_back(new Instruction(VALUE_BYTE, "0"));
-		instructions.push_back(new Instruction("delaySeconds"));
+		instructions.push_back(new Instruction("delay"));
 
 		// push function ID
 		instructions.push_back(new Instruction("pushWord"));
@@ -528,12 +528,10 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		instructions.push_back(new Instruction("if"));
 		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 	}
-	else
-	{
-		// If the function is a thread, we push 0 onto the stack
-		instructions.push_back(new Instruction("pushByte"));
-		instructions.push_back(new Instruction(VALUE_BYTE, "0"));
-	}
+
+	// For now, we just push 0 as a return value for functions and threads
+	instructions.push_back(new Instruction("pushByte"));
+	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 }
 
 CallExpression::~CallExpression()

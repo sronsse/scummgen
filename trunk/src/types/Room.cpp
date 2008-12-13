@@ -21,6 +21,9 @@ const uint8_t Room::MIN_LOCAL_ID = 200;
 
 Room::Room(string dirName)
 {
+	_entryFunction = NULL;
+	_exitFunction = NULL;
+
 	Log::getInstance().write(LOG_INFO, "Room\n");
 	Log::getInstance().indent();
 
@@ -44,11 +47,11 @@ Room::Room(string dirName)
 	_palette = new Palette(dirName);
 	loadObjects(dirName + "objects/");
 	_map = new Map(dirName);
-	_entryFunction = NULL;
-	_exitFunction = NULL;
+
 	loadScripts(dirName + "scripts/");
 	loadCostumes(dirName + "costumes/");
 
+	addDeclarations();
 	updatePalette();
 
 	Log::getInstance().unIndent();
@@ -67,10 +70,6 @@ void Room::loadObjects(string dirName)
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
 		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
-
-	// Add object declarations so that they can be used in scripts
-	for (int i = 0; i < _objects.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
 }
 
 void Room::loadScripts(string dirName)
@@ -104,10 +103,26 @@ void Room::loadCostumes(string dirName)
 	XMLNode *child;
 	while ((child = node->getChild("costume", i++)) != NULL)
 		_costumes.push_back(new Costume(dirName + child->getStringContent() + "/"));
+}
 
-	// Add costume declarations so that they can be used in scripts
+void Room::addDeclarations()
+{
+	Log::getInstance().write(LOG_INFO, "Adding room local resource declarations...\n");
+	Log::getInstance().indent();
+
+	// Palette cycles declarations
+	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getCycle(i)->getName(), _palette->getCycle(i)->getID()));
+
+	// Object declarations
+	for (int i = 0; i < _objects.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+
+	// Costume declarations
 	for (int i = 0; i < _costumes.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+
+	Log::getInstance().unIndent();
 }
 
 void Room::updatePalette()
