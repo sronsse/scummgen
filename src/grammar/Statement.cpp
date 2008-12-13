@@ -424,39 +424,22 @@ BreakStatement::~BreakStatement()
 {
 }
 
-ReturnStatement::ReturnStatement(Expression *e)
+ReturnStatement::ReturnStatement()
 {
-	_expression = e;
 }
 
 void ReturnStatement::compile(vector<Instruction *> &instructions)
 {
 	ostringstream oss;
 
-	if (_expression != NULL)
-	{
-		if (Context::insideThread())
-			Log::getInstance().write(LOG_ERROR, "Threads can't return values !\n");
-
-		// expression
-		_expression->compile(instructions);
-
-		// stopObjectCode
-		instructions.push_back(new Instruction("stopObjectCode"));
-	}
-	else
-	{
-		// jump instruction
-		oss << "LABEL_" << Context::getReturnLabel();
-		instructions.push_back(new Instruction("jump"));
-		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-	}
+	// jump instruction
+	oss << "LABEL_" << Context::getReturnLabel();
+	instructions.push_back(new Instruction("jump"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 }
 
 ReturnStatement::~ReturnStatement()
 {
-	if (_expression != NULL)
-		delete _expression;
 }
 
 AssemblyStatement::AssemblyStatement()

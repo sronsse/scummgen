@@ -77,6 +77,7 @@ Game::Game(string dirName)
 	loadCharsets(dirName + "charsets/");
 	loadVoices(dirName + "voices/");
 
+	addDeclarations();
 	updatePalettes();
 
 	Log::getInstance().unIndent();
@@ -95,10 +96,6 @@ void Game::loadObjects(string dirName)
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
 		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
-
-	// Add object declarations so that they can be used in scripts
-	for (int i = 0; i < _objects.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
 }
 
 void Game::loadCostumes(string dirName)
@@ -120,10 +117,6 @@ void Game::loadCostumes(string dirName)
 
 	if (_costumes.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any global costume !\n");
-
-	// Add costume declarations so that they can be used in scripts
-	for (int i = 0; i < _costumes.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
 }
 
 void Game::loadRooms(string dirName)
@@ -145,10 +138,6 @@ void Game::loadRooms(string dirName)
 
 	if (_rooms.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any room !\n");
-
-	// Add room declarations so that they can be used in scripts
-	for (int i = 0; i < _rooms.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getName(), _rooms[i]->getID()));
 }
 
 void Game::loadScripts(string dirName)
@@ -191,10 +180,6 @@ void Game::loadCharsets(string dirName)
 
 	if (_charsets.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any charset !\n");
-
-	// Add charset declarations so that they can be used in scripts
-	for (int i = 0; i < _charsets.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _charsets[i]->getName(), _charsets[i]->getID()));
 }
 
 void Game::loadVoices(string dirName)
@@ -216,8 +201,32 @@ void Game::loadVoices(string dirName)
 
 	if (_voices.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any voice !\n");
+}
 
-	// TODO : add voice declarations for scripts
+void Game::addDeclarations()
+{
+	Log::getInstance().write(LOG_INFO, "Adding game global resource declarations...\n");
+	Log::getInstance().indent();
+
+	// Object declarations
+	for (int i = 0; i < _objects.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+
+	// Costume declarations
+	for (int i = 0; i < _costumes.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+
+	// Room declarations
+	for (int i = 0; i < _rooms.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getName(), _rooms[i]->getID()));
+
+	// Charset declarations
+	for (int i = 0; i < _charsets.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _charsets[i]->getName(), _charsets[i]->getID()));
+
+	// TODO : add voice declarations
+
+	Log::getInstance().unIndent();
 }
 
 void Game::updatePalettes()

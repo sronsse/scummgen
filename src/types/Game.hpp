@@ -54,6 +54,7 @@ private:
 	void loadScripts(string dirName);
 	void loadCharsets(string dirName);
 	void loadVoices(string dirName);
+	void addDeclarations();
 	void updatePalettes();
 public:
 	static const uint8_t N_DEFAULT_ACTORS;
