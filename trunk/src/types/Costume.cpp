@@ -38,14 +38,20 @@ Anim::~Anim()
 {
 }
 
-Frame::Frame(XMLNode *node, string fileName)
+Frame::Frame(XMLNode *node, string dirName)
 {
 	Log::getInstance().write(LOG_INFO, "Frame\n");
 	Log::getInstance().indent();
 
+	_name = node->getChild("name")->getStringContent();
+	_x = node->getChild("x")->getIntegerContent();
+	_y = node->getChild("y")->getIntegerContent();
+	_xInc = node->getChild("xInc")->getIntegerContent();
+	_yInc = node->getChild("yInc")->getIntegerContent();
+
 	BMPFile bmpFile;
-	bmpFile.open(fileName);
-	Log::getInstance().write(LOG_INFO, "fileName: %s\n", fileName.c_str());
+	bmpFile.open(dirName + _name + ".bmp");
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_width = bmpFile.getWidth();
 	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
@@ -60,11 +66,6 @@ Frame::Frame(XMLNode *node, string fileName)
 			pixelColumn.push_back(bmpFile.getPixel(i, j));
 		_pixels.push_back(pixelColumn);
 	}
-
-	_x = node->getChild("x")->getIntegerContent();
-	_y = node->getChild("y")->getIntegerContent();
-	_xInc = node->getChild("xInc")->getIntegerContent();
-	_yInc = node->getChild("yInc")->getIntegerContent();
 
 	Log::getInstance().unIndent();
 }
@@ -105,16 +106,16 @@ Costume::Costume(string dirName)
 	i = 0;
 	while ((child = rootNode->getChild("frame", i)) != NULL)
 	{
-		_frames.push_back(new Frame(child, dirName + "frames/frame_" + IO::getStringFromIndex(i, 2) + ".bmp"));
+		_frames.push_back(new Frame(child, dirName + "frames/"));
 		i++;
 	}
 
-	// Get the costume colors (all the frames have to use the same palette)
+	// Get the costume colors from the first frame
 	_paletteBaseIndex = 0;
 	if (!_frames.empty())
 	{
 		BMPFile bmpFile;
-		bmpFile.open(dirName + "frames/frame_00.bmp");
+		bmpFile.open(dirName + "frames/" + _frames[0]->getName() + ".bmp");
 		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
 			_colors.push_back(bmpFile.getColor(i));
 	}

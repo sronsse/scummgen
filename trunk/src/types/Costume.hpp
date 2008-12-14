@@ -29,6 +29,7 @@ public:
 class Frame
 {
 private:
+	string _name;
 	uint16_t _width;
 	uint16_t _height;
 	int16_t _x;
@@ -37,7 +38,8 @@ private:
 	int16_t _yInc;
 	vector<vector<uint8_t> > _pixels;
 public:
-	Frame(XMLNode *node, string fileName);
+	Frame(XMLNode *node, string dirName);
+	string getName() { return _name; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
 	int16_t getX() { return _x; }
