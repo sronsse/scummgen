@@ -2,6 +2,7 @@
 #include "util/IO.hpp"
 #include "types/Game.hpp"
 #include "types/Room.hpp"
+#include "grammar/Function.hpp"
 #include "ROOM.hpp"
 #include "SCRP.hpp"
 #include "COST.hpp"
@@ -15,7 +16,8 @@ LFLF::LFLF(Game *game, uint8_t roomIndex)
 	if (game->getRoom(roomIndex)->getID() == 1)
 	{
 		for (int i = 0; i < game->getNumberOfFunctions(); i++)
-			_scrps.push_back(new SCRP(game->getFunction(i)));
+			if (game->getFunction(i)->getType() != FUNCTION_INLINED)
+				_scrps.push_back(new SCRP(game->getFunction(i)));
 
 		for (int i = 0; i < game->getNumberOfCostumes(); i++)
 			_costs.push_back(new COST(game->getCostume(i)));

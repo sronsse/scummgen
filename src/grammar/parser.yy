@@ -38,6 +38,7 @@ vector<string> assemblyTokens;
 %token T_CONST
 %token T_VAR
 %token T_FUNCTION
+%token T_INLINE
 %token T_THREAD
 %token T_IF
 %token T_ELSE
@@ -421,7 +422,17 @@ function:
 	{
 		BlockStatement *blockStatement = (BlockStatement *)statementCollector.back();
 		statementCollector.pop_back();
-		Function *function = new Function($2, false, blockStatement);
+		Function *function = new Function(FUNCTION_NORMAL, $2, blockStatement);
+		for (int i = 0; i < declarationListCollector.back().size(); i++)
+			function->addArgument(declarationListCollector.back()[i]);
+		declarationListCollector.pop_back();
+		functions.push_back(function);
+	}
+	| T_INLINE T_FUNCTION T_IDENTIFIER '(' args ')' blockStatement
+	{
+		BlockStatement *blockStatement = (BlockStatement *)statementCollector.back();
+		statementCollector.pop_back();
+		Function *function = new Function(FUNCTION_INLINED, $3, blockStatement);
 		for (int i = 0; i < declarationListCollector.back().size(); i++)
 			function->addArgument(declarationListCollector.back()[i]);
 		declarationListCollector.pop_back();
@@ -431,7 +442,7 @@ function:
 	{
 		BlockStatement *blockStatement = (BlockStatement *)statementCollector.back();
 		statementCollector.pop_back();
-		Function *function = new Function($2, true, blockStatement);
+		Function *function = new Function(FUNCTION_THREAD, $2, blockStatement);
 		for (int i = 0; i < declarationListCollector.back().size(); i++)
 			function->addArgument(declarationListCollector.back()[i]);
 		declarationListCollector.pop_back();

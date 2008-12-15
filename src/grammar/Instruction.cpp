@@ -305,6 +305,7 @@ void Instruction::setOpcodes()
 	_opcodes["arrayOps"] = OC_ARRAY_OPS;
 	_opcodes["assignString"] = SO_ASSIGN_STRING;
 	_opcodes["costume"] = SO_COSTUME;
+	_opcodes["charsetSet"] = SO_CHARSET_SET;
 	_opcodes["cursorCommand"] = OC_CURSOR_COMMAND;
 	_opcodes["cursorImage"] = SO_CURSOR_IMAGE;
 	_opcodes["cursorOff"] = SO_CURSOR_OFF;
@@ -329,7 +330,9 @@ void Instruction::setOpcodes()
 	_opcodes["mul"] = OC_MUL;
 	_opcodes["not"] = OC_NOT;
 	_opcodes["pop"] = OC_POP;
+	_opcodes["printActor"] = OC_PRINT_ACTOR;
 	_opcodes["printDebug"] = OC_PRINT_DEBUG;
+	_opcodes["printEgo"] = OC_PRINT_EGO;
 	_opcodes["printSystem"] = OC_PRINT_SYSTEM;
 	_opcodes["pushByte"] = OC_PUSH_BYTE;
 	_opcodes["pushWord"] = OC_PUSH_WORD;

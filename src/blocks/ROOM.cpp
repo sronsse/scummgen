@@ -2,6 +2,7 @@
 #include "util/IO.hpp"
 #include "types/Game.hpp"
 #include "types/Room.hpp"
+#include "grammar/Function.hpp"
 #include "RMHD.hpp"
 #include "CYCL.hpp"
 #include "TRNS.hpp"
@@ -26,7 +27,7 @@ ROOM::ROOM(Game *game, uint8_t roomIndex)
 	_trns = new TRNS(room->getPalette());
 	_pals = new PALS(room->getPalette());
 	_rmim = new RMIM(room->getBackground());
-	
+
 	// Add global objects to the first room
 	if (room->getID() == 1)
 	{
@@ -35,7 +36,7 @@ ROOM::ROOM(Game *game, uint8_t roomIndex)
 		for (int i = 0; i < game->getNumberOfObjects(); i++)
 			_obcds.push_back(new OBCD(game->getObject(i)));
 	}
-	
+
 	for (int i = 0; i < room->getNumberOfObjects(); i++)
 		_obims.push_back(new OBIM(room->getObject(i)));
 	for (int i = 0; i < room->getNumberOfObjects(); i++)
@@ -45,7 +46,8 @@ ROOM::ROOM(Game *game, uint8_t roomIndex)
 	_encd = new ENCD(room->getEntryFunction());
 	_nlsc = new NLSC(room);
 	for (int i = 0; i < room->getNumberOfFunctions(); i++)
-		_lscrs.push_back(new LSCR(room->getFunction(i)));
+		if (room->getFunction(i)->getType() != FUNCTION_INLINED)
+			_lscrs.push_back(new LSCR(room->getFunction(i)));
 	_boxd = new BOXD(room->getMap());
 	_boxm = new BOXM(room->getMap());
 	_scal = new SCAL(room->getMap());

@@ -299,13 +299,16 @@ void Game::parse()
 			// Special case for the main function
 			if (functions[j]->getName() == "main")
 			{
+				if (functions[j]->getType() == FUNCTION_INLINED)
+					Log::getInstance().write(LOG_ERROR, "Function \"main\" can't be inlined !");
 				functions[j]->setID(1);
 				_functions.insert(_functions.begin(), functions[j]);
 				foundMain = true;
 			}
 			else
 			{
-				functions[j]->setID(id++);
+				if (functions[j]->getType() != FUNCTION_INLINED)
+					functions[j]->setID(id++);
 				_functions.push_back(functions[j]);
 			}
 		fclose(yyin);
@@ -329,9 +332,10 @@ void Game::compile()
 	Context context(CONTEXT_GAME, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
 
-	// We compile the common global functions
+	// We compile global functions
 	for (int i = 0; i < _functions.size(); i++)
-		_functions[i]->compile();
+		if (_functions[i]->getType() != FUNCTION_INLINED)
+			_functions[i]->compile();
 
 	// Then we compile the room functions
 	for (int i = 0; i < _rooms.size(); i++)

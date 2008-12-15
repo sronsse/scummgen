@@ -27,8 +27,8 @@ void Context::pushContext(Context *context)
 		case CONTEXT_FUNCTION:
 			contextType = "function";
 			break;
-		case CONTEXT_THREAD:
-			contextType = "thread";
+		case CONTEXT_INLINED:
+			contextType = "inlined";
 			break;
 		case CONTEXT_BLOCK:
 			contextType = "block";
@@ -55,8 +55,8 @@ void Context::pushContext(Context *context)
 	context->displaySymbols();
 	Log::getInstance().unIndent();
 
-	// When we enter a function, we have to restart the label counter and the current address
-	if (context->_type == CONTEXT_FUNCTION || context->_type == CONTEXT_THREAD)
+	// When we enter functions, we have to reset the label counter and the current instruction address
+	if (context->_type == CONTEXT_FUNCTION)
 	{
 		labelCounter = 0;
 		currentAddress = 0;
@@ -133,18 +133,6 @@ int32_t Context::getReturnLabel()
 	return -1;
 }
 
-bool Context::insideThread()
-{
-	for (int i = _instances.size() - 1; i >= 0; i--)
-		if (_instances[i]->_type == CONTEXT_FUNCTION)
-			return false;
-		else if (_instances[i]->_type == CONTEXT_THREAD)
-			return true;
-
-	// To avoid warnings
-	return false;
-}
-
 bool Context::symbolExists(string name)
 {
 	for (int i = _instances.size() - 1; i >= 0; i--)
@@ -212,7 +200,7 @@ void Context::setVariableSymbols(bool fixedAddresses)
 
 			string name = (*_declarations)[i]->getName();
 			uint16_t address;
-			
+
 			// Check if symbol doesn't exist already
 			if (symbolExists(name))
 				Log::getInstance().write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
