@@ -2,6 +2,7 @@
 #include "util/IO.hpp"
 #include "types/Game.hpp"
 #include "types/Room.hpp"
+#include "grammar/Function.hpp"
 
 const uint8_t MAXS::UNKNOWN1 = 0;
 const uint16_t MAXS::N_BIT_VARIABLES = 2048;
@@ -22,7 +23,10 @@ MAXS::MAXS(Game *game)
 	_nFlObjects = N_FL_OBJECTS;
 	_nInventories = N_INVENTORIES;
 	_nRooms = game->getNumberOfRooms() + 1;
-	_nScripts = game->getNumberOfFunctions() + 1;
+	_nScripts = 1;
+	for (int i = 0; i < game->getNumberOfFunctions(); i++)
+		if (game->getFunction(i)->getType() != FUNCTION_INLINED)
+			_nScripts++;
 	_nSounds = 1;
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		_nSounds += game->getRoom(i)->getNumberOfSounds();

@@ -54,6 +54,7 @@
 "const"							return T_CONST;
 "var"							return T_VAR;
 "function"         				return T_FUNCTION;
+"inline"						return T_INLINE;
 "thread"         				return T_THREAD;
 "if"            				return T_IF;
 "else"          				return T_ELSE;

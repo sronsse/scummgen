@@ -37,7 +37,11 @@ private:
 public:
 	BlockStatement();
 	void addDeclaration(Declaration *d) { _declarations.push_back(d); }
+	uint32_t getNumberOfDeclarations() { return _declarations.size(); }
+	Declaration *getDeclaration(uint32_t index) { return _declarations[index]; }
 	void addStatement(Statement *s) { _statements.push_back(s); }
+	uint32_t getNumberOfStatements() { return _statements.size(); }
+	Statement *getStatement(uint32_t index) { return _statements[index]; }
 	void compile(vector<Instruction *> &instructions);
 	~BlockStatement();
 };

@@ -188,11 +188,15 @@ void Room::parse(vector<Declaration *> &declarations)
 		for (int j = 0; j < functions.size(); j++)
 			if (functions[j]->getName() == "entry")
 			{
+				if (functions[j]->getType() == FUNCTION_INLINED)
+					Log::getInstance().write(LOG_ERROR, "Function \"entry\" can't be inlined !");
 				_entryFunction = functions[j];
 				foundEntry = true;
 			}
 			else if (functions[j]->getName() == "exit")
 			{
+				if (functions[j]->getType() == FUNCTION_INLINED)
+					Log::getInstance().write(LOG_ERROR, "Function \"exit\" can't be inlined !");
 				_exitFunction = functions[j];
 				foundExit = true;
 			}
@@ -202,6 +206,8 @@ void Room::parse(vector<Declaration *> &declarations)
 				for (int k = 0; k < _objects.size(); k++)
 					if (functions[j]->getName() == _objects[k]->getName() + "_verb")
 					{
+						if (functions[j]->getType() == FUNCTION_INLINED)
+							Log::getInstance().write(LOG_ERROR, "Function \"%s\" can't be inlined !", functions[j]->getName().c_str());
 						Log::getInstance().write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[k]->getName().c_str());
 						_objects[k]->setFunction(functions[j]);
 						foundObject = true;
@@ -211,7 +217,8 @@ void Room::parse(vector<Declaration *> &declarations)
 				// The current function is a simple local function
 				if (!foundObject)
 				{
-					functions[j]->setID(id++);
+					if (functions[j]->getType() != FUNCTION_INLINED)
+						functions[j]->setID(id++);
 					_functions.push_back(functions[j]);
 				}
 			}
@@ -222,12 +229,12 @@ void Room::parse(vector<Declaration *> &declarations)
 	if (!foundEntry)
 	{
 		Log::getInstance().write(LOG_WARNING, "Couldn't find the entry function !\n");
-		_entryFunction = new Function("entry", true, new BlockStatement());
+		_entryFunction = new Function(FUNCTION_NORMAL, "entry", new BlockStatement());
 	}
 	if (!foundExit)
 	{
 		Log::getInstance().write(LOG_WARNING, "Couldn't find the exit function !\n");
-		_exitFunction = new Function("exit", true, new BlockStatement());
+		_exitFunction = new Function(FUNCTION_NORMAL, "exit", new BlockStatement());
 	}
 
 	Log::getInstance().unIndent();
@@ -241,9 +248,10 @@ void Room::compile()
 	Context context(CONTEXT_ROOM, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
 
-	// We compile the common functions
+	// We compile local functions
 	for (int i = 0; i < _functions.size(); i++)
-		_functions[i]->compile();
+		if (_functions[i]->getType() != FUNCTION_INLINED)
+			_functions[i]->compile();
 
 	// Then we compile the entry and exit functions
 	_entryFunction->compile();

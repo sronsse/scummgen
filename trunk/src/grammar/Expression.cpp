@@ -3,8 +3,10 @@
 #include "util/Log.hpp"
 #include "types/Game.hpp"
 #include "Context.hpp"
+#include "Declaration.hpp"
 #include "Function.hpp"
 #include "Instruction.hpp"
+#include "Statement.hpp"
 
 Expression *Expression::simplifyUnaryExpression(ExpressionType type, Expression *e)
 {
@@ -470,63 +472,104 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 {
 	ostringstream oss;
 
-	// pushWord function
+	// Get function
 	Function *function = Context::getFunction(_functionName);
 	if (function == NULL)
 		Log::getInstance().write(LOG_ERROR, "Function \"%s\" has not been declared !\n", _functionName.c_str());
 
-	if (function->getNumberOfArguments() != _parameters.size())
+	if (_parameters.size() != function->getNumberOfArguments())
 		Log::getInstance().write(LOG_ERROR, "Function \"%s\" should have %u argument(s) !\n", _functionName.c_str(), function->getNumberOfArguments());
 
-	// push function ID
-	oss << function->getID();
-	string functionID = oss.str();
-	instructions.push_back(new Instruction("pushWord"));
-	instructions.push_back(new Instruction(VALUE_WORD, functionID));
-
-	// function parameters
-	for (int i = 0; i < _parameters.size(); i++)
-		_parameters[i]->compile(instructions);
-
-	// invisible parameter __caller to prove this function is called from the code
-	instructions.push_back(new Instruction("pushByte"));
-	instructions.push_back(new Instruction(VALUE_BYTE, "1"));
-
-	// pushWord parameters size
-	oss.str("");
-	oss << _parameters.size() + 1;
-	instructions.push_back(new Instruction("pushByte"));
-	instructions.push_back(new Instruction(VALUE_BYTE, oss.str()));
-
-	// startScriptQuick instruction
-	instructions.push_back(new Instruction("startScriptQuick"));
-
-	// If the function is not treated as a thread, we just wait until its execution is over
-	if (!function->isThread())
+	// If the function is inlined, we compile it and add the instructions to the current function
+	if (function->getType() == FUNCTION_INLINED)
 	{
+		// We first build a declarations list
+		vector<Declaration *> declarations;
+		for (int i = 0; i < function->getNumberOfArguments(); i++)
+			declarations.push_back(new Declaration(DECLARATION_VAR, function->getArgument(i)->getName()));
+		for (int i = 0; i < function->getBlockStatement()->getNumberOfDeclarations(); i++)
+		{
+			Declaration *declaration = function->getBlockStatement()->getDeclaration(i);
+			declarations.push_back(new Declaration(declaration->getType(), declaration->getName()));
+		}
+
 		// Prepare labels first
 		uint32_t labelCounter = Context::labelCounter;
 		Context::labelCounter++;
 
-		instructions.push_back(new Instruction(labelCounter));
+		Context context(CONTEXT_INLINED, &declarations, NULL, -1, -1, labelCounter);
+		Context::pushContext(&context);
 
-		// We let the scheduler take care of other threads
-		instructions.push_back(new Instruction("pushByte"));
-		instructions.push_back(new Instruction(VALUE_BYTE, "0"));
-		instructions.push_back(new Instruction("delay"));
+		// Push parameters
+		for (int i = 0; i < _parameters.size(); i++)
+		{
+			_parameters[i]->compile(instructions);
 
+			// writeWordVar instruction
+			uint16_t value;
+			SymbolType symbolType;
+			Context::resolveSymbol(function->getArgument(i)->getName(), value, symbolType);
+			ostringstream oss;
+			oss << value;
+			instructions.push_back(new Instruction("writeWordVar"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+		}
+
+		// Compile the function block statements
+		for (int i = 0; i < function->getBlockStatement()->getNumberOfStatements(); i++)
+			function->getBlockStatement()->getStatement(i)->compile(instructions);
+
+		Context::popContext();
+	}
+	else
+	{
 		// push function ID
+		oss.str("");
+		oss << function->getID();
+		string functionID = oss.str();
 		instructions.push_back(new Instruction("pushWord"));
 		instructions.push_back(new Instruction(VALUE_WORD, functionID));
 
-		// isScriptRunning instruction
-		instructions.push_back(new Instruction("isScriptRunning"));
+		// function parameters
+		for (int i = 0; i < _parameters.size(); i++)
+			_parameters[i]->compile(instructions);
 
-		// if instruction
+		// pushWord parameters size
 		oss.str("");
-		oss << "LABEL_" << labelCounter;
-		instructions.push_back(new Instruction("if"));
-		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+		oss << _parameters.size();
+		instructions.push_back(new Instruction("pushByte"));
+		instructions.push_back(new Instruction(VALUE_BYTE, oss.str()));
+
+		// startScriptQuick instruction
+		instructions.push_back(new Instruction("startScriptQuick"));
+
+		// If the function is not treated as a thread, we just wait until its execution is over
+		if (function->getType() == FUNCTION_NORMAL)
+		{
+			// Prepare labels first
+			uint32_t labelCounter = Context::labelCounter;
+			Context::labelCounter++;
+
+			instructions.push_back(new Instruction(labelCounter));
+
+			// We let the scheduler take care of other threads
+			instructions.push_back(new Instruction("pushByte"));
+			instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+			instructions.push_back(new Instruction("delay"));
+
+			// push function ID
+			instructions.push_back(new Instruction("pushWord"));
+			instructions.push_back(new Instruction(VALUE_WORD, functionID));
+
+			// isScriptRunning instruction
+			instructions.push_back(new Instruction("isScriptRunning"));
+
+			// if instruction
+			oss.str("");
+			oss << "LABEL_" << labelCounter;
+			instructions.push_back(new Instruction("if"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+		}
 	}
 
 	// For now, we just push 0 as a return value for functions and threads

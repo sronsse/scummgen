@@ -6,10 +6,10 @@
 #include "Instruction.hpp"
 #include "Statement.hpp"
 
-Function::Function(string name, bool thread, BlockStatement *blockS)
+Function::Function(FunctionType type, string name, BlockStatement *blockS)
 {
+	_type = type;
 	_name = name;
-	_thread = thread;
 	_blockStatement = blockS;
 	_id = 0; // This member is filled later
 }
@@ -59,7 +59,7 @@ void Function::compile()
 	Log::getInstance().write(LOG_INFO, "Compiling function \"%s\"...\n", _name.c_str());
 	Log::getInstance().indent();
 
-	Context context(_thread ? CONTEXT_THREAD : CONTEXT_FUNCTION, &_arguments, NULL, -1, -1, 0);
+	Context context(CONTEXT_FUNCTION, &_arguments, NULL, -1, -1, 0);
 	Context::pushContext(&context);
 
 	// Prepare labels first
@@ -68,14 +68,13 @@ void Function::compile()
 	// Compile block statement
 	_blockStatement->compile(_instructions);
 
-	// label 0
+	// Return label (should always be LABEL_0)
 	_instructions.push_back(new Instruction(0));
 
-	// stopObjectCode instruction
-	if (_instructions.empty() || (!_instructions.empty() && _instructions.back()->getOpcodeName() != "stopObjectCode"))
-		_instructions.push_back(new Instruction("stopObjectCode"));
-
 	Context::popContext();
+
+	// stopObjectCode instruction
+	_instructions.push_back(new Instruction("stopObjectCode"));
 
 	displayAssembly();
 
