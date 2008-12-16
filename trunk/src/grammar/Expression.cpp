@@ -145,6 +145,9 @@ string StringExpression::convertString(string s)
 	string convertedString;
 	int pos = 0;
 
+	// Remove quotes from the original string
+	s = s.substr(1, s.length() - 2);
+
 	while (pos < s.length())
 	{
 		switch (s[pos])

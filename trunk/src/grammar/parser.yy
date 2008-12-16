@@ -104,17 +104,7 @@ args:
 	;
 
 assemblyTokens:
-	assemblyTokens T_IDENTIFIER
-	{
-		assemblyTokens.push_back($2);
-	}
-	| assemblyTokens T_NUMBER
-	{
-		ostringstream oss;
-		oss << $2;
-		assemblyTokens.push_back(oss.str());
-	}
-	| assemblyTokens T_STRING
+	assemblyTokens T_STRING
 	{
 		assemblyTokens.push_back($2);
 	}
