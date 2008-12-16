@@ -2,7 +2,6 @@
 #include "util/Log.hpp"
 #include "types/Game.hpp"
 #include "Declaration.hpp"
-#include "Function.hpp"
 
 vector<Context *> Context::_instances;
 
@@ -26,6 +25,9 @@ void Context::pushContext(Context *context)
 			break;
 		case CONTEXT_FUNCTION:
 			contextType = "function";
+			break;
+		case CONTEXT_THREAD:
+			contextType = "thread";
 			break;
 		case CONTEXT_INLINED:
 			contextType = "inlined";
@@ -131,6 +133,23 @@ int32_t Context::getReturnLabel()
 		if (_instances[i]->_returnLabel != -1)
 			return _instances[i]->_returnLabel;
 	return -1;
+}
+
+FunctionType Context::getFunctionType()
+{
+	for (int i = _instances.size() - 1; i >= 0; i--)
+		switch (_instances[i]->_type)
+		{
+			case CONTEXT_FUNCTION:
+				return FUNCTION_NORMAL;
+			case CONTEXT_THREAD:
+				return FUNCTION_THREAD;
+			case CONTEXT_INLINED:
+				return FUNCTION_INLINED;
+			default:
+				break;
+		}
+	return FUNCTION_NORMAL;
 }
 
 bool Context::symbolExists(string name)
@@ -260,4 +279,3 @@ void Context::displaySymbols()
 Context::~Context()
 {
 }
-

@@ -492,6 +492,7 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 			Declaration *declaration = function->getBlockStatement()->getDeclaration(i);
 			declarations.push_back(new Declaration(declaration->getType(), declaration->getName()));
 		}
+		declarations.push_back(new Declaration(DECLARATION_VAR, "returnValue"));
 
 		// Prepare labels first
 		uint32_t labelCounter = Context::labelCounter;
@@ -522,7 +523,20 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		// Return label
 		instructions.push_back(new Instruction(labelCounter));
 
+		// Push return value
+		uint16_t value;
+		SymbolType symbolType;
+		Context::resolveSymbol("returnValue", value, symbolType);
+		oss.str("");
+		oss << value;
+		instructions.push_back(new Instruction("pushWordVar"));
+		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+
 		Context::popContext();
+
+		// Delete the previous created declarations
+		for (int i = 0; i < declarations.size(); i++)
+			delete declarations[i];
 	}
 	else
 	{
@@ -573,11 +587,11 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 			instructions.push_back(new Instruction("if"));
 			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 		}
-	}
 
-	// For now, we just push 0 as a return value for functions and threads
-	instructions.push_back(new Instruction("pushByte"));
-	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+		// For now, we just push 0 as a return value for normal functions and threads
+		instructions.push_back(new Instruction("pushByte"));
+		instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+	}
 }
 
 CallExpression::~CallExpression()
