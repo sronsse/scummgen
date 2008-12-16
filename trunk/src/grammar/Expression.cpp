@@ -519,6 +519,9 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		for (int i = 0; i < function->getBlockStatement()->getNumberOfStatements(); i++)
 			function->getBlockStatement()->getStatement(i)->compile(instructions);
 
+		// Return label
+		instructions.push_back(new Instruction(labelCounter));
+
 		Context::popContext();
 	}
 	else
