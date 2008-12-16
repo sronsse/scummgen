@@ -5,6 +5,10 @@
 #include "Function.hpp"
 #include "Statement.hpp"
 #include "parser.h"
+
+// Local declarations
+int commentCaller;
+int parseString();
 %}
 
 %option yylineno
@@ -13,44 +17,14 @@
 
 %x SINGLE_LINE_COMMENT
 %x MULTIPLE_LINES_COMMENT
+%x ASSEMBLY
 
 %%
 
- /* Comments */
-"//"							BEGIN SINGLE_LINE_COMMENT;
-<SINGLE_LINE_COMMENT>\n			BEGIN INITIAL;
-<SINGLE_LINE_COMMENT>.			;
-
-"/*"							BEGIN MULTIPLE_LINES_COMMENT;
-<MULTIPLE_LINES_COMMENT>"*/"	BEGIN INITIAL;
-<MULTIPLE_LINES_COMMENT>.|\n	;
-
- /* Strings */
-\"	{
-		int lineNumber = yylineno;
-		uint16_t i = 0;
-		char c;
-		char previous = 0;
-		while ((i < STRING_LENGTH) && (c = yyinput()))
-		{
-			if (c == '"' && previous != '\\')
-			{
-				yylval.string[i] = 0;
-				return T_STRING;
-			}
-
-			// Add character to the resulting string
-			yylval.string[i++] = c;
-			previous = c;
-		}
-		if (c != '\"')
-			Log::getInstance().write(LOG_INFO, "Line %u: string length too long !\n", lineNumber);
-
-		yylval.string[STRING_LENGTH - 1] = 0;
-		return T_STRING;
-	}
-
- /* Other tokens */
+ /* Common expressions */
+"//"							{ commentCaller = INITIAL; BEGIN SINGLE_LINE_COMMENT; }
+"/*"							{ commentCaller = INITIAL; BEGIN MULTIPLE_LINES_COMMENT; }
+\"								return parseString();
 "const"							return T_CONST;
 "var"							return T_VAR;
 "function"         				return T_FUNCTION;
@@ -66,7 +40,7 @@
 "continue"						return T_CONTINUE;
 "break"							return T_BREAK;
 "return"          				return T_RETURN;
-"asm"							return T_ASSEMBLY;
+"asm"							{ BEGIN ASSEMBLY; return T_ASSEMBLY; }
 ">="            				return T_GE;
 "<="            				return T_LE;
 "=="            				return T_EQ;
@@ -75,11 +49,62 @@
 "||"							return T_LOR;
 "++"							return T_INC;
 "--"							return T_DEC;
-[-()<>=+*/;{},!&|@:]			return *yytext;
+[-+()<>=*/;{},!&|@:]			return *yytext;
 [0-9]+							{ yylval.number = atoi(yytext); return T_NUMBER; }
 "0x"[a-fA-F0-9]+				{ yylval.number = strtol(yytext, NULL, 16); return T_NUMBER; }
 \'.\'							{ yylval.number = (int)yytext[1]; return T_NUMBER; }
-\.*[a-zA-Z_]+[a-zA-Z0-9_]*		{ strncpy(yylval.string, yytext, STRING_LENGTH); yylval.string[STRING_LENGTH - 1] = 0; return T_IDENTIFIER; }
-[ \n\t]+						;
-.								;
+[a-zA-Z_]+[a-zA-Z0-9_]*			{ strncpy(yylval.string, yytext, STRING_LENGTH); yylval.string[STRING_LENGTH - 1] = 0; return T_IDENTIFIER; }
+[ \n\t]|.						;
 
+ /* Assembly expressions */
+<ASSEMBLY>"//"				{ commentCaller = ASSEMBLY; BEGIN SINGLE_LINE_COMMENT; }
+<ASSEMBLY>"/*"				{ commentCaller = ASSEMBLY; BEGIN MULTIPLE_LINES_COMMENT; }
+<ASSEMBLY>"{"				return *yytext;
+<ASSEMBLY>"}"				{ BEGIN INITIAL; return *yytext; }
+<ASSEMBLY>\"				return parseString();
+<ASSEMBLY>[-+]*[0-9]+		{ sprintf(yylval.string, "%d", atoi(yytext)); return T_STRING; }
+<ASSEMBLY>"0x"[a-fA-F0-9]+	{ sprintf(yylval.string, "%u", strtol(yytext, NULL, 16)); return T_STRING; }
+<ASSEMBLY>\'.\'				{ sprintf(yylval.string, "%u", (int)yytext[1]); return T_STRING; }
+<ASSEMBLY>\.*[a-zA-Z0-9_]+	{ strncpy(yylval.string, yytext, STRING_LENGTH); yylval.string[STRING_LENGTH - 1] = 0; return T_STRING; }
+<ASSEMBLY>[ \n\t]|.			;
+
+ /* Single line comments */
+<SINGLE_LINE_COMMENT>\n			BEGIN commentCaller;
+<SINGLE_LINE_COMMENT>.			;
+
+ /* Multiple line comments */
+<MULTIPLE_LINES_COMMENT>"*/"	BEGIN commentCaller;
+<MULTIPLE_LINES_COMMENT>.|\n	;
+
+%%
+
+int parseString()
+{
+	int lineNumber = yylineno;
+	uint16_t i = 0;
+	char c;
+	char previous = 0;
+
+	// Add starting quote
+	yylval.string[i++] = '"';
+
+	while ((i < STRING_LENGTH - 1) && (c = yyinput()))
+	{
+		if (c == '"' && previous != '\\')
+		{
+			// Add ending quote
+			yylval.string[i++] = '"';
+			yylval.string[i] = 0;
+			return T_STRING;
+		}
+
+		// Add character to the resulting string
+		yylval.string[i++] = c;
+		previous = c;
+	}
+	if (c != '\"')
+		Log::getInstance().write(LOG_INFO, "Line %u: string length too long !\n", lineNumber);
+
+	yylval.string[STRING_LENGTH - 1] = 0;
+	return T_STRING;
+}
