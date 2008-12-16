@@ -34,7 +34,7 @@ void Function::removeLabels()
 		if (_instructions[i]->getType() == INSTRUCTION_VALUE && _instructions[i]->getValue().substr(0, 6) == "LABEL_")
 		{
 			uint32_t label;
-			istringstream iss(_instructions[i]->getValue().substr(6, 1));
+			istringstream iss(_instructions[i]->getValue().substr(6));
 			iss >> label;
 			// The magic 2 in this statement is because SCUMM jump/if/ifNot instructions
 			// don't take the offset following them into account
