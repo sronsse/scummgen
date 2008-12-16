@@ -424,15 +424,35 @@ BreakStatement::~BreakStatement()
 {
 }
 
-ReturnStatement::ReturnStatement()
+ReturnStatement::ReturnStatement(Expression *e)
 {
+	_expression = e;
 }
 
 void ReturnStatement::compile(vector<Instruction *> &instructions)
 {
 	ostringstream oss;
 
+	// If an expression has been specified, we return it (only if we're in an inlined function)
+	if (_expression != NULL && Context::getFunctionType() != FUNCTION_INLINED)
+		Log::getInstance().write(LOG_ERROR, "Return values are only accepted in inlined functions !\n");
+
+	if (Context::getFunctionType() == FUNCTION_INLINED && _expression != NULL)
+	{
+		// Compile expression
+		_expression->compile(instructions);
+
+		// Write result
+		uint16_t value;
+		SymbolType symbolType;
+		Context::resolveSymbol("returnValue", value, symbolType);
+		oss << value;
+		instructions.push_back(new Instruction("writeWordVar"));
+		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	}
+
 	// jump instruction
+	oss.str("");
 	oss << "LABEL_" << Context::getReturnLabel();
 	instructions.push_back(new Instruction("jump"));
 	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
@@ -440,6 +460,8 @@ void ReturnStatement::compile(vector<Instruction *> &instructions)
 
 ReturnStatement::~ReturnStatement()
 {
+	if (_expression != NULL)
+		delete _expression;
 }
 
 AssemblyStatement::AssemblyStatement()
@@ -503,4 +525,3 @@ void AssemblyStatement::compile(vector<Instruction *> &instructions)
 AssemblyStatement::~AssemblyStatement()
 {
 }
-

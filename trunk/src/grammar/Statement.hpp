@@ -137,8 +137,9 @@ public:
 
 class ReturnStatement: public Statement
 {
+	Expression *_expression;
 public:
-	ReturnStatement();
+	ReturnStatement(Expression *e = NULL);
 	void compile(vector<Instruction *> &instructions);
 	~ReturnStatement();
 };

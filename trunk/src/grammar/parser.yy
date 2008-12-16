@@ -543,6 +543,13 @@ statement:
 		BreakStatement *breakStatement = new BreakStatement();
 		statementCollector.push_back(breakStatement);
 	}
+	| T_RETURN expression ';'
+	{
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		ReturnStatement *returnStatement = new ReturnStatement(expression);
+		statementCollector.push_back(returnStatement);
+	}
 	| T_RETURN ';'
 	{
 		ReturnStatement *returnStatement = new ReturnStatement();

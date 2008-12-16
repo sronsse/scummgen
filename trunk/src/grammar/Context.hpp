@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "Function.hpp"
 using namespace std;
 
 class Declaration;
@@ -15,6 +16,7 @@ typedef enum
 	CONTEXT_GAME,
 	CONTEXT_ROOM,
 	CONTEXT_FUNCTION,
+	CONTEXT_THREAD,
 	CONTEXT_INLINED,
 	CONTEXT_BLOCK,
 	CONTEXT_SWITCH,
@@ -64,6 +66,7 @@ public:
 	static int32_t getContinueLabel();
 	static int32_t getBreakLabel();
 	static int32_t getReturnLabel();
+	static FunctionType getFunctionType();
 
 	Context(ContextType type, vector<Declaration *> *declarations, vector<Function *> *functions, int32_t continueLabel, int32_t breakLabel, int32_t returnLabel);
 	~Context();

@@ -59,7 +59,20 @@ void Function::compile()
 	Log::getInstance().write(LOG_INFO, "Compiling function \"%s\"...\n", _name.c_str());
 	Log::getInstance().indent();
 
-	Context context(CONTEXT_FUNCTION, &_arguments, NULL, -1, -1, 0);
+	ContextType contextType;
+	switch (_type)
+	{
+		case FUNCTION_NORMAL:
+			contextType = CONTEXT_FUNCTION;
+			break;
+		case FUNCTION_THREAD:
+			contextType = CONTEXT_THREAD;
+			break;
+		case FUNCTION_INLINED:
+			Log::getInstance().write(LOG_ERROR, "Can't compile inline functions !");
+	}
+
+	Context context(contextType, &_arguments, NULL, -1, -1, 0);
 	Context::pushContext(&context);
 
 	// Prepare labels first
