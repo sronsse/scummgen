@@ -1,10 +1,14 @@
 #include "Map.hpp"
 #include <algorithm>
+#include <map>
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-Box::Box(XMLNode *node)
+Box::Box(XMLNode *node, uint8_t id)
 {
+	_id = id;
+
+	_name = node->getChild("name")->getStringContent();
 	_ulx = node->getChild("ulx")->getIntegerContent();
 	_uly = node->getChild("uly")->getIntegerContent();
 	_urx = node->getChild("urx")->getIntegerContent();
@@ -15,13 +19,12 @@ Box::Box(XMLNode *node)
 	_lly = node->getChild("lly")->getIntegerContent();
 	_mask = node->getChild("mask")->getIntegerContent();
 	_flags = node->getChild("flags")->getIntegerContent();
-	_scaleSlot = node->getChild("scaleSlot")->getIntegerContent();
 	_scale = node->getChild("scale")->getIntegerContent();
 
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("neighbour", i++)) != NULL)
-		_neighbours.push_back(child->getIntegerContent());
+		_neighbours.push_back(child->getStringContent());
 
 	// We calculate here the barycenter of the box
 	_centerX = (_ulx + _urx + _lrx + _llx) / 4.0f;
@@ -86,18 +89,30 @@ Matrix::Matrix(vector<Box *> *boxes)
 	
 	// Create nodes from boxes
 	vector<Node *> nodes;
+	map<string, uint8_t> indices;
 	for (int i = 0; i < boxes->size(); i++)
-		nodes.push_back(new Node(i, (*boxes)[i]->getCenterX(), (*boxes)[i]->getCenterY()));
+	{
+		Box *box = (*boxes)[i];
+		indices[box->getName()] = i;
+		Node *node = new Node(box->getID(), box->getCenterX(), box->getCenterY());
+		nodes.push_back(node);
+	}
 
 	// Add neighbours
 	for (int i = 0; i < boxes->size(); i++)
-		for (int j = 0; j < (*boxes)[i]->getNumberOfNeighbours(); j++)
-			nodes[i]->addNeighbour(nodes[(*boxes)[i]->getNeighbour(j)]);
+	{
+		Box *box = (*boxes)[i];
+		for (int j = 0; j < box->getNumberOfNeighbours(); j++)
+			nodes[i]->addNeighbour(nodes[indices[box->getNeighbour(j)]]);
+	}
 
 	// Calculate destinations using the A* algorithm between each box
 	for (int i = 0; i < nodes.size(); i++)
 	{
+		vector<uint8_t> from;
+		vector<uint8_t> to;
 		vector<uint8_t> dests;
+		uint8_t lastDest = 0;
 		for (int j = 0; j < nodes.size(); j++)
 		{
 			// Launch the A* algorithm
@@ -107,10 +122,33 @@ Matrix::Matrix(vector<Box *> *boxes)
 			open.push_back(nodes[i]);
 			Node *dest = AStar(&open, &closed, nodes[j]);
 
-			// Add the destination to our list (if no path is found, we push the start node)
-			dests.push_back(dest != NULL ? dest->getID() : i);
-			Log::getInstance().write(LOG_INFO, "A = %u, B = %u -> dest = %u\n", i, j, dests.back());
+			// If no path has been found, we reset lastDest to create a new entry next time
+			if (dest == NULL)
+				lastDest = 0;
+			else
+			{
+				// If the current destination found is equal to the last one, we just increment the "to" field,
+				// otherwise we create new entries
+				if (dest->getID() == lastDest)
+					to.back()++;
+				else
+				{
+					from.push_back(nodes[j]->getID());
+					to.push_back(nodes[j]->getID());
+					dests.push_back(dest->getID());
+					lastDest = dest->getID();
+				}
+			}
 		}
+
+		// Add entries 
+		Log::getInstance().write(LOG_INFO, "Box %u:\n", nodes[i]->getID());
+		Log::getInstance().indent();
+		for (int j = 0; j < from.size(); j++)
+			Log::getInstance().write(LOG_INFO, "From %u to %u -> dest = %u\n", from[j], to[j], dests[j]);
+		Log::getInstance().unIndent();
+		_from.push_back(from);
+		_to.push_back(to);
 		_dests.push_back(dests);
 	}
 
@@ -150,7 +188,7 @@ Node *Matrix::AStar(vector<Node *> *open, vector<Node *> *closed, Node *goal)
 		// We return the second box in the path
 		return path[path.size() - 2];
 	}
-	
+
 	// Add the best node to the closed list as we're treating it now
 	closed->push_back(best);
 
@@ -211,7 +249,7 @@ Map::Map(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("box", i++)) != NULL)
-		_boxes.push_back(new Box(child));
+		_boxes.push_back(new Box(child, i));
 
 	i = 0;
 	while ((child = rootNode->getChild("scale", i++)) != NULL)

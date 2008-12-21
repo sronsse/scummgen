@@ -29,23 +29,21 @@ public:
 class Frame
 {
 private:
-	string _name;
+	string _bitmapName;
 	uint16_t _width;
 	uint16_t _height;
-	int16_t _x;
-	int16_t _y;
+	int16_t _xOffset;
+	int16_t _yOffset;
 	int16_t _xInc;
 	int16_t _yInc;
 	vector<vector<uint8_t> > _pixels;
 public:
 	Frame(XMLNode *node, string dirName);
-	string getName() { return _name; }
+	string getBitmapName() { return _bitmapName; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
-	int16_t getX() { return _x; }
-	int16_t getY() { return _y; }
-	int16_t getXInc() { return _xInc; }
-	int16_t getYInc() { return _yInc; }
+	int16_t getXOffset() { return _xOffset; }
+	int16_t getYOffset() { return _yOffset; }
 	uint8_t getPixel(uint16_t x, uint16_t y) { return _pixels[x][y]; }
 	~Frame();
 };
@@ -57,6 +55,8 @@ private:
 
 	string _name;
 	uint16_t _id;
+	uint16_t _width;
+	uint16_t _height;
 	bool _mirror;
 	vector<Color> _colors;
 	vector<Anim *> _anims;
@@ -66,6 +66,8 @@ public:
 	Costume(string dirName);
 	string getName() { return _name; }
 	uint16_t getID() { return _id; }
+	uint16_t getWidth() { return _width; }
+	uint16_t getHeight() { return _height; }
 	bool isMirror() { return _mirror; }
 	uint8_t getNumberOfColors() { return _colors.size(); }
 	Color getColor(uint8_t index) { return _colors[index]; }

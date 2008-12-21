@@ -7,6 +7,8 @@ const uint8_t COST::N_LIMBS = 16;
 const uint16_t COST::LIMB_MASK = 0x0001;
 const uint8_t COST::REDIR_LIMB = 0xFF;
 const uint8_t COST::REDIR_PICT = 0xFF;
+const int16_t COST::X_INC = 0;
+const int16_t COST::Y_INC = 0;
 
 COST::COST(Costume *costume)
 {
@@ -77,12 +79,10 @@ COST::COST(Costume *costume)
 
 	for (int i = 0; i < costume->getNumberOfFrames(); i++)
 	{
-		_pictWidths.push_back(costume->getFrame(i)->getWidth());
-		_pictHeights.push_back(costume->getFrame(i)->getHeight());
-		_pictXs.push_back(costume->getFrame(i)->getX());
-		_pictYs.push_back(costume->getFrame(i)->getY());
-		_pictXIncs.push_back(costume->getFrame(i)->getXInc());
-		_pictYIncs.push_back(costume->getFrame(i)->getYInc());
+		_pictWidths.push_back(costume->getWidth());
+		_pictHeights.push_back(costume->getHeight());
+		_pictXs.push_back(costume->getFrame(i)->getXOffset());
+		_pictYs.push_back(costume->getFrame(i)->getYOffset());
 		vector<uint8_t> dataBytes;
 		getDataBytes(costume, costume->getFrame(i), dataBytes);
 		_dataBytes.push_back(dataBytes);
@@ -117,8 +117,15 @@ void COST::getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataByt
 		shift = 3;
 
 	for (int i = 0; i < frame->getWidth(); i++)
+	{
 		for (int j = 0; j < frame->getHeight(); j++)
 			dataBytes.push_back(frame->getPixel(i, j) << shift | 0x01);
+		for (int j = 0; j < costume->getHeight() - frame->getHeight(); j++)
+			dataBytes.push_back(0x01);
+	}
+	for (int i = 0; i < costume->getWidth() - frame->getWidth(); i++)
+		for (int j = 0; j < costume->getHeight(); j++)
+			dataBytes.push_back(0x01);
 }
 
 uint32_t COST::getSize()
@@ -143,8 +150,8 @@ uint32_t COST::getSize()
 	size += _pictHeights.size() * sizeof(uint16_t); // pictHeights
 	size += _pictXs.size() * sizeof(int16_t); // pictXs
 	size += _pictYs.size() * sizeof(int16_t); // pictYs
-	size += _pictXIncs.size() * sizeof(int16_t); // pictXIncs
-	size += _pictYIncs.size() * sizeof(int16_t); // pictYIncs
+	size += _pictWidths.size() * sizeof(int16_t); // pictXIncs
+	size += _pictWidths.size() * sizeof(int16_t); // pictYIncs
 	size += _pictWidths.size() * sizeof(uint8_t); // redirLimbs
 	size += _pictWidths.size() * sizeof(uint8_t); // redirPicts
 	for (int i = 0; i < _dataBytes.size(); i++) // dataBytes
@@ -183,8 +190,8 @@ void COST::write(fstream &f)
 		IO::writeU16LE(f, _pictHeights[i]);
 		IO::writeU16LE(f, _pictXs[i]);
 		IO::writeU16LE(f, _pictYs[i]);
-		IO::writeU16LE(f, _pictXIncs[i]);
-		IO::writeU16LE(f, _pictYIncs[i]);
+		IO::writeU16LE(f, X_INC);
+		IO::writeU16LE(f, Y_INC);
 		IO::writeU8(f, REDIR_LIMB);
 		IO::writeU8(f, REDIR_PICT);
 		for (int j = 0; j < _dataBytes[i].size(); j++)

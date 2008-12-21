@@ -43,27 +43,25 @@ Frame::Frame(XMLNode *node, string dirName)
 	Log::getInstance().write(LOG_INFO, "Frame\n");
 	Log::getInstance().indent();
 
-	_name = node->getChild("name")->getStringContent();
-	_x = node->getChild("x")->getIntegerContent();
-	_y = node->getChild("y")->getIntegerContent();
-	_xInc = node->getChild("xInc")->getIntegerContent();
-	_yInc = node->getChild("yInc")->getIntegerContent();
+	_bitmapName = node->getChild("bitmapName")->getStringContent();
+	uint16_t x = node->getChild("x")->getIntegerContent();
+	uint16_t y = node->getChild("y")->getIntegerContent();
+	_width = node->getChild("width")->getIntegerContent();
+	_height = node->getChild("height")->getIntegerContent();
+	_xOffset = node->getChild("xOffset")->getIntegerContent();
+	_yOffset = node->getChild("yOffset")->getIntegerContent();
 
-	BMPFile bmpFile;
-	bmpFile.open(dirName + _name + ".bmp");
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	_width = bmpFile.getWidth();
+	Log::getInstance().write(LOG_INFO, "bitmapName: %s\n", _bitmapName.c_str());
 	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
-
-	_height = bmpFile.getHeight();
 	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
 
+	BMPFile bmpFile;
+	bmpFile.open(dirName + _bitmapName + ".bmp");
 	for (int i = 0; i < _width; i++)
 	{
 		vector<uint8_t> pixelColumn;
 		for (int j = 0; j < _height; j++)
-			pixelColumn.push_back(bmpFile.getPixel(i, j));
+			pixelColumn.push_back(bmpFile.getPixel(x + i, y + j));
 		_pixels.push_back(pixelColumn);
 	}
 
@@ -92,6 +90,12 @@ Costume::Costume(string dirName)
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
 
+	_width = rootNode->getChild("width")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);
+
+	_height = rootNode->getChild("height")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "height: %d\n", _height);
+
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "mirror: %d\n", _mirror);
 
@@ -115,7 +119,7 @@ Costume::Costume(string dirName)
 	if (!_frames.empty())
 	{
 		BMPFile bmpFile;
-		bmpFile.open(dirName + "frames/" + _frames[0]->getName() + ".bmp");
+		bmpFile.open(dirName + "frames/" + _frames[0]->getBitmapName() + ".bmp");
 		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
 			_colors.push_back(bmpFile.getColor(i));
 	}

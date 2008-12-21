@@ -38,7 +38,6 @@ bool BMPFile::open(string fileName)
 
 	// Only non-encoded BMP files are supported
 	uint32_t compression = IO::readU32LE(file);
-	
 	if (compression != BI_RGB)
 	{
 		file.close();
@@ -70,7 +69,9 @@ bool BMPFile::open(string fileName)
 	}
 
 	// Decoding pixel data
-	uint8_t padding = (_width * _bpp) % 32;
+	uint8_t padding = 32 - (_width * _bpp) % 32;
+	if (padding == 32)
+		padding = 0;
 	for (int i = _height - 1; i >= 0; i--)
 	{
 		uint8_t byte;

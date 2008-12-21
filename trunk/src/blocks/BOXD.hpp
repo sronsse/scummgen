@@ -11,17 +11,19 @@ class Map;
 class BOXD
 {
 private:
-	static const uint32_t UNKNOWN;
+	static const uint16_t FAKE_VALUE;
+	static const uint8_t FAKE_MASK;
+	static const uint8_t FAKE_FLAGS;
+	static const uint8_t FAKE_SCALE;
 
-	uint32_t _nBoxes;
-	vector<int32_t> _ulxs, _ulys;
-	vector<int32_t> _urxs, _urys;
-	vector<int32_t> _lrxs, _lrys;
-	vector<int32_t> _llxs, _llys;
-	vector<uint32_t> _masks;
-	vector<uint32_t> _flags;
-	vector<uint32_t> _scaleSlots;
-	vector<uint32_t> _scales;
+	uint8_t _nBoxes;
+	vector<int16_t> _ulxs, _ulys;
+	vector<int16_t> _urxs, _urys;
+	vector<int16_t> _lrxs, _lrys;
+	vector<int16_t> _llxs, _llys;
+	vector<uint8_t> _masks;
+	vector<uint8_t> _flags;
+	vector<uint16_t> _scales;
 public:
 	BOXD(Map *map);
 	uint32_t getSize();

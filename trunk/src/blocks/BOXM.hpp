@@ -13,8 +13,8 @@ class BOXM
 private:
 	static const uint8_t BOX_END;
 
-	vector<vector<uint8_t> > _boxAs;
-	vector<vector<uint8_t> > _boxBs;
+	vector<vector<uint8_t> > _from;
+	vector<vector<uint8_t> > _to;
 	vector<vector<uint8_t> > _dests;
 public:
 	BOXM(Map *map);
