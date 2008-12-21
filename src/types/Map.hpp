@@ -11,33 +11,35 @@ class XMLNode;
 class Box
 {
 private:
-	int32_t _ulx,  _uly;
-	int32_t _urx, _ury;
-	int32_t _lrx, _lry;
-	int32_t _llx, _lly;
-	uint32_t _mask;
-	uint32_t _flags;
-	uint32_t _scaleSlot;
-	uint32_t _scale;
+	string _name;
+	uint8_t _id;
+	int16_t _ulx,  _uly;
+	int16_t _urx, _ury;
+	int16_t _lrx, _lry;
+	int16_t _llx, _lly;
+	uint8_t _mask;
+	uint8_t _flags;
+	uint16_t _scale;
 	float _centerX;
 	float _centerY;
-	vector<uint8_t> _neighbours;
+	vector<string> _neighbours;
 public:
-	Box(XMLNode *node);
-	int32_t getULX() { return _ulx; }
-	int32_t getULY() { return _uly; }
-	int32_t getURX() { return _urx; }
-	int32_t getURY() { return _ury; }
-	int32_t getLRX() { return _lrx; }
-	int32_t getLRY() { return _lry; }
-	int32_t getLLX() { return _llx; }
-	int32_t getLLY() { return _lly; }
-	uint32_t getMask() { return _mask; }
-	uint32_t getFlags() { return _flags; }
-	uint32_t getScaleSlot() { return _scaleSlot; }
-	uint32_t getScale() { return _scale; }
+	Box(XMLNode *node, uint8_t id);
+	string getName() { return _name; }
+	uint8_t getID() { return _id; }
+	int16_t getULX() { return _ulx; }
+	int16_t getULY() { return _uly; }
+	int16_t getURX() { return _urx; }
+	int16_t getURY() { return _ury; }
+	int16_t getLRX() { return _lrx; }
+	int16_t getLRY() { return _lry; }
+	int16_t getLLX() { return _llx; }
+	int16_t getLLY() { return _lly; }
+	uint8_t getMask() { return _mask; }
+	uint8_t getFlags() { return _flags; }
+	uint16_t getScale() { return _scale; }
 	uint8_t getNumberOfNeighbours() { return _neighbours.size(); }
-	uint8_t getNeighbour(uint8_t index) { return _neighbours[index]; }
+	string getNeighbour(uint8_t index) { return _neighbours[index]; }
 	float getCenterX() { return _centerX; }
 	float getCenterY() { return _centerY; }
 	~Box();
@@ -46,16 +48,16 @@ public:
 class Scale
 {
 private:
-	uint32_t _s1;
-	uint32_t _y1;
-	uint32_t _s2;
-	uint32_t _y2;
+	uint16_t _s1;
+	uint16_t _y1;
+	uint16_t _s2;
+	uint16_t _y2;
 public:
 	Scale(XMLNode *node);
-	uint32_t getS1() { return _s1; }
-	uint32_t getY1() { return _y1; }
-	uint32_t getS2() { return _s2; }
-	uint32_t getY2() { return _y2; }
+	uint16_t getS1() { return _s1; }
+	uint16_t getY1() { return _y1; }
+	uint16_t getS2() { return _s2; }
+	uint16_t getY2() { return _y2; }
 	~Scale();
 };
 
@@ -93,12 +95,17 @@ public:
 class Matrix
 {
 private:
+	vector<vector<uint8_t> > _from;
+	vector<vector<uint8_t> > _to;
 	vector<vector<uint8_t> > _dests;
 
 	Node *AStar(vector<Node *> *open, vector<Node *> *closed, Node *goal);
 public:
 	Matrix(vector<Box *> *boxes);
-	uint8_t getDest(uint8_t indexA, uint8_t indexB) { return _dests[indexA][indexB]; }
+	uint8_t getNumberOfEntries(uint8_t boxIndex) { return _from[boxIndex].size(); }
+	uint8_t getFrom(uint8_t boxIndex, uint8_t index) { return _from[boxIndex][index]; }
+	uint8_t getTo(uint8_t boxIndex, uint8_t index) { return _to[boxIndex][index]; }
+	uint8_t getDest(uint8_t boxIndex, uint8_t index) { return _dests[boxIndex][index]; }
 	~Matrix();
 };
 
@@ -110,8 +117,8 @@ private:
 	Matrix *_matrix;
 public:
 	Map(string dirName);
-	uint32_t getNumberOfBoxes() { return _boxes.size(); }
-	Box *getBox(uint32_t index) { return _boxes[index]; }
+	uint8_t getNumberOfBoxes() { return _boxes.size(); }
+	Box *getBox(uint8_t index) { return _boxes[index]; }
 	uint8_t getNumberOfScales() { return _scales.size(); }
 	Scale *getScale(uint8_t index) { return _scales[index]; }
 	Matrix *getMatrix() { return _matrix; }

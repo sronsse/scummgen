@@ -17,6 +17,8 @@ private:
 	static const uint16_t LIMB_MASK;
 	static const uint8_t REDIR_LIMB;
 	static const uint8_t REDIR_PICT;
+	static const int16_t X_INC;
+	static const int16_t Y_INC;
 
 	uint8_t _format;
 	vector<uint8_t> _palette;
@@ -31,8 +33,6 @@ private:
 	vector<uint16_t> _pictHeights;
 	vector<int16_t> _pictXs;
 	vector<int16_t> _pictYs;
-	vector<int16_t> _pictXIncs;
-	vector<int16_t> _pictYIncs;
 	vector<vector<uint8_t> > _dataBytes;
 
 	void getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes);
