@@ -12,6 +12,7 @@ class Frame;
 class COST
 {
 private:
+	static const uint8_t DEFAULT_FORMAT;
 	static const uint32_t UNKNOWN;
 	static const uint8_t N_LIMBS;
 	static const uint16_t LIMB_MASK;
@@ -19,6 +20,8 @@ private:
 	static const uint8_t REDIR_PICT;
 	static const int16_t X_INC;
 	static const int16_t Y_INC;
+	static const uint8_t SHIFT_16;
+	static const uint8_t SHIFT_32;
 
 	uint8_t _format;
 	vector<uint8_t> _palette;

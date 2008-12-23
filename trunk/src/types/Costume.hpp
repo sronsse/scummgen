@@ -9,20 +9,32 @@ using namespace std;
 
 class XMLNode;
 
+typedef enum
+{
+	ANIM_WEST,
+	ANIM_EAST,
+	ANIM_SOUTH,
+	ANIM_NORTH
+} AnimDirection;
+
 class Anim
 {
 private:
 	string _name;
 	uint8_t _id;
 	bool _loop;
-	vector<uint8_t> _commands;
+	vector<vector<uint8_t> > _commands;
+
+	void readSubAnim(XMLNode *rootNode, string name);
 public:
+	static const uint8_t N_DIRECTIONS;
+
 	Anim(string fileName, uint8_t id);
 	string getName() { return _name; }
 	uint8_t getID() { return _id; }
 	bool isLoop() { return _loop; }
-	uint16_t getNumberOfCommands() { return _commands.size(); }
-	uint8_t getCommand(uint16_t index) { return _commands[index]; }
+	uint16_t getNumberOfCommands(AnimDirection direction) { return _commands[(int)direction].size(); }
+	uint8_t getCommand(AnimDirection direction, uint16_t index) { return _commands[(int)direction][index]; }
 	~Anim();
 };
 
