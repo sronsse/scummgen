@@ -3,6 +3,8 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
+const uint8_t Anim::N_DIRECTIONS = 4;
+
 Anim::Anim(string fileName, uint8_t id)
 {
 	Log::getInstance().write(LOG_INFO, "Anim\n");
@@ -23,15 +25,26 @@ Anim::Anim(string fileName, uint8_t id)
 	_loop = rootNode->getChild("loop")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "loop: %s\n", _loop ? "true" : "false");
 
-	int i = 0;
-	XMLNode *child;
-	while ((child = rootNode->getChild("command", i)) != NULL)
-	{
-		_commands.push_back(child->getIntegerContent());
-		i++;
-	}
+	// Read the four sub animations
+	readSubAnim(rootNode, "west");
+	readSubAnim(rootNode, "east");
+	readSubAnim(rootNode, "south");
+	readSubAnim(rootNode, "north");
 
 	Log::getInstance().unIndent();
+}
+
+void Anim::readSubAnim(XMLNode *rootNode, string name)
+{
+	vector<uint8_t> commands;
+	int i = 0;
+	XMLNode *child, *child2;
+	if ((child = rootNode->getChild(name, 0)) != NULL)
+		while ((child2 = child->getChild("command", i++)) != NULL)
+			commands.push_back(child2->getIntegerContent());
+	else
+		commands.push_back(0); // When no frame is set for a certain direction, we just set the first frame by default
+	_commands.push_back(commands);
 }
 
 Anim::~Anim()
@@ -114,15 +127,18 @@ Costume::Costume(string dirName)
 		i++;
 	}
 
+	// Check for empty lists
+	if (_anims.empty())
+		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any animation !\n");
+	if (_frames.empty())
+		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any frame !\n");
+
 	// Get the costume colors from the first frame
 	_paletteBaseIndex = 0;
-	if (!_frames.empty())
-	{
-		BMPFile bmpFile;
-		bmpFile.open(dirName + "frames/" + _frames[0]->getBitmapName() + ".bmp");
-		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
-			_colors.push_back(bmpFile.getColor(i));
-	}
+	BMPFile bmpFile;
+	bmpFile.open(dirName + "frames/" + _frames[0]->getBitmapName() + ".bmp");
+	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+		_colors.push_back(bmpFile.getColor(i));
 
 	Log::getInstance().unIndent();
 }
