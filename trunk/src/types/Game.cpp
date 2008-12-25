@@ -214,7 +214,14 @@ void Game::addDeclarations()
 
 	// Costume declarations
 	for (int i = 0; i < _costumes.size(); i++)
+	{
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
+		{
+			Anim *anim = _costumes[i]->getAnim(j);
+			_declarations.push_back(new Declaration(DECLARATION_CONST, anim->getName(), anim->getID()));
+		}
+	}
 
 	// Room declarations
 	for (int i = 0; i < _rooms.size(); i++)

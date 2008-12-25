@@ -18,7 +18,7 @@ public:
 	static uint16_t readU16BE(fstream &f);
 	static uint32_t readU32LE(fstream &f);
 	static uint32_t readU32BE(fstream &f);
-	static uint8_t readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits);
+	static uint32_t readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits);
 	static void writeString(fstream &f, string s);
 	static void writeU8(fstream &f, uint8_t data);
 	static void writeU16LE(fstream &f, uint16_t data);

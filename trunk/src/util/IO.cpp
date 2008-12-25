@@ -57,9 +57,9 @@ uint32_t IO::readU32BE(fstream &f)
 	return u32;
 }
 
-uint8_t IO::readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
+uint32_t IO::readBits(fstream &f, uint8_t &byte, uint8_t &bitPos, uint8_t nBits)
 {
-	uint8_t result = 0;
+	uint32_t result = 0;
 	for (int i = nBits - 1; i >= 0; i--)
 	{
 		if (bitPos == 0)
