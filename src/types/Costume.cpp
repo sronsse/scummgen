@@ -10,9 +10,9 @@ Anim::Anim(string fileName, uint8_t id)
 	Log::getInstance().write(LOG_INFO, "Anim\n");
 	Log::getInstance().indent();
 
-	int posB = fileName.find_last_of('/') - 1;
-	int posA = fileName.find_last_of('.', posB) + 1;
-	_name = fileName.substr(posA, posB + 1 - posA);
+	int posA = fileName.find_last_of('/') + 1;
+	int posB = fileName.find_last_of('.') - 1;
+	_name = fileName.substr(posA, posB - posA + 1);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_id = id;
@@ -92,7 +92,7 @@ Costume::Costume(string dirName)
 
 	int posB = dirName.find_last_of('/') - 1;
 	int posA = dirName.find_last_of('/', posB) + 1;
-	_name = dirName.substr(posA, posB + 1 - posA);
+	_name = dirName.substr(posA, posB - posA + 1);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	XMLFile xmlFile;
@@ -115,17 +115,11 @@ Costume::Costume(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("anim", i)) != NULL)
-	{
-		_anims.push_back(new Anim(dirName + "anims/" + child->getStringContent() + ".xml", i + 1));
-		i++;
-	}
+		_anims.push_back(new Anim(dirName + "anims/" + child->getStringContent() + ".xml", i++));
 
 	i = 0;
-	while ((child = rootNode->getChild("frame", i)) != NULL)
-	{
+	while ((child = rootNode->getChild("frame", i++)) != NULL)
 		_frames.push_back(new Frame(child, dirName + "frames/"));
-		i++;
-	}
 
 	// Check for empty lists
 	if (_anims.empty())

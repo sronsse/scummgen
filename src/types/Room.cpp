@@ -120,7 +120,18 @@ void Room::addDeclarations()
 
 	// Costume declarations
 	for (int i = 0; i < _costumes.size(); i++)
+	{
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
+		{
+			Anim *anim = _costumes[i]->getAnim(j);
+			_declarations.push_back(new Declaration(DECLARATION_CONST, anim->getName(), anim->getID()));
+		}
+	}
+
+	// Box declarations
+	for (int i = 0; i < _map->getNumberOfBoxes(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _map->getBox(i)->getName(), _map->getBox(i)->getID()));
 
 	Log::getInstance().unIndent();
 }

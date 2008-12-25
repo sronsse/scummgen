@@ -78,7 +78,6 @@ bool BMPFile::open(string fileName)
 		uint8_t bitPos = 0;
 		for (int j = 0; j < _width; j++)
 			_pixels[j][i] = IO::readBits(file, byte, bitPos, _bpp);
-		bitPos = 0;
 		IO::readBits(file, byte, bitPos, padding);
 	}
 
