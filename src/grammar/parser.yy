@@ -63,6 +63,7 @@ vector<string> assemblyTokens;
 %nonassoc T_UMINUS
 %nonassoc T_NOT
 %nonassoc T_INC T_DEC
+%nonassoc T_UNI_INC T_UNI_DEC
 
 // Inputs to yyparse
 %parse-param {vector<Declaration *> &declarations}
@@ -369,22 +370,36 @@ expression:
 		Expression *expression = Expression::simplifyBinaryExpression(EXPRESSION_LOR, expression1, expression2);
 		expressionCollector.push_back(expression);
 	}
-	| T_INC T_IDENTIFIER
+	| T_IDENTIFIER T_INC expression
+	{
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(new VariableExpression($1), new BinaryExpression(EXPRESSION_ADD, new VariableExpression($1), expression));
+		expressionCollector.push_back(assignmentExpression);
+	}
+	| T_IDENTIFIER T_DEC expression
+	{
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(new VariableExpression($1), new BinaryExpression(EXPRESSION_SUB, new VariableExpression($1), expression));
+		expressionCollector.push_back(assignmentExpression);
+	}
+	| T_UNI_INC T_IDENTIFIER
 	{
 		Expression *expression = new UnaryExpression(EXPRESSION_PREINC, new VariableExpression($2));
 		expressionCollector.push_back(expression);
 	}
-	| T_IDENTIFIER T_INC
+	| T_IDENTIFIER T_UNI_INC
 	{
 		Expression *expression = new UnaryExpression(EXPRESSION_POSTINC, new VariableExpression($1));
 		expressionCollector.push_back(expression);
 	}
-	| T_DEC T_IDENTIFIER
+	| T_UNI_DEC T_IDENTIFIER
 	{
 		Expression *expression = new UnaryExpression(EXPRESSION_PREDEC, new VariableExpression($2));
 		expressionCollector.push_back(expression);
 	}
-	| T_IDENTIFIER T_DEC
+	| T_IDENTIFIER T_UNI_DEC
 	{
 		Expression *expression = new UnaryExpression(EXPRESSION_POSTDEC, new VariableExpression($1));
 		expressionCollector.push_back(expression);
