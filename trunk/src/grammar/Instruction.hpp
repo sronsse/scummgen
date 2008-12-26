@@ -100,7 +100,7 @@ private:
 	static const uint8_t OC_JUMP;
 	static const uint8_t OC_START_SOUND;
 	static const uint8_t OC_STOP_SOUND;
-	static const uint8_t OC_STAR_MUSIC;
+	static const uint8_t OC_START_MUSIC;
 	static const uint8_t OC_STOP_OBJECT_SCRIPT;
 	static const uint8_t OC_PAN_CAMERA_TO;
 	static const uint8_t OC_ACTOR_FOLLOW_CAMERA;

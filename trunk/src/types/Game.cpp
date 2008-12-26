@@ -7,6 +7,7 @@
 #include "grammar/Function.hpp"
 #include "Room.hpp"
 #include "Object.hpp"
+#include "Midi.hpp"
 #include "Costume.hpp"
 #include "Charset.hpp"
 #include "Voice.hpp"
@@ -71,6 +72,7 @@ Game::Game(string dirName)
 		_arrays.push_back(new Array(child));
 
 	loadObjects(dirName + "objects/");
+	loadMidis(dirName + "midis/");
 	loadCostumes(dirName + "costumes/");
 	loadRooms(dirName + "rooms/");
 	loadScripts(dirName + "scripts/");
@@ -96,6 +98,24 @@ void Game::loadObjects(string dirName)
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
 		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
+}
+
+void Game::loadMidis(string dirName)
+{
+	XMLFile xmlFile;
+	xmlFile.open(dirName + "midis.xml");
+	XMLNode *node = xmlFile.getRootNode();
+
+	if (node == NULL)
+	{
+		Log::getInstance().write(LOG_WARNING, "Game does not contain any music !\n");
+		return;
+	}
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("midi", i++)) != NULL)
+		_midis.push_back(new Midi(dirName + child->getStringContent() + ".mid"));
 }
 
 void Game::loadCostumes(string dirName)
@@ -211,6 +231,10 @@ void Game::addDeclarations()
 	// Object declarations
 	for (int i = 0; i < _objects.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+
+	// Midi declarations
+	for (int i = 0; i < _midis.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _midis[i]->getName(), _midis[i]->getID()));
 
 	// Costume declarations
 	for (int i = 0; i < _costumes.size(); i++)
@@ -361,6 +385,8 @@ Game::~Game()
 		delete _rooms[i];
 	for (int i = 0; i < _objects.size(); i++)
 		delete _objects[i];
+	for (int i = 0; i < _midis.size(); i++)
+		delete _midis[i];
 	for (int i = 0; i < _costumes.size(); i++)
 		delete _costumes[i];
 	for (int i = 0; i < _charsets.size(); i++)

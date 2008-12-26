@@ -1,22 +1,22 @@
-#ifndef _SOU_BLOCK_HPP_
-#define _SOU_BLOCK_HPP_
+#ifndef _SOUN_BLOCK_HPP_
+#define _SOUN_BLOCK_HPP_
 
 #include <fstream>
 #include <stdint.h>
 using namespace std;
 
 class Midi;
-class GMD;
+class SOU;
 
-class SOU
+class SOUN
 {
 private:
-	GMD *_gmd;
+	SOU *_sou;
 public:
-	SOU(Midi *midi);
+	SOUN(Midi *midi);
 	uint32_t getSize();
 	void write(fstream &f);
-	~SOU();
+	~SOUN();
 };
 
 #endif

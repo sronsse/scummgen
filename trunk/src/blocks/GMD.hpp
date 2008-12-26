@@ -1,22 +1,22 @@
-#ifndef _SOU_BLOCK_HPP_
-#define _SOU_BLOCK_HPP_
+#ifndef _GMD_BLOCK_HPP_
+#define _GMD_BLOCK_HPP_
 
 #include <fstream>
 #include <stdint.h>
+#include <vector>
 using namespace std;
 
 class Midi;
-class GMD;
 
-class SOU
+class GMD
 {
 private:
-	GMD *_gmd;
+	vector<uint8_t> _dataBytes;
 public:
-	SOU(Midi *midi);
+	GMD(Midi *midi);
 	uint32_t getSize();
 	void write(fstream &f);
-	~SOU();
+	~GMD();
 };
 
 #endif

@@ -10,6 +10,7 @@ using namespace std;
 class XMLNode;
 class Room;
 class Object;
+class Midi;
 class Costume;
 class Charset;
 class Voice;
@@ -42,6 +43,7 @@ private:
 	vector<Room *> _rooms;
 	vector<Object *> _objects;
 	vector<string> _scripts;
+	vector<Midi *> _midis;
 	vector<Costume *> _costumes;
 	vector<Charset *> _charsets;
 	vector<Voice *> _voices;
@@ -49,6 +51,7 @@ private:
 	vector<Function *> _functions;
 
 	void loadObjects(string dirName);
+	void loadMidis(string dirName);
 	void loadCostumes(string dirName);
 	void loadRooms(string dirName);
 	void loadScripts(string dirName);
@@ -73,6 +76,8 @@ public:
 	Room *getRoom(uint8_t index) { return _rooms[index]; }
 	uint16_t getNumberOfObjects() { return _objects.size(); }
 	Object *getObject(uint16_t index) { return _objects[index]; }
+	uint16_t getNumberOfMidis() { return _midis.size(); }
+	Midi *getMidi(uint16_t index) { return _midis[index]; }
 	uint16_t getNumberOfCostumes() { return _costumes.size(); }
 	Costume *getCostume(uint16_t index) { return _costumes[index]; }
 	uint8_t getNumberOfCharsets() { return _charsets.size(); }

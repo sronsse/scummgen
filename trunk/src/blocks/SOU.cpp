@@ -1,46 +1,29 @@
 #include "SOU.hpp"
 #include "util/IO.hpp"
-#include "types/Game.hpp"
-#include "VCTL.hpp"
-#include "VOC.hpp"
+#include "GMD.hpp"
 
-SOU::SOU(Game *game)
+SOU::SOU(Midi *midi)
 {
-	for (int i = 0; i < game->getNumberOfVoices(); i++)
-	{
-		_vctls.push_back(new VCTL(game->getVoice(i)));
-		_vocs.push_back(new VOC(game->getVoice(i)));
-	}
+	_gmd = new GMD(midi);
 }
 
 uint32_t SOU::getSize()
 {
 	uint32_t size = 0;
 	size += 4 * sizeof(uint8_t); // identifier
-	size += sizeof(uint32_t); // 0
-	for (int i = 0; i < _vctls.size(); i++) // vctls
-		size += _vctls[i]->getSize();
-	for (int i = 0; i < _vocs.size(); i++) // vocs
-		size += _vocs[i]->getSize();
+	size += sizeof(uint32_t); // size
+	size += _gmd->getSize(); // gmd
 	return size;
 }
 
 void SOU::write(fstream &f)
 {
 	IO::writeString(f, "SOU ");
-	IO::writeU32BE(f, 0);
-	for (int i = 0; i < _vctls.size(); i++)
-	{
-		_vctls[i]->write(f);
-		_vocs[i]->write(f);
-	}
+	IO::writeU32BE(f, getSize());
+	_gmd->write(f);
 }
 
 SOU::~SOU()
 {
-	for (int i = 0; i < _vctls.size(); i++)
-		delete _vctls[i];
-	for (int i = 0; i < _vocs.size(); i++)
-		delete _vocs[i];
+	delete _gmd;
 }
-

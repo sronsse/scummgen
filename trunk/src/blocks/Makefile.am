@@ -15,6 +15,7 @@ libblocks_la_SOURCES = AARY.cpp AARY.hpp \
                        DSOU.cpp DSOU.hpp \
                        ENCD.cpp ENCD.hpp \
                        EXCD.cpp EXCD.hpp \
+                       GMD.cpp GMD.hpp \
                        IMHD.cpp IMHD.hpp \
                        IMxx.cpp IMxx.hpp \
                        LECF.cpp LECF.hpp \
@@ -37,6 +38,8 @@ libblocks_la_SOURCES = AARY.cpp AARY.hpp \
                        SCRP.cpp SCRP.hpp \
                        SMAP.cpp SMAP.hpp \
                        SOU.cpp SOU.hpp \
+                       SOU2.cpp SOU2.hpp \
+					   SOUN.cpp SOUN.hpp \
                        TRNS.cpp TRNS.hpp \
                        VCTL.cpp VCTL.hpp \
                        VERB.cpp VERB.hpp \
