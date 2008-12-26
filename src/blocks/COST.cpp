@@ -26,7 +26,18 @@ COST::COST(Costume *costume)
 	for (int i = 0; i < nColors; i++)
 		_palette.push_back(costume->getPaletteBaseIndex() + i);
 
-	// Calculate animCmdsOffsets
+	calculateAnimCmdsOffset(costume);
+	calculateLimbOffsets(costume);
+	calculateAnimOffsets(costume);
+	calculateAnimStarts(costume);
+	calculateAnimNoLoopAndEndOffsets(costume);
+	getAnimCmds(costume);
+	getFrames(costume);
+	calculatePictOffsets(costume);	
+}
+
+void COST::calculateAnimCmdsOffset(Costume *costume)
+{
 	_animCmdsOffset = 0;
 	_animCmdsOffset += sizeof(uint32_t); // unknown
 	_animCmdsOffset += 2 * sizeof(uint8_t); // "CO"
@@ -39,10 +50,13 @@ COST::COST(Costume *costume)
 	_animCmdsOffset += costume->getNumberOfAnims() * Anim::N_DIRECTIONS * sizeof(uint16_t); // limbMasks
 	_animCmdsOffset += costume->getNumberOfAnims() * Anim::N_DIRECTIONS * sizeof(uint16_t); // animStarts
 	_animCmdsOffset += costume->getNumberOfAnims() * Anim::N_DIRECTIONS * sizeof(uint8_t); // animNoLoopAndEndOffset
+}
 
-	// Calculate limbOffsets
+void COST::calculateLimbOffsets(Costume *costume)
+{
 	for (int i = 0; i  < N_LIMBS - 1; i++) // We only support one limb for now
 		_limbsOffsets.push_back(0);
+
 	uint16_t lastLimbOffset = 0;
 	lastLimbOffset += _animCmdsOffset; // From "CO" to the start of the anim commands
 	for (int i = 0; i < costume->getNumberOfAnims(); i++) // animCmds
@@ -53,8 +67,10 @@ COST::COST(Costume *costume)
 		lastLimbOffset += costume->getAnim(i)->getNumberOfCommands(ANIM_NORTH) * sizeof(uint8_t);
 	}
 	_limbsOffsets.push_back(lastLimbOffset);
+}
 
-	// Calculate all animOffsets
+void COST::calculateAnimOffsets(Costume *costume)
+{
 	uint16_t firstAnimOffset = 0;
 	firstAnimOffset += sizeof(uint32_t); // unknown
 	firstAnimOffset += 2 * sizeof(uint8_t); // "CO"
@@ -65,6 +81,7 @@ COST::COST(Costume *costume)
 	firstAnimOffset += N_LIMBS * sizeof(uint16_t); // limbsOffsets
 	firstAnimOffset += costume->getNumberOfAnims() * Anim::N_DIRECTIONS * sizeof(uint16_t); // animsOffsets
 	_animsOffsets.push_back(firstAnimOffset);
+
 	for (int i = 1; i < costume->getNumberOfAnims() * Anim::N_DIRECTIONS; i++)
 	{
 		uint8_t animOffset = 0;
@@ -74,12 +91,15 @@ COST::COST(Costume *costume)
 		animOffset += sizeof(uint8_t); // animNoLoopAndEndOffset
 		_animsOffsets.push_back(animOffset);
 	}
+}
 
-	// Calculate animStarts
+void COST::calculateAnimStarts(Costume *costume)
+{
 	_animStarts.push_back(0);
 	_animStarts.push_back(_animStarts.back() + costume->getAnim(0)->getNumberOfCommands(ANIM_WEST));
 	_animStarts.push_back(_animStarts.back() + costume->getAnim(0)->getNumberOfCommands(ANIM_EAST));
 	_animStarts.push_back(_animStarts.back() + costume->getAnim(0)->getNumberOfCommands(ANIM_SOUTH));
+
 	for (int i = 1; i < costume->getNumberOfAnims(); i++)
 	{
 		_animStarts.push_back(_animStarts.back() + costume->getAnim(i - 1)->getNumberOfCommands(ANIM_NORTH));
@@ -87,13 +107,16 @@ COST::COST(Costume *costume)
 		_animStarts.push_back(_animStarts.back() + costume->getAnim(i)->getNumberOfCommands(ANIM_EAST));
 		_animStarts.push_back(_animStarts.back() + costume->getAnim(i)->getNumberOfCommands(ANIM_SOUTH));
 	}
+}
 
-	// Calculate animLoopAndEndOffsets
+void COST::calculateAnimNoLoopAndEndOffsets(Costume *costume)
+{
 	bool animLooped = !costume->getAnim(0)->isLoop();
 	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_WEST) - 1));
 	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_EAST) - 1));
 	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_SOUTH) - 1));
 	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_NORTH) - 1));
+
 	for (int i = 1; i < costume->getNumberOfAnims(); i++)
 	{
 		animLooped = costume->getAnim(i)->isLoop();
@@ -102,8 +125,10 @@ COST::COST(Costume *costume)
 		_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(i)->getNumberOfCommands(ANIM_SOUTH) - 1));
 		_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(i)->getNumberOfCommands(ANIM_NORTH) - 1));
 	}
+}
 
-	// Get animation commands
+void COST::getAnimCmds(Costume *costume)
+{
 	for (int i = 0; i < costume->getNumberOfAnims(); i++)
 	{
 		for (int j = 0; j < costume->getAnim(i)->getNumberOfCommands(ANIM_WEST); j++)
@@ -115,8 +140,10 @@ COST::COST(Costume *costume)
 		for (int j = 0; j < costume->getAnim(i)->getNumberOfCommands(ANIM_NORTH); j++)
 			_animCmds.push_back(costume->getAnim(i)->getCommand(ANIM_NORTH, j));
 	}
+}
 
-	// Get animation frames
+void COST::getFrames(Costume *costume)
+{
 	for (int i = 0; i < costume->getNumberOfFrames(); i++)
 	{
 		_pictWidths.push_back(costume->getWidth());
@@ -127,14 +154,16 @@ COST::COST(Costume *costume)
 		getDataBytes(costume, costume->getFrame(i), dataBytes);
 		_dataBytes.push_back(dataBytes);
 	}
+}
 
-	// Calculate picture offsets
+void COST::calculatePictOffsets(Costume *costume)
+{
 	uint16_t firstPictOffset = 0;
 	firstPictOffset += _animCmdsOffset; // from "CO" to the start of the anim commands
 	firstPictOffset += _animCmds.size() * sizeof(uint8_t); // animCmds
 	firstPictOffset += costume->getNumberOfFrames() * sizeof(uint16_t); // pictOffsets
 	_pictOffsets.push_back(firstPictOffset);
-	for (int i = 1; i < _pictWidths.size(); i++)
+	for (int i = 1; i < _dataBytes.size(); i++)
 	{
 		uint16_t pictOffset = _pictOffsets[i - 1];
 		pictOffset += sizeof(uint16_t); // pictWidth
@@ -190,10 +219,10 @@ uint32_t COST::getSize()
 	size += _pictHeights.size() * sizeof(uint16_t); // pictHeights
 	size += _pictXs.size() * sizeof(int16_t); // pictXs
 	size += _pictYs.size() * sizeof(int16_t); // pictYs
-	size += _pictWidths.size() * sizeof(int16_t); // pictXIncs
-	size += _pictWidths.size() * sizeof(int16_t); // pictYIncs
-	size += _pictWidths.size() * sizeof(uint8_t); // redirLimbs
-	size += _pictWidths.size() * sizeof(uint8_t); // redirPicts
+	size += _dataBytes.size() * sizeof(int16_t); // pictXIncs
+	size += _dataBytes.size() * sizeof(int16_t); // pictYIncs
+	size += _dataBytes.size() * sizeof(uint8_t); // redirLimbs
+	size += _dataBytes.size() * sizeof(uint8_t); // redirPicts
 	for (int i = 0; i < _dataBytes.size(); i++) // dataBytes
 		size += _dataBytes[i].size() * sizeof(uint8_t);
 	return size;
@@ -224,7 +253,7 @@ void COST::write(fstream &f)
 		IO::writeU8(f, _animCmds[i]);
 	for (int i = 0; i < _pictOffsets.size(); i++)
 		IO::writeU16LE(f, _pictOffsets[i]);
-	for (int i = 0; i < _pictWidths.size(); i++)
+	for (int i = 0; i < _dataBytes.size(); i++)
 	{
 		IO::writeU16LE(f, _pictWidths[i]);
 		IO::writeU16LE(f, _pictHeights[i]);
