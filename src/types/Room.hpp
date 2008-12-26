@@ -10,7 +10,6 @@ class Image;
 class Palette;
 class Object;
 class Map;
-class Sound;
 class Costume;
 class Declaration;
 class Function;
@@ -27,7 +26,6 @@ private:
 	vector<Object *> _objects;
 	Map *_map;
 	vector<string> _scripts;
-	vector<Sound *> _sounds;
 	vector<Costume *> _costumes;
 	Function *_entryFunction;
 	Function *_exitFunction;
@@ -50,8 +48,6 @@ public:
 	uint16_t getNumberOfObjects() { return _objects.size(); }
 	Object *getObject(uint16_t index) { return _objects[index]; }
 	Map *getMap() { return _map; }
-	uint16_t getNumberOfSounds() { return _sounds.size(); }
-	Sound *getSound(uint16_t index) { return _sounds[index]; }
 	uint16_t getNumberOfCostumes() { return _costumes.size(); }
 	Costume *getCostume(uint16_t index) { return _costumes[index]; }
 	Function *getEntryFunction() { return _entryFunction; }
@@ -62,4 +58,3 @@ public:
 };
 
 #endif
-

@@ -95,13 +95,13 @@ Costume::Costume(string dirName)
 	_name = dirName.substr(posA, posB - posA + 1);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "costume.xml");
-	XMLNode *rootNode = xmlFile.getRootNode();
-
 	static uint16_t currentID = 1;
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
+
+	XMLFile xmlFile;
+	xmlFile.open(dirName + "costume.xml");
+	XMLNode *rootNode = xmlFile.getRootNode();
 
 	_width = rootNode->getChild("width")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);

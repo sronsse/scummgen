@@ -27,9 +27,7 @@ MAXS::MAXS(Game *game)
 	for (int i = 0; i < game->getNumberOfFunctions(); i++)
 		if (game->getFunction(i)->getType() != FUNCTION_INLINED)
 			_nScripts++;
-	_nSounds = 1;
-	for (int i = 0; i < game->getNumberOfRooms(); i++)
-		_nSounds += game->getRoom(i)->getNumberOfSounds();
+	_nSounds = game->getNumberOfMidis() + 1;
 	_nCharsets = game->getNumberOfCharsets() + 1;
 	_nCostumes = game->getNumberOfCostumes() + 1;
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
@@ -86,4 +84,3 @@ void MAXS::write(fstream &f)
 MAXS::~MAXS()
 {
 }
-

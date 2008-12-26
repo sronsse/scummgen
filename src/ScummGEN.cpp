@@ -14,7 +14,7 @@
 #include "blocks/DOBJ.hpp"
 #include "blocks/AARY.hpp"
 #include "blocks/LECF.hpp"
-#include "blocks/SOU.hpp"
+#include "blocks/SOU2.hpp"
 
 const string ScummGEN::INDEX_FILE_EXTENSION = ".000";
 const string ScummGEN::RESOURCE_FILE_EXTENSION = ".001";
@@ -78,7 +78,7 @@ void ScummGEN::writeVoiceFile(string outputDirName)
 	// Create and write the voice file contents only if necessary
 	if (_game->getNumberOfVoices() > 0)
 	{
-		SOU sou(_game);
+		SOU2 sou(_game);
 		string voiceFileName = outputDirName + VOICE_FILE_NAME;
 		fstream voiceFile(voiceFileName.c_str(), ios::in | ios::out | ios::binary | ios::trunc);
 		IO::setKey(0);

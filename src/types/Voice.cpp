@@ -3,15 +3,6 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-map<string, Voice *> Voice::_instances;
-
-Voice *Voice::getInstanceFromName(string voiceName)
-{
-	if (_instances.find(voiceName) == _instances.end())
-		return NULL;
-	return _instances[voiceName];
-}
-
 Voice::Voice(string dirName)
 {
 	Log::getInstance().write(LOG_INFO, "Voice\n");
@@ -19,10 +10,8 @@ Voice::Voice(string dirName)
 
 	int posB = dirName.find_last_of('/') - 1;
 	int posA = dirName.find_last_of('/', posB) + 1;
-	_name = dirName.substr(posA, posB + 1 - posA);
+	_name = dirName.substr(posA, posB - posA + 1);
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	_instances[_name] = this;
 
 	XMLFile xmlFile;
 	xmlFile.open(dirName + "voice.xml");
@@ -115,4 +104,3 @@ void Voice::loadWAV(string fileName)
 Voice::~Voice()
 {
 }
-

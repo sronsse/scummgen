@@ -10,8 +10,6 @@ using namespace std;
 class Voice
 {
 private:
-	static map<string, Voice *> _instances;
-
 	string _name;
 	vector<uint16_t> _syncTimes;
 	uint32_t _sampleRate;
@@ -19,8 +17,6 @@ private:
 
 	void loadWAV(string fileName);
 public:
-	static Voice *getInstanceFromName(string voiceName);
-
 	Voice(string dirName);
 	string getName() { return _name; }
 	uint8_t getNumberOfSyncTimes() { return _syncTimes.size(); }

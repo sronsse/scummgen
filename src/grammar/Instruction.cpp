@@ -79,7 +79,7 @@ const uint8_t Instruction::OC_GET_OWNER = 0x72;
 const uint8_t Instruction::OC_JUMP = 0x73;
 const uint8_t Instruction::OC_START_SOUND = 0x74;
 const uint8_t Instruction::OC_STOP_SOUND = 0x75;
-const uint8_t Instruction::OC_STAR_MUSIC = 0x76;
+const uint8_t Instruction::OC_START_MUSIC = 0x76;
 const uint8_t Instruction::OC_STOP_OBJECT_SCRIPT = 0x77;
 const uint8_t Instruction::OC_PAN_CAMERA_TO = 0x78;
 const uint8_t Instruction::OC_ACTOR_FOLLOW_CAMERA = 0x79;
@@ -513,7 +513,7 @@ void Instruction::setOpcodes()
 	_opcodes["soundKludge"] = OC_SOUND_KLUDGE;
 	_opcodes["stampObject"] = OC_STAMP_OBJECT;
 	_opcodes["standAnimation"] = SO_STAND_ANIMATION;
-	_opcodes["starMusic"] = OC_STAR_MUSIC;
+	_opcodes["startMusic"] = OC_START_MUSIC;
 	_opcodes["startObject"] = OC_START_OBJECT;
 	_opcodes["startObjectQuick"] = OC_START_OBJECT_QUICK;
 	_opcodes["startScript"] = OC_START_SCRIPT;
