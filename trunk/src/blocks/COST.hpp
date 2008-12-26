@@ -38,6 +38,14 @@ private:
 	vector<int16_t> _pictYs;
 	vector<vector<uint8_t> > _dataBytes;
 
+	void calculateAnimCmdsOffset(Costume *costume);
+	void calculateLimbOffsets(Costume *costume);
+	void calculateAnimOffsets(Costume *costume);
+	void calculateAnimStarts(Costume *costume);
+	void calculateAnimNoLoopAndEndOffsets(Costume *costume);
+	void getAnimCmds(Costume *costume);
+	void getFrames(Costume *costume);
+	void calculatePictOffsets(Costume *costume);	
 	void getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes);
 public:
 	COST(Costume *costume);
