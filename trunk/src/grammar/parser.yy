@@ -526,7 +526,7 @@ statement:
 		expressionCollector.pop_back();
 		Statement *statement = statementCollector.back();
 		statementCollector.pop_back();
-		ForStatement *forStatement = new ForStatement(initExpression, conditionExpression, increaseExpression, statement);
+		ForStatement *forStatement = new ForStatement(new ExpressionStatement(initExpression), conditionExpression, new ExpressionStatement(increaseExpression), statement);
 		statementCollector.push_back(forStatement);
 	}
 	| T_WHILE '(' expression ')' statement

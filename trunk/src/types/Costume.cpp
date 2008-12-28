@@ -65,6 +65,8 @@ Frame::Frame(XMLNode *node, string dirName)
 	_yOffset = node->getChild("yOffset")->getIntegerContent();
 
 	Log::getInstance().write(LOG_INFO, "bitmapName: %s\n", _bitmapName.c_str());
+	Log::getInstance().write(LOG_INFO, "x: %u\n", x);
+	Log::getInstance().write(LOG_INFO, "y: %u\n", y);
 	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
 	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
 
@@ -103,12 +105,6 @@ Costume::Costume(string dirName)
 	xmlFile.open(dirName + "costume.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_width = rootNode->getChild("width")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);
-
-	_height = rootNode->getChild("height")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "height: %d\n", _height);
-
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "mirror: %d\n", _mirror);
 
@@ -126,6 +122,20 @@ Costume::Costume(string dirName)
 		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any animation !\n");
 	if (_frames.empty())
 		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any frame !\n");
+
+	// Specify the costume dimensions
+	_width = 0;
+	_height = 0;
+	for (int i = 0; i < _frames.size(); i++)
+	{
+		if (_width < _frames[i]->getWidth())
+			_width = _frames[i]->getWidth();
+		if (_height < _frames[i]->getHeight())
+			_height = _frames[i]->getHeight();
+	}
+	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);
+	Log::getInstance().write(LOG_INFO, "height: %d\n", _height);
+
 
 	// Get the costume colors from the first frame
 	_paletteBaseIndex = 0;

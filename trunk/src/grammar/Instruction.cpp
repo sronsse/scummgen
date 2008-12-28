@@ -663,7 +663,7 @@ string Instruction::toString()
 				case VALUE_STRING:
 					oss << dec <<_address << dec << ": .string ";
 			}
-			oss << (_pretty.empty() ? _value : _pretty);
+			oss << (_pretty.empty() ? _value : '\"' + _pretty + "\'");
 			break;
 		case INSTRUCTION_LABEL:
 			oss << "LABEL_" << _label << ":";

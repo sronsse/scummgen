@@ -20,9 +20,12 @@ CHAR::CHAR(Charset *charset)
 		if (charset->getChar(i)->getID() + 1 > _nChars)
 			_nChars = charset->getChar(i)->getID() + 1;
 
-	for (int i = 0; i < _nChars; i++)
-		_offsets.push_back(0);
+	getFrames(charset);
+	calculateOffsets(charset);
+}
 
+void CHAR::getFrames(Charset *charset)
+{
 	for (int i = 0; i < charset->getNumberOfChars(); i++)
 	{
 		_widths.push_back(charset->getChar(i)->getWidth());
@@ -33,6 +36,13 @@ CHAR::CHAR(Charset *charset)
 		getDataBytes(charset, charset->getChar(i), dataBytes);
 		_dataBytes.push_back(dataBytes);
 	}
+}
+
+void CHAR::calculateOffsets(Charset *charset)
+{
+	// Prepare offsets list
+	for (int i = 0; i < _nChars; i++)
+		_offsets.push_back(0);
 
 	// First "real" char offset is relative to the position of the BPP field
 	_offsets[charset->getChar(0)->getID()] = sizeof(uint8_t); // bpp
@@ -41,41 +51,24 @@ CHAR::CHAR(Charset *charset)
 	_offsets[charset->getChar(0)->getID()] += _nChars * sizeof(uint32_t); // offsets
 
 	// We now calculate all the missing offsets according to the previous one
-	for (int i = 1; i < _widths.size(); i++)
+	for (int i = 1; i < _dataBytes.size(); i++)
 	{
 		_offsets[charset->getChar(i)->getID()] = _offsets[charset->getChar(i - 1)->getID()];
 		_offsets[charset->getChar(i)->getID()] += sizeof(uint8_t); // width
 		_offsets[charset->getChar(i)->getID()] += sizeof(uint8_t); // height
 		_offsets[charset->getChar(i)->getID()] += sizeof(int8_t); // xOffset
 		_offsets[charset->getChar(i)->getID()] += sizeof(int8_t); // yOffset
-		_offsets[charset->getChar(i)->getID()] += _dataBytes[i].size() * sizeof(uint8_t); // dataBytes
+		_offsets[charset->getChar(i)->getID()] += _dataBytes[i - 1].size() * sizeof(uint8_t); // dataBytes
 	}
 }
 
 void CHAR::getDataBytes(Charset *charset, Char *chr, vector<uint8_t> &dataBytes)
 {
-	// This is SCUMM's way of calculating the number of bytes for pixel storage
-	// There are cases where an extra byte is added for no obvious reason though
-	// (when _width * _height * bpp % 8 == 0)
-	uint16_t nDataBytes = (chr->getWidth() * chr->getHeight() * _bpp) / 8 + 1;
-	for (int i = 0; i < nDataBytes; i++)
-		dataBytes.push_back(0);
-
-	// Bits are written from left to right (MSB first)
-	uint16_t bytePos = 0;
-	uint8_t bitPos = 7;
+	uint32_t bytePos = 0;
+	uint8_t bitPos = 0;
 	for (int i = 0; i < chr->getHeight(); i++)
 		for (int j = 0; j < chr->getWidth(); j++)
-			for (int k = 0; k < _bpp; k++)
-			{
-				dataBytes[bytePos] |= ((charset->getPixel(chr->getX() + j, chr->getY() + i) >> k) & 0x1) << bitPos;
-				if (bitPos == 0)
-				{
-					bytePos++;
-					bitPos = 7;
-				}
-				else bitPos--;
-			}
+			IO::writeBits(dataBytes, charset->getPixel(chr->getX() + j, chr->getY() + i), bytePos, bitPos, _bpp);
 }
 
 uint32_t CHAR::getSize()
@@ -114,7 +107,7 @@ void CHAR::write(fstream &f)
 	IO::writeU16LE(f, _nChars);
 	for (int i = 0; i < _nChars; i++)
 		IO::writeU32LE(f, _offsets[i]);
-	for (int i = 0; i < _widths.size(); i++)
+	for (int i = 0; i < _dataBytes.size(); i++)
 	{
 		IO::writeU8(f, _widths[i]);
 		IO::writeU8(f, _heights[i]);
