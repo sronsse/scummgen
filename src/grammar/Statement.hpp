@@ -98,12 +98,12 @@ public:
 class ForStatement: public Statement
 {
 private:
-	Expression *_initExpression;
+	ExpressionStatement *_initExpressionStatement;
 	Expression *_conditionExpression;
-	Expression *_increaseExpression;
+	ExpressionStatement *_increaseExpressionStatement;
 	Statement * _statement;
 public:
-	ForStatement(Expression *initE, Expression *conditionE, Expression *increaseE, Statement *s);
+	ForStatement(ExpressionStatement *initES, Expression *conditionE, ExpressionStatement *increaseES, Statement *s);
 	void compile(vector<Instruction *> &instructions);
 	~ForStatement();
 };

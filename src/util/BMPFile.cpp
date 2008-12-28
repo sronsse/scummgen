@@ -14,7 +14,10 @@ bool BMPFile::open(string fileName)
 	// We open the file, which should be an indexed BMP file
 	fstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
+	{
+		Log::getInstance().write(LOG_WARNING, "Couldn't open file !\n");
 		return false;
+	}
 
 	uint16_t identifier = IO::readU16LE(file);
 	uint32_t fileSize = IO::readU32LE(file);
@@ -33,6 +36,7 @@ bool BMPFile::open(string fileName)
 	if (_bpp > 8)
 	{
 		file.close();
+		Log::getInstance().write(LOG_WARNING, "Bits per pixel not supported !\n");
 		return false;
 	}
 
@@ -41,6 +45,7 @@ bool BMPFile::open(string fileName)
 	if (compression != BI_RGB)
 	{
 		file.close();
+		Log::getInstance().write(LOG_WARNING, "Compression format not supported !\n");
 		return false;
 	}
 

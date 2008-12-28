@@ -55,14 +55,19 @@ Charset::Charset(string dirName)
 	while ((child = rootNode->getChild("char", i++)) != NULL)
 		_chars.push_back(new Char(child));
 
-	string palette = rootNode->getChild("palette")->getStringContent();
+	if (_chars.empty())
+		Log::getInstance().write(LOG_ERROR, "Charset doesn't have any character !\n");
+
+	/*string palette = rootNode->getChild("palette")->getStringContent();
 	uint8_t indexA = 0, indexB = 0;
 	for (int i = 0; i < N_COLORS; i++)
 	{
 		indexB = palette.find(' ', indexA);
 		_palette.push_back(atoi(palette.substr(indexA, indexB).c_str()));
 		indexA = indexB + 1;
-	}
+	}*/
+	for (int i = 0; i < N_COLORS; i++)
+		_palette.push_back(i);
 
 	Log::getInstance().unIndent();
 }

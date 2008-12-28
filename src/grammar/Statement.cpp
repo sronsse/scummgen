@@ -272,11 +272,11 @@ SwitchStatement::~SwitchStatement()
 		delete _caseStatements[i];
 }
 
-ForStatement::ForStatement(Expression *initE, Expression *conditionE, Expression *increaseE, Statement *s)
+ForStatement::ForStatement(ExpressionStatement *initES, Expression *conditionE, ExpressionStatement *increaseES, Statement *s)
 {
-	_initExpression = initE;
+	_initExpressionStatement = initES;
 	_conditionExpression = conditionE;
-	_increaseExpression = increaseE;
+	_increaseExpressionStatement = increaseES;
 	_statement = s;
 }
 
@@ -289,7 +289,7 @@ void ForStatement::compile(vector<Instruction *> &instructions)
 	Context::labelCounter += 2;
 
 	// for initialization
-	_initExpression->compile(instructions);
+	_initExpressionStatement->compile(instructions);
 
 	// label
 	instructions.push_back(new Instruction(labelCounter));
@@ -311,7 +311,7 @@ void ForStatement::compile(vector<Instruction *> &instructions)
 	Context::popContext();
 
 	// for increase
-	_increaseExpression->compile(instructions);
+	_increaseExpressionStatement->compile(instructions);
 
 	// jump instruction
 	oss.str("");
@@ -325,9 +325,9 @@ void ForStatement::compile(vector<Instruction *> &instructions)
 
 ForStatement::~ForStatement()
 {
-	delete _initExpression;
+	delete _initExpressionStatement;
 	delete _conditionExpression;
-	delete _increaseExpression;
+	delete _increaseExpressionStatement;
 	delete _statement;
 }
 

@@ -143,6 +143,21 @@ void IO::writeU32BE(fstream &f, uint32_t data)
 	f.write((char *)&u8, 1);
 }
 
+void IO::writeBits(vector<uint8_t> &v, uint8_t byte, uint32_t &bytePos, uint8_t &bitPos, uint8_t nBits)
+{
+	for (int i = 0; i < nBits; i++)
+	{
+		if (bitPos == 0)
+			v.push_back(0);
+		v[bytePos] |= ((byte >> i) & 0x01) << (7 - bitPos);
+		if (++bitPos == 8)
+		{
+			bytePos++;
+			bitPos = 0;
+		}
+	}
+}
+
 string IO::getStringFromIndex(uint32_t index, uint8_t nDigits)
 {
 	char s[nDigits + 1];

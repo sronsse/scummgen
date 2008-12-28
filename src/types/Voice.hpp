@@ -14,8 +14,6 @@ private:
 	vector<uint16_t> _syncTimes;
 	uint32_t _sampleRate;
 	vector<uint8_t> _dataBytes;
-
-	void loadWAV(string fileName);
 public:
 	Voice(string dirName);
 	string getName() { return _name; }

@@ -2,6 +2,7 @@
 #include <fstream>
 #include "util/IO.hpp"
 #include "util/Log.hpp"
+#include "util/MIDFile.hpp"
 
 Midi::Midi(string fileName)
 {
@@ -18,12 +19,11 @@ Midi::Midi(string fileName)
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
 
-	fstream file(fileName.c_str(), ios::in | ios::binary);
-	file.seekg(0, ios::end);
-	uint32_t fileSize = file.tellg();
-	file.seekp(0, ios::beg);
-	for (int i = 0; i < fileSize; i++)
-		_dataBytes.push_back(IO::readU8(file));
+	MIDFile midFile;
+	if (!midFile.open(fileName))
+		Log::getInstance().write(LOG_ERROR, "There was a problem reading file \"%s\" !\n", fileName.c_str());
+	for (int i = 0; i < midFile.getNumberOfDataBytes(); i++)
+		_dataBytes.push_back(midFile.getDataByte(i));
 
 	Log::getInstance().unIndent();
 }

@@ -27,6 +27,8 @@ private:
 	vector<int8_t> _yOffsets;
 	vector<vector<uint8_t> > _dataBytes;
 
+	void getFrames(Charset *charset);
+	void calculateOffsets(Charset *charset);
 	void getDataBytes(Charset *charset, Char *chr, vector<uint8_t> &dataBytes);
 public:
 	CHAR(Charset *charset);
