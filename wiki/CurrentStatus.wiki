@@ -4,6 +4,24 @@ You can follow ScummGEN's advancement on this page.
 
 ----
 
+== December 30, 2008 ==
+
+Alright, I thought I would try to add news at least once a month, I didn't have much time left ;) If you've been following the SVN status, you've seen that a lot of progress has been made since the last entry to this page. I'll try to describe what I've done, what I've understood, and what I'm planning to work on.
+
+Last time I posted here, I could display an actor in a room, but this actor couldn't really walk in it. This month I implemented an A{{{*}}} algorithm to precalculate all the paths between the boxes actors can walk in and store it in a BOXM block need by SCUMM - this means actors now can actually walk in a predefined map.
+
+Talking about actors, I changed the way costumes are parsed and it will be a lot easier for me to create an appropriate editor. I now find it easy to change animations from scripts, meaning that it should be a breeze to do it for you ;)
+
+I also worked on generating palettes in an efficient way. When adding a global costume or object for a game, you won't need to manually edit all the room background palettes to be able to display those correctly as this is now done automatically.
+
+The compiler has also been improved as I added for loops, inline functions, and a few operators like different kinds of incrementation. Room names, costume names, object names and many more can also be used directly inside scripts instead of just using their corresponding ID - this means that you'll be able to load rooms by simply using a function like Room_load(myRoom) instead of Room_load(4) for example. This obviously makes things easier :)
+
+Games without music are not really fun. This month I worked on adding MIDI music to the resources - it works fine, but the format of the MIDI files have to be very specific (it's called MIDI format 2) and this format is not used a lot by sequencers. Zaarin (from mixnmojo) is helping me to create a small converter for translating MIDI format 1 into MIDI format 2. This means that common MIDI files will be able to be played in your games.
+
+Last but not least, I added autotools for the project. This is a commonly used build system and even though it's not SCUMM related at all, it's worth talking about as this will allow the project to be compiled easily for different platforms, such as Windows.
+
+Okay, I'm sure I forgot a few things, but that's it for today... I could talk about fonts which are now saved correcly into resource files, and that even though I can display text, I still have problems changing the text color. More on this later !
+
 == November 24, 2008 ==
 
 This is the first entry to the status page. I just updated the SVN today with all the work I did during the last four months. I didn't want to update it before as I was constantly changing the folder hierarchy and reorganizing the project architecture.
