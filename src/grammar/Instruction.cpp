@@ -316,7 +316,7 @@ void Instruction::setOpcodes()
 	_opcodes["actorWalkScript"] = SO_ACTOR_WALK_SCRIPT;
 	_opcodes["actorWidth"] = SO_ACTOR_WIDTH;
 	_opcodes["add"] = OC_ADD;
-	_opcodes["alwaysZclip"] = SO_ALWAYS_ZCLIP;
+	_opcodes["alwaysZClip"] = SO_ALWAYS_ZCLIP;
 	_opcodes["animateActor"] = OC_ANIMATE_ACTOR;
 	_opcodes["animationDefault"] = SO_ANIMATION_DEFAULT;
 	_opcodes["animationSpeed"] = SO_ANIMATION_SPEED;

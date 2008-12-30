@@ -200,14 +200,14 @@ void Room::parse(vector<Declaration *> &declarations)
 			if (functions[j]->getName() == "entry")
 			{
 				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::getInstance().write(LOG_ERROR, "Function \"entry\" can't be inlined !");
+					Log::getInstance().write(LOG_ERROR, "Function \"entry\" can't be inlined !\n");
 				_entryFunction = functions[j];
 				foundEntry = true;
 			}
 			else if (functions[j]->getName() == "exit")
 			{
 				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::getInstance().write(LOG_ERROR, "Function \"exit\" can't be inlined !");
+					Log::getInstance().write(LOG_ERROR, "Function \"exit\" can't be inlined !\n");
 				_exitFunction = functions[j];
 				foundExit = true;
 			}
@@ -218,7 +218,7 @@ void Room::parse(vector<Declaration *> &declarations)
 					if (functions[j]->getName() == _objects[k]->getName() + "_verb")
 					{
 						if (functions[j]->getType() == FUNCTION_INLINED)
-							Log::getInstance().write(LOG_ERROR, "Function \"%s\" can't be inlined !", functions[j]->getName().c_str());
+							Log::getInstance().write(LOG_ERROR, "Function \"%s\" can't be inlined !\n", functions[j]->getName().c_str());
 						Log::getInstance().write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[k]->getName().c_str());
 						_objects[k]->setFunction(functions[j]);
 						foundObject = true;

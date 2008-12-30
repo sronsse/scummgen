@@ -331,7 +331,7 @@ void Game::parse()
 			if (functions[j]->getName() == "main")
 			{
 				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::getInstance().write(LOG_ERROR, "Function \"main\" can't be inlined !");
+					Log::getInstance().write(LOG_ERROR, "Function \"main\" can't be inlined !\n");
 				functions[j]->setID(1);
 				_functions.insert(_functions.begin(), functions[j]);
 				foundMain = true;
