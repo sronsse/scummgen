@@ -174,27 +174,78 @@ void COST::calculatePictOffsets(Costume *costume)
 		pictOffset += sizeof(int16_t); // pictYInc
 		pictOffset += sizeof(uint8_t); // redirLimb
 		pictOffset += sizeof(uint8_t); // redirPict
-		pictOffset += _dataBytes[i].size() * sizeof(uint8_t); // dataBytes
+		pictOffset += _dataBytes[i - 1].size() * sizeof(uint8_t); // dataBytes
 		_pictOffsets.push_back(pictOffset);
 	}
 }
 
 void COST::getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes)
 {
-	uint8_t shift = SHIFT_16;
-	if (costume->getNumberOfColors() > 16)
-		shift = SHIFT_32;
-
+	// Prepare data for RLE
+	vector<uint8_t> pixels;
+	vector<uint32_t> repCounts;
+	uint8_t lastPixel = frame->getPixel(0, 0);
+	uint32_t repCount = 0;
 	for (int i = 0; i < frame->getWidth(); i++)
 	{
 		for (int j = 0; j < frame->getHeight(); j++)
-			dataBytes.push_back(frame->getPixel(i, j) << shift | 0x01);
+			addPixel(frame->getPixel(i, j), lastPixel, repCount, pixels, repCounts);
 		for (int j = 0; j < costume->getHeight() - frame->getHeight(); j++)
-			dataBytes.push_back(0x01);
+			addPixel(0, lastPixel, repCount, pixels, repCounts);
 	}
 	for (int i = 0; i < costume->getWidth() - frame->getWidth(); i++)
 		for (int j = 0; j < costume->getHeight(); j++)
-			dataBytes.push_back(0x01);
+			addPixel(0, lastPixel, repCount, pixels, repCounts);
+	pixels.push_back(lastPixel);
+	repCounts.push_back(repCount);
+
+	// Write data bytes using the RLE algorithm
+	writeRLEData(dataBytes, costume->getNumberOfColors() <= 16 ? SHIFT_16 : SHIFT_32, &pixels, &repCounts);
+}
+
+void COST::addPixel(uint8_t pixel, uint8_t &lastPixel, uint32_t &repCount, vector<uint8_t> &pixels, vector<uint32_t> &repCounts)
+{
+	if (pixel == lastPixel)
+		repCount++;
+	else
+	{
+		pixels.push_back(lastPixel);
+		repCounts.push_back(repCount);
+		lastPixel = pixel;
+		repCount = 1;
+	}
+}
+
+void COST::writeRLEData(vector<uint8_t> &dataBytes, uint8_t shift, vector<uint8_t> *pixels, vector<uint32_t> *repCounts)
+{
+	// Get the max repetition count if using one byte for description
+	uint8_t maxRepCount = (1 << shift) - 1;
+
+	// Write data bytes
+	for (int i = 0; i < repCounts->size(); i++)
+	{
+		uint8_t pixel = (*pixels)[i];
+		uint32_t repCount = (*repCounts)[i];
+
+		if (repCount <= maxRepCount)
+			dataBytes.push_back(pixel << shift | repCount);
+		else
+		{
+			while (repCount > 255)
+			{
+				dataBytes.push_back(pixel << shift);
+				dataBytes.push_back(255);
+				repCount -= 255;
+			}
+			if (repCount <= maxRepCount)
+				dataBytes.push_back(pixel << shift | repCount);
+			else
+			{
+				dataBytes.push_back(pixel << shift);
+				dataBytes.push_back(repCount);
+			}
+		}
+	}
 }
 
 uint32_t COST::getSize()
