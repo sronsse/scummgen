@@ -47,6 +47,8 @@ private:
 	void getFrames(Costume *costume);
 	void calculatePictOffsets(Costume *costume);	
 	void getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes);
+	void addPixel(uint8_t pixel, uint8_t &lastPixel, uint32_t &repCount, vector<uint8_t> &pixels, vector<uint32_t> &repCounts);
+	void writeRLEData(vector<uint8_t> &dataBytes, uint8_t shift, vector<uint8_t> *colors, vector<uint32_t> *repCounts);
 public:
 	COST(Costume *costume);
 	uint32_t getSize();

@@ -70,6 +70,9 @@ Frame::Frame(XMLNode *node, string dirName)
 	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
 	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
 
+	if (_width == 0 || _height == 0)
+		Log::getInstance().write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
+
 	BMPFile bmpFile;
 	bmpFile.open(dirName + _bitmapName + ".bmp");
 	for (int i = 0; i < _width; i++)
