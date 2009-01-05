@@ -66,6 +66,9 @@ Object::Object(string dirName)
 	_parent = node->getChild("parent")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "parent: %u\n", _parent);
 
+	_owner = node->getChild("owner")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "owner: %u\n", _owner);
+
 	_actorDir = node->getChild("actorDir")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "actorDir: %u\n", _actorDir);
 

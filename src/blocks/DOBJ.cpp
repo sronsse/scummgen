@@ -20,7 +20,7 @@ DOBJ::DOBJ(Game *game)
 	for (int i = 0; i < game->getNumberOfObjects(); i++)
 	{
 		uint8_t ownerAndState = game->getObject(i)->getFlags() << 4;
-		ownerAndState |= game->getObject(i)->getParent();
+		ownerAndState |= game->getObject(i)->getOwner();
 		_ownersAndStates.push_back(ownerAndState);
 		_classData.push_back(game->getObject(i)->getClassData());
 	}
@@ -30,7 +30,7 @@ DOBJ::DOBJ(Game *game)
 		for (int j = 0; j < game->getRoom(i)->getNumberOfObjects(); j++)
 		{
 			uint8_t ownerAndState = game->getRoom(i)->getObject(j)->getFlags() << 4;
-			ownerAndState |= game->getRoom(i)->getObject(j)->getParent();
+			ownerAndState |= game->getRoom(i)->getObject(j)->getOwner();
 			_ownersAndStates.push_back(ownerAndState);
 			_classData.push_back(game->getRoom(i)->getObject(j)->getClassData());
 		}

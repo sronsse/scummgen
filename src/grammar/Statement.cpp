@@ -486,38 +486,42 @@ void AssemblyStatement::compile(vector<Instruction *> &instructions)
 			valueType = VALUE_STRING;
 
 		// Get next token if the instruction is in fact a value
-		string value;
+		string originalValue;
 		if (valueType != VALUE_NULL)
 		{
 			if (i == _tokens.size())
 				Log::getInstance().write(LOG_ERROR, "A value is expected !\n");
-			value = _tokens[i++];
+			originalValue = _tokens[i++];
 		}
 
 		// Resolve symbols if necessary
+		string convertedValue;
 		if (valueType == VALUE_BYTE || valueType == VALUE_WORD)
 		{
-			istringstream iss(value);
+			istringstream iss(originalValue);
 			uint16_t v;
-			if (!(iss >> v))
+			if (iss >> v)
+				convertedValue = originalValue;
+			else
 			{
 				SymbolType symbolType;
-				if (!Context::resolveSymbol(value, v, symbolType))
-					Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", value.c_str());
+				if (!Context::resolveSymbol(originalValue, v, symbolType))
+					Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", originalValue.c_str());
 				ostringstream oss;
 				oss << v;
-				value = oss.str();
+				convertedValue = oss.str();
 			}
 		}
 		else if (valueType == VALUE_STRING)
-			value = StringExpression::convertString(value);
+			convertedValue = StringExpression::convertString(originalValue);
 
 		// Add instruction (which can be an opcode or a direct value)
 		Instruction *instruction;
 		if (valueType == VALUE_NULL)
 			instruction = new Instruction(token);
 		else
-			instruction = new Instruction(valueType, value, value);
+			instruction = new Instruction(valueType, convertedValue, valueType == VALUE_STRING ? originalValue : "");
+
 		instructions.push_back(instruction);
 	}
 }

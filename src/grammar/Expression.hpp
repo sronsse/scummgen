@@ -77,6 +77,12 @@ public:
 class StringExpression: public Expression
 {
 private:
+	static const uint8_t STRING_OPCODE;
+	static const uint8_t INT_MESSAGE;
+	static const uint8_t VERB_MESSAGE;
+	static const uint8_t NAME_MESSAGE;
+	static const uint8_t STRING_MESSAGE;
+
 	string _string;
 
 	static char parseEscapeCharacter(string s, int &pos);

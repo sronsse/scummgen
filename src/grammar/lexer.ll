@@ -87,15 +87,10 @@ int parseString()
 	char c;
 	char previous = 0;
 
-	// Add starting quote
-	yylval.string[i++] = '"';
-
 	while ((i < STRING_LENGTH - 1) && (c = yyinput()))
 	{
 		if (c == '"' && previous != '\\')
 		{
-			// Add ending quote
-			yylval.string[i++] = '"';
 			yylval.string[i] = 0;
 			return T_STRING;
 		}
