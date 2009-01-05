@@ -655,15 +655,15 @@ string Instruction::toString()
 				case VALUE_NULL:
 					break;
 				case VALUE_BYTE:
-					oss << dec <<_address << dec << ": .byte ";
+					oss << _address << ": .byte ";
 					break;
 				case VALUE_WORD:
-					oss << dec <<_address << dec << ": .word ";
+					oss << _address << ": .word ";
 					break;
 				case VALUE_STRING:
-					oss << dec <<_address << dec << ": .string ";
+					oss << _address << ": .string ";
 			}
-			oss << (_pretty.empty() ? _value : '\"' + _pretty + "\'");
+			oss << (_pretty.empty() ? _value : '\"' + _pretty + '\"');
 			break;
 		case INSTRUCTION_LABEL:
 			oss << "LABEL_" << _label << ":";

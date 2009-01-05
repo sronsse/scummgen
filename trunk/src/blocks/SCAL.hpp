@@ -11,6 +11,11 @@ class Map;
 class SCAL
 {
 private:
+	static const uint8_t N_SLOTS;
+	static const uint8_t DEFAULT_SCALE;
+	static const uint8_t DEFAULT_Y1;
+	static const uint8_t DEFAULT_Y2;
+
 	vector<uint16_t> _s1s;
 	vector<uint16_t> _y1s;
 	vector<uint16_t> _s2s;
@@ -23,4 +28,3 @@ public:
 };
 
 #endif
-

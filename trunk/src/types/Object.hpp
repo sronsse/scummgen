@@ -25,6 +25,7 @@ private:
 	uint16_t _height;
 	uint8_t _flags;
 	uint8_t _parent;
+	uint8_t _owner;
 	uint8_t _actorDir;	
 	uint32_t _classData;
 	Function *_function;
@@ -47,6 +48,7 @@ public:
 	uint16_t getHeight() { return _height; }
 	uint8_t getFlags() { return _flags; }
 	uint8_t getParent() { return _parent; }
+	uint8_t getOwner() { return _owner; }
 	uint8_t getActorDir() { return _actorDir; }
 	uint32_t getClassData() { return _classData; }
 	Function *getFunction() { return _function; }

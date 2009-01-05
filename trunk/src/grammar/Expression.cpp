@@ -8,6 +8,12 @@
 #include "Instruction.hpp"
 #include "Statement.hpp"
 
+const uint8_t StringExpression::STRING_OPCODE = 0xFF;
+const uint8_t StringExpression::INT_MESSAGE = 4;
+const uint8_t StringExpression::VERB_MESSAGE = 5;
+const uint8_t StringExpression::NAME_MESSAGE = 6;
+const uint8_t StringExpression::STRING_MESSAGE = 7;
+
 Expression *Expression::simplifyUnaryExpression(ExpressionType type, Expression *e)
 {
 	if (e->getType() != EXPRESSION_CONSTANT)
@@ -145,9 +151,6 @@ string StringExpression::convertString(string s)
 	string convertedString;
 	int pos = 0;
 
-	// Remove quotes from the original string
-	s = s.substr(1, s.length() - 2);
-
 	while (pos < s.length())
 	{
 		switch (s[pos])
@@ -173,15 +176,6 @@ char StringExpression::parseEscapeCharacter(string s, int &pos)
 	// Get escape character
 	switch (s[pos++])
 	{
-		case '\\':
-			c = '\\';
-			break;
-		case 'n':
-			c = '\n';
-			break;
-		case 't':
-			c = '\t';
-			break;
 		case '%':
 			c = '%';
 			break;
@@ -197,21 +191,26 @@ string StringExpression::parseSpecialCode(string s, int &pos)
 	string convertedString;
 
 	// Special SCUMM string opcode
-	convertedString += 0xFF;
+	convertedString += STRING_OPCODE;
 
 	// Get special code
 	switch (s[pos++])
 	{
 		case 'i':
-			convertedString += 4;
+			convertedString += INT_MESSAGE;
 			convertedString += parseSymbol(s, pos);
 			break;
 		case 'v':
-			convertedString += 5;
+			convertedString += VERB_MESSAGE;
 			convertedString += parseSymbol(s, pos);
 			break;
-		/*case 'V':
-			convertedString += parseSymbol(s, pos);*/
+		case 'n':
+			convertedString += NAME_MESSAGE;
+			convertedString += parseSymbol(s, pos);
+			break;
+		case 's':
+			convertedString += STRING_MESSAGE;
+			convertedString += parseSymbol(s, pos);
 			break;
 		default:
 			Log::getInstance().write(LOG_ERROR, "Unknown special code in string \"%s\" !\n", s.c_str());

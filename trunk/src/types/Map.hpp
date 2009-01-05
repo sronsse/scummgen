@@ -112,6 +112,8 @@ public:
 class Map
 {
 private:
+	static const uint8_t N_SCALES;
+
 	vector<Box *> _boxes;
 	vector<Scale *> _scales;
 	Matrix *_matrix;
