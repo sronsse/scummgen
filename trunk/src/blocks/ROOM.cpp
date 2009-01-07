@@ -22,7 +22,7 @@ ROOM::ROOM(Game *game, uint8_t roomIndex)
 {
 	Room *room = game->getRoom(roomIndex);
 
-	_rmhd = new RMHD(room);
+	_rmhd = new RMHD(game, roomIndex);
 	_cycl = new CYCL(room->getPalette());
 	_trns = new TRNS(room->getPalette());
 	_pals = new PALS(room->getPalette());
@@ -121,4 +121,3 @@ ROOM::~ROOM()
 	delete _boxm;
 	delete _scal;
 }
-

@@ -5,6 +5,7 @@
 #include "grammar/Context.hpp"
 #include "grammar/Declaration.hpp"
 #include "grammar/Function.hpp"
+#include "grammar/Statement.hpp"
 #include "Room.hpp"
 #include "Object.hpp"
 #include "Midi.hpp"
@@ -338,9 +339,25 @@ void Game::parse()
 			}
 			else
 			{
-				if (functions[j]->getType() != FUNCTION_INLINED)
-					functions[j]->setID(id++);
-				_functions.push_back(functions[j]);
+				bool foundObject = false;
+				for (int k = 0; k < _objects.size(); k++)
+					if (functions[j]->getName() == _objects[k]->getName() + "_verb")
+					{
+						if (functions[j]->getType() == FUNCTION_INLINED)
+							Log::getInstance().write(LOG_ERROR, "Function \"%s\" can't be inlined !\n", functions[j]->getName().c_str());
+						Log::getInstance().write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[k]->getName().c_str());
+						_objects[k]->setFunction(functions[j]);
+						foundObject = true;
+						break;
+					}
+
+				// The current function is a simple global function
+				if (!foundObject)
+				{
+					if (functions[j]->getType() != FUNCTION_INLINED)
+						functions[j]->setID(id++);
+					_functions.push_back(functions[j]);
+				}
 			}
 		fclose(yyin);
 		Log::getInstance().unIndent();
@@ -348,6 +365,9 @@ void Game::parse()
 
 	if (!foundMain)
 		Log::getInstance().write(LOG_ERROR, "Couldn't find the main function !\n");
+	for (int i = 0; i < _objects.size(); i++)
+		if (_objects[i]->getFunction() == NULL)
+			_objects[i]->setFunction(new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", new BlockStatement()));
 
 	for (int i = 0; i < _rooms.size(); i++)
 		_rooms[i]->parse(_declarations);
@@ -371,6 +391,11 @@ void Game::compile()
 	// Then we compile the room functions
 	for (int i = 0; i < _rooms.size(); i++)
 		_rooms[i]->compile();
+
+	// Finally we compile the object functions
+	for (int i = 0; i < _objects.size(); i++)
+		if (_objects[i]->getFunction() != NULL)
+			_objects[i]->getFunction()->compile();
 
 	Context::popContext();
 

@@ -547,14 +547,14 @@ void Instruction::setOpcodes()
 	_opcodes["userputSoftOff"] = SO_USERPUT_SOFT_OFF;
 	_opcodes["userputSoftOn"] = SO_USERPUT_SOFT_ON;
 	_opcodes["verbAt"] = SO_VERB_AT;
-	_opcodes["verbBackcolor"] = SO_VERB_BACKCOLOR;
+	_opcodes["verbBackColor"] = SO_VERB_BACKCOLOR;
 	_opcodes["verbCenter"] = SO_VERB_CENTER;
 	_opcodes["verbColor"] = SO_VERB_COLOR;
 	_opcodes["verbDelete"] = SO_VERB_DELETE;
 	_opcodes["verbDim"] = SO_VERB_DIM;
-	_opcodes["verbDimcolor"] = SO_VERB_DIMCOLOR;
+	_opcodes["verbDimColor"] = SO_VERB_DIMCOLOR;
 	_opcodes["verbDraw"] = SO_VERB_DRAW;
-	_opcodes["verbHicolor"] = SO_VERB_HICOLOR;
+	_opcodes["verbHiColor"] = SO_VERB_HICOLOR;
 	_opcodes["verbImage"] = SO_VERB_IMAGE;
 	_opcodes["verbImageInRoom"] = SO_VERB_IMAGE_IN_ROOM;
 	_opcodes["verbKey"] = SO_VERB_KEY;
