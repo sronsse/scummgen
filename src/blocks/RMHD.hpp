@@ -5,7 +5,7 @@
 #include <stdint.h>
 using namespace std;
 
-class Room;
+class Game;
 
 class RMHD
 {
@@ -14,11 +14,10 @@ private:
 	uint16_t _height;
 	uint16_t _nObjects;
 public:
-	RMHD(Room *room);
+	RMHD(Game *game, uint8_t roomIndex);
 	uint32_t getSize();
 	void write(fstream &f);
 	~RMHD();
 };
 
 #endif
-

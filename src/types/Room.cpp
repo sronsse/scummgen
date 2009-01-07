@@ -247,6 +247,9 @@ void Room::parse(vector<Declaration *> &declarations)
 		Log::getInstance().write(LOG_WARNING, "Couldn't find the exit function !\n");
 		_exitFunction = new Function(FUNCTION_NORMAL, "exit", new BlockStatement());
 	}
+	for (int i = 0; i < _objects.size(); i++)
+		if (_objects[i]->getFunction() == NULL)
+			_objects[i]->setFunction(new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", new BlockStatement()));
 
 	Log::getInstance().unIndent();
 }

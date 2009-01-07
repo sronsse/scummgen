@@ -572,9 +572,7 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 			instructions.push_back(new Instruction(labelCounter));
 
 			// We let the scheduler take care of other threads
-			instructions.push_back(new Instruction("pushByte"));
-			instructions.push_back(new Instruction(VALUE_BYTE, "0"));
-			instructions.push_back(new Instruction("delay"));
+			instructions.push_back(new Instruction("breakHere"));
 
 			// push function ID
 			instructions.push_back(new Instruction("pushWord"));
@@ -601,4 +599,3 @@ CallExpression::~CallExpression()
 	for (int i = 0; i < _parameters.size(); i++)
 		delete _parameters[i];
 }
-
