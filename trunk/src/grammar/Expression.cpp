@@ -98,9 +98,8 @@ Expression *Expression::simplifyBinaryExpression(ExpressionType type, Expression
 }
 
 VariableExpression::VariableExpression(string identifier):
-Expression(EXPRESSION_VARIABLE)
+AssignableExpression(EXPRESSION_VARIABLE, identifier)
 {
-	_identifier = identifier;
 }
 
 void VariableExpression::compile(vector<Instruction *> &instructions)
@@ -261,29 +260,96 @@ string StringExpression::parseSymbol(string s, int &pos)
 
 void StringExpression::compile(vector<Instruction *> &instructions)
 {
-	// We use the last local variable slot for a temporary array
+	Log::getInstance().write(LOG_ERROR, "String expressions can't be evaluated as is !\n");
+}
+
+void StringExpression::assign(vector<Instruction *> &instructions, uint32_t address)
+{
 	ostringstream oss;
-	oss << ((Game::MAX_LOCAL_VARIABLES - 1) | Context::LOCAL_VARIABLE_MASK);
 
 	// Push index
-	instructions.push_back(new Instruction("pushWord"));
-	instructions.push_back(new Instruction(VALUE_WORD, "0"));
+	instructions.push_back(new Instruction("pushByte"));
+	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 
 	// Add arrayOps assignString instruction
+	oss << address;
 	instructions.push_back(new Instruction("arrayOps"));
 	instructions.push_back(new Instruction("assignString"));
 	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 
 	// Convert string and add the corresponding instruction
 	instructions.push_back(new Instruction(VALUE_STRING, convertString(_string), _string));
-
-	// Push array
-	instructions.push_back(new Instruction("pushWordVar"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 }
 
 StringExpression::~StringExpression()
 {
+}
+
+ListExpression::ListExpression():
+Expression(EXPRESSION_LIST)
+{
+}
+
+void ListExpression::compile(vector<Instruction *> &instructions)
+{
+	Log::getInstance().write(LOG_ERROR, "List expressions can't be evaluated as is !\n");
+}
+
+void ListExpression::assign(vector<Instruction *> &instructions, uint32_t address)
+{
+	ostringstream oss;
+
+	// Push entries
+	for (int i = 0; i < _entries.size(); i++)
+		_entries[i]->compile(instructions);
+
+	// Push dimensions
+	oss << _entries.size();
+	instructions.push_back(new Instruction("pushWord"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	instructions.push_back(new Instruction("pushByte"));
+	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+
+	// Add arrayOps assignIntList instruction
+	oss.str("");
+	oss << address;
+	instructions.push_back(new Instruction("arrayOps"));
+	instructions.push_back(new Instruction("assignIntList"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+}
+
+ListExpression::~ListExpression()
+{
+	for (int i = 0; i < _entries.size(); i++)
+		delete _entries[i];
+}
+
+ListEntryExpression::ListEntryExpression(string identifier, Expression *e):
+AssignableExpression(EXPRESSION_LIST_ENTRY, identifier)
+{
+	_e = e;
+}
+
+void ListEntryExpression::compile(vector<Instruction *> &instructions)
+{
+	uint16_t value;
+	SymbolType symbolType;
+	if (!Context::resolveSymbol(_identifier, value, symbolType))
+		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", _identifier.c_str());
+	ostringstream oss;
+	oss << value;
+
+	// push base
+	_e->compile(instructions);
+
+	// wordArrayRead instruction
+	instructions.push_back(new Instruction("wordArrayRead"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+}
+
+ListEntryExpression::~ListEntryExpression()
+{
+	delete _e;
 }
 
 UnaryExpression::UnaryExpression(ExpressionType type, Expression *e):
@@ -426,16 +492,16 @@ BinaryExpression::~BinaryExpression()
 	delete _e2;
 }
 
-AssignmentExpression::AssignmentExpression(VariableExpression *v, Expression *e):
+AssignmentExpression::AssignmentExpression(AssignableExpression *a, Expression *e):
 Expression(EXPRESSION_ASSIGNMENT)
 {
-	_variable = v;
+	_assignableExpression = a;
 	_expression = e;
 }
 
 void AssignmentExpression::compile(vector<Instruction *> &instructions)
 {
-	string identifier = _variable->getIdentifier();
+	string identifier = _assignableExpression->getIdentifier();
 
 	uint16_t address;
 	SymbolType symbolType;
@@ -445,13 +511,37 @@ void AssignmentExpression::compile(vector<Instruction *> &instructions)
 	if (symbolType != SYMBOL_VARIABLE)
 		Log::getInstance().write(LOG_ERROR, "Assignements only apply to variables !\n");
 
-	_expression->compile(instructions);
-
-	// Write variable
 	ostringstream oss;
 	oss << address;
-	instructions.push_back(new Instruction("writeWordVar"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+
+	if (_assignableExpression->getType() == EXPRESSION_VARIABLE)
+	{
+		// We have to consider strings and arrays differently
+		if (_expression->getType() == EXPRESSION_STRING)
+			((StringExpression *)_expression)->assign(instructions, address);
+		else if (_expression->getType() == EXPRESSION_LIST)
+			((ListExpression *)_expression)->assign(instructions, address);
+		else
+		{
+			_expression->compile(instructions);
+
+			// Write variable
+			instructions.push_back(new Instruction("writeWordVar"));
+			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+		}
+	}
+	// It's a list entry expression
+	else 
+	{
+		// Push base
+		((ListEntryExpression *)_assignableExpression)->getExpression()->compile(instructions);
+
+		_expression->compile(instructions);
+
+		// wordArrayWrite instruction
+		instructions.push_back(new Instruction("wordArrayWrite"));
+		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	}
 
 	// Push the variable we just wrote on the stack
 	instructions.push_back(new Instruction("pushWordVar"));
@@ -460,7 +550,7 @@ void AssignmentExpression::compile(vector<Instruction *> &instructions)
 
 AssignmentExpression::~AssignmentExpression()
 {
-	delete _variable;
+	delete _assignableExpression;
 	delete _expression;
 }
 
@@ -506,25 +596,50 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		// Push parameters
 		for (int i = 0; i < _parameters.size(); i++)
 		{
-			_parameters[i]->compile(instructions);
-
-			// writeWordVar instruction
 			uint16_t value;
 			SymbolType symbolType;
 			Context::resolveSymbol(function->getArgument(i)->getName(), value, symbolType);
 			ostringstream oss;
 			oss << value;
-			instructions.push_back(new Instruction("writeWordVar"));
-			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+
+			// Special case for strings
+			if (_parameters[i]->getType() == EXPRESSION_STRING)
+				((StringExpression *)_parameters[i])->assign(instructions, value);
+			else if (_parameters[i]->getType() == EXPRESSION_LIST)
+				((ListExpression *)_parameters[i])->assign(instructions, value);
+			else
+			{
+				_parameters[i]->compile(instructions);
+
+				// writeWordVar instruction
+				instructions.push_back(new Instruction("writeWordVar"));
+				instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+			}
 		}
 
 		// Compile the function block statements
 		for (int i = 0; i < function->getBlockStatement()->getNumberOfStatements(); i++)
 			function->getBlockStatement()->getStatement(i)->compile(instructions);
 
+		// We have to nuke the previous allocated arrays
+		for (int i = 0; i < _parameters.size(); i++)
+			if (_parameters[i]->getType() == EXPRESSION_STRING || _parameters[i]->getType() == EXPRESSION_LIST)
+			{
+				uint16_t value;
+				SymbolType symbolType;
+				Context::resolveSymbol(function->getArgument(i)->getName(), value, symbolType);
+				ostringstream oss;
+				oss << value;
+
+				// undim array
+				instructions.push_back(new Instruction("dimArray"));
+				instructions.push_back(new Instruction("undimArray"));
+				instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+			}
+			
 		// Return label
 		instructions.push_back(new Instruction(labelCounter));
-
+		
 		// Push return value
 		uint16_t value;
 		SymbolType symbolType;

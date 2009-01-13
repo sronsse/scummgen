@@ -56,7 +56,8 @@ vector<string> assemblyTokens;
 
 // Priority of operators
 %left '='
-%left T_GE T_LE T_EQ T_NE T_LAND T_LOR '>' '<'
+%left T_LAND T_LOR
+%left T_GE T_LE T_EQ T_NE '>' '<'
 %left '+' '-'
 %left '&' '|'
 %left '*' '/'
@@ -110,6 +111,21 @@ assemblyTokens:
 		assemblyTokens.push_back($2);
 	}
 	| /* nothing */
+	;
+
+assignable:
+	T_IDENTIFIER
+	{
+		Expression *expression = new VariableExpression($1);
+		expressionCollector.push_back(expression);
+	}
+	| T_IDENTIFIER '[' expression ']'
+	{
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		Expression *listEntryExpression = new ListEntryExpression($1, expression);
+		expressionCollector.push_back(listEntryExpression);
+	}
 	;
 
 blockStatement:
@@ -207,11 +223,7 @@ declarations:
 	;
 
 expression:
-	T_IDENTIFIER
-	{
-		Expression *expression = new VariableExpression($1);
-		expressionCollector.push_back(expression);
-	}
+	assignable
 	| T_NUMBER
 	{
 		Expression *expression = new ConstantExpression($1);
@@ -222,11 +234,14 @@ expression:
 		Expression *expression = new StringExpression($1);
 		expressionCollector.push_back(expression);
 	}
-	| T_IDENTIFIER '=' expression
+	| list
+	| assignable '=' expression
 	{
 		Expression *expression = expressionCollector.back();
 		expressionCollector.pop_back();
-		AssignmentExpression *assignmentExpression = new AssignmentExpression(new VariableExpression($1), expression);
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(assignableExpression, expression);
 		expressionCollector.push_back(assignmentExpression);
 	}
 	| '(' expression ')'
@@ -452,6 +467,38 @@ function:
 			function->addArgument(declarationListCollector.back()[i]);
 		declarationListCollector.pop_back();
 		functions.push_back(function);
+	}
+	;
+
+list:
+	'[' listEntries ']'
+	{
+		ListExpression *listExpression = new ListExpression();
+		for (int i = 0; i < expressionListCollector.back().size(); i++)
+			listExpression->addEntry(expressionListCollector.back()[i]);
+		expressionListCollector.pop_back();
+		expressionCollector.push_back(listExpression);
+	}
+
+listEntries:
+	listEntries ',' expression
+	{
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		expressionListCollector.back().push_back(expression);
+	}
+	| expression
+	{
+		vector<Expression *> v;
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		v.push_back(expression);
+		expressionListCollector.push_back(v);
+	}
+	| /* nothing */
+	{
+		vector<Expression *> v;
+		expressionListCollector.push_back(v);
 	}
 	;
 
