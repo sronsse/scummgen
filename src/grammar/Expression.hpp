@@ -14,6 +14,8 @@ typedef enum
 	EXPRESSION_VARIABLE,
 	EXPRESSION_CONSTANT,
 	EXPRESSION_STRING,
+	EXPRESSION_LIST,
+	EXPRESSION_LIST_ENTRY,
 	EXPRESSION_UMINUS,
 	EXPRESSION_NOT,
 	EXPRESSION_ADD,
@@ -52,13 +54,21 @@ public:
 	virtual ~Expression() {}
 };
 
-class VariableExpression: public Expression
+class AssignableExpression: public Expression
 {
-private:
+protected:
 	string _identifier;
 public:
-	VariableExpression(string identifier);
+	AssignableExpression(ExpressionType type, string identifier): Expression(type) {_identifier = identifier; }
 	string getIdentifier() { return _identifier; }
+	virtual void compile(vector<Instruction *> &instructions) = 0;
+	virtual ~AssignableExpression() {}
+};
+
+class VariableExpression: public AssignableExpression
+{
+public:
+	VariableExpression(string identifier);
 	void compile(vector<Instruction *> &instructions);
 	~VariableExpression();
 };
@@ -94,7 +104,31 @@ public:
 	StringExpression(string s);
 	string getString() { return _string; }
 	void compile(vector<Instruction *> &instructions);
+	void assign(vector<Instruction *> &instructions, uint32_t address);
 	~StringExpression();
+};
+
+class ListExpression: public Expression
+{
+private:
+	vector<Expression *> _entries;
+public:
+	ListExpression();
+	void addEntry(Expression *entry) { _entries.push_back(entry); }
+	void compile(vector<Instruction *> &instructions);
+	void assign(vector<Instruction *> &instructions, uint32_t address);
+	~ListExpression();
+};
+
+class ListEntryExpression: public AssignableExpression
+{
+private:
+	Expression *_e;
+public:
+	ListEntryExpression(string identifier, Expression *e);
+	Expression *getExpression() { return _e; }
+	void compile(vector<Instruction *> &instructions);
+	~ListEntryExpression();
 };
 
 class UnaryExpression: public Expression
@@ -121,10 +155,10 @@ public:
 class AssignmentExpression: public Expression
 {
 private:
+	AssignableExpression *_assignableExpression;
 	Expression *_expression;
-	VariableExpression *_variable;
 public:
-	AssignmentExpression(VariableExpression *v, Expression *e);
+	AssignmentExpression(AssignableExpression *a, Expression *e);
 	void compile(vector<Instruction *> &instructions);
 	~AssignmentExpression();
 };
@@ -133,7 +167,7 @@ class CallExpression: public Expression
 {
 private:
 	string _functionName;
-	vector<Expression *>_parameters;
+	vector<Expression *> _parameters;
 public:
 	CallExpression(string functionName);
 	void addParameter(Expression *parameter) { _parameters.push_back(parameter); }

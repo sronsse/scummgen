@@ -51,7 +51,7 @@ int parseString();
 "-="							return T_DEC;
 "++"							return T_UNI_INC;
 "--"							return T_UNI_DEC;
-[-+()<>=*/;{},!&|@:]			return *yytext;
+[-+()<>=*/;{},!&|@:\[\]]		return *yytext;
 [0-9]+							{ yylval.number = atoi(yytext); return T_NUMBER; }
 "0x"[a-fA-F0-9]+				{ yylval.number = strtol(yytext, NULL, 16); return T_NUMBER; }
 \'.\'							{ yylval.number = (int)yytext[1]; return T_NUMBER; }
