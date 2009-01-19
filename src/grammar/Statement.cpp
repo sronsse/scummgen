@@ -7,6 +7,8 @@
 #include "Expression.hpp"
 #include "Instruction.hpp"
 
+const uint8_t VerbStatement::HEADER_SIZE = 8;
+
 ExpressionStatement::ExpressionStatement(Expression *e)
 {
 	_expression = e;
@@ -207,7 +209,8 @@ void SwitchStatement::compile(vector<Instruction *> &instructions)
 		{
 			string identifier = ((VariableExpression *)caseExpression)->getIdentifier();
 			SymbolType symbolType;
-			Context::resolveSymbol(identifier, value, symbolType);
+			if (!Context::resolveSymbol(identifier, value, symbolType))
+				Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
 			if (symbolType != SYMBOL_CONSTANT)
 				Log::getInstance().write(LOG_ERROR, "Case expression \"%s\" is not constant !\n", identifier.c_str());
 		}
@@ -268,6 +271,101 @@ void SwitchStatement::compile(vector<Instruction *> &instructions)
 SwitchStatement::~SwitchStatement()
 {
 	delete _expression;
+	for (int i = 0; i < _caseStatements.size(); i++)
+		delete _caseStatements[i];
+}
+
+VerbStatement::VerbStatement()
+{
+}
+
+void VerbStatement::compile(vector<Instruction *> &instructions)
+{
+	ostringstream oss;
+
+	// Prepare labels first
+	uint32_t labelCounter = Context::labelCounter;
+	Context::labelCounter++;
+
+	// Set the verb table index
+	uint16_t verbTableIndex = instructions.size();
+
+	Context context(CONTEXT_VERB, NULL, NULL, -1, labelCounter, -1);
+	Context::pushContext(&context);
+
+	// We first consider all the case conditions
+	CaseStatement *defaultStatement = NULL;
+	Expression *caseExpression;
+	set<int16_t> caseValues;
+	for (int i = 0; i < _caseStatements.size(); i++)
+	{
+		caseExpression = _caseStatements[i]->getExpression();
+
+		// Check if it's not the default statement
+		if (caseExpression == NULL)
+		{
+			if (defaultStatement != NULL)
+				Log::getInstance().write(LOG_ERROR, "Only one default statement is allowed in switch statements !\n");
+			defaultStatement = _caseStatements[i];
+			// Default statements are equivalent to a verb of value 0xFF
+			instructions.push_back(new Instruction(VALUE_BYTE, "255"));
+			instructions.push_back(new Instruction(VALUE_WORD, "0"));
+			continue;
+		}
+
+		// We check that the case expression is constant
+		uint16_t value;
+		if (caseExpression->getType() == EXPRESSION_VARIABLE)
+		{
+			string identifier = ((VariableExpression *)caseExpression)->getIdentifier();
+			SymbolType symbolType;
+			if (!Context::resolveSymbol(identifier, value, symbolType))
+				Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
+			if (symbolType != SYMBOL_CONSTANT)
+				Log::getInstance().write(LOG_ERROR, "Case expression \"%s\" is not constant !\n", identifier.c_str());
+		}
+		else
+		{
+			if (caseExpression->getType() != EXPRESSION_CONSTANT)
+				Log::getInstance().write(LOG_ERROR, "Case expressions should always be constant !\n");
+			value = ((ConstantExpression *)caseExpression)->getNumber();
+		}
+
+		// We check that the case expression has not already been used
+		if (!caseValues.insert(value).second)
+			Log::getInstance().write(LOG_ERROR, "Case value \"%d\" already used !\n", value);
+
+		// Add verb table entry (the address is filled later)
+		oss << value;
+		instructions.push_back(new Instruction(VALUE_BYTE, oss.str()));
+		instructions.push_back(new Instruction(VALUE_WORD, "0"));
+		oss.str("");
+	}
+
+	if (defaultStatement == NULL)
+		Log::getInstance().write(LOG_WARNING, "Verb statement has no default case !\n");
+
+	// End of table index
+	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+
+	// Then we compile the case statements
+	for (int i = 0; i < _caseStatements.size(); i++)
+	{
+		// Replace the verb address with a correct value
+		oss << Context::currentAddress + HEADER_SIZE;
+		instructions[verbTableIndex + i * 2 + 1]->setValue(oss.str());
+		_caseStatements[i]->compile(instructions);
+		oss.str("");
+	}
+
+	Context::popContext();
+
+	// label
+	instructions.push_back(new Instruction(labelCounter));
+}
+
+VerbStatement::~VerbStatement()
+{
 	for (int i = 0; i < _caseStatements.size(); i++)
 		delete _caseStatements[i];
 }
