@@ -24,6 +24,9 @@ Object::Object(string dirName)
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
+	_displayName = node->getChild("displayName")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "displayName: %u\n", _displayName.c_str());
+
 	_imageX = node->getChild("imageX")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "imageX: %u\n", _imageX);
 

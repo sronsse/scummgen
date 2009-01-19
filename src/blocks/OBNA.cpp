@@ -4,7 +4,7 @@
 
 OBNA::OBNA(Object *object)
 {
-	_name = object->getName();
+	_name = object->getDisplayName();
 }
 
 uint32_t OBNA::getSize()
