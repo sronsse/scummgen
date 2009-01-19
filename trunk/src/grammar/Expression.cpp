@@ -310,9 +310,17 @@ void ListExpression::assign(vector<Instruction *> &instructions, uint32_t addres
 	instructions.push_back(new Instruction("pushByte"));
 	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 
-	// Add arrayOps assignIntList instruction
 	oss.str("");
 	oss << address;
+
+	// Set the address contents to 0 to avoid the arrayOps assignIntList
+	// from writing to a non-existing array
+	instructions.push_back(new Instruction("pushByte"));
+	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+	instructions.push_back(new Instruction("writeWordVar"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+
+	// Add arrayOps assignIntList instruction
 	instructions.push_back(new Instruction("arrayOps"));
 	instructions.push_back(new Instruction("assignIntList"));
 	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
