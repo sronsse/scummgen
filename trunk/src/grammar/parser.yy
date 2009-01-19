@@ -44,6 +44,7 @@ vector<string> assemblyTokens;
 %token T_ELSE
 %token T_SWITCH
 %token T_CASE
+%token T_VERB
 %token T_DEFAULT
 %token T_FOR
 %token T_WHILE
@@ -562,6 +563,14 @@ statement:
 			switchStatement->addCaseStatement((CaseStatement *)statementListCollector.back()[i]);
 		statementListCollector.pop_back();
 		statementCollector.push_back(switchStatement);
+	}
+	| T_VERB '{' caseStatements '}'
+	{
+		VerbStatement *verbStatement = new VerbStatement();
+		for (int i = 0; i < statementListCollector.back().size(); i++)
+			verbStatement->addCaseStatement((CaseStatement *)statementListCollector.back()[i]);
+		statementListCollector.pop_back();
+		statementCollector.push_back(verbStatement);
 	}
 	| T_FOR '(' expression ';' expression ';' expression ')' statement
 	{

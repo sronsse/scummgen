@@ -38,6 +38,9 @@ void Context::pushContext(Context *context)
 		case CONTEXT_SWITCH:
 			contextType = "switch";
 			break;
+		case CONTEXT_VERB:
+			contextType = "switch";
+			break;
 		case CONTEXT_FOR:
 			contextType = "for";
 			break;

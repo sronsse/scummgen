@@ -95,6 +95,18 @@ public:
 	~SwitchStatement();
 };
 
+class VerbStatement: public Statement
+{
+private:
+	static const uint8_t HEADER_SIZE;
+	vector<CaseStatement *> _caseStatements;
+public:
+	VerbStatement();
+	void addCaseStatement(CaseStatement *caseS) { _caseStatements.push_back(caseS); }
+	void compile(vector<Instruction *> &instructions);
+	~VerbStatement();
+};
+
 class ForStatement: public Statement
 {
 private:
