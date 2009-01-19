@@ -13,6 +13,7 @@ class Object
 {
 private:
 	string _name;
+	string _displayName;
 	uint16_t _id;
 	vector<Image *> _images;
 	uint16_t _imageX;
@@ -34,6 +35,7 @@ private:
 public:
 	Object(string dirName);
 	string getName() { return _name; }
+	string getDisplayName() { return _displayName; }
 	uint16_t getID() { return _id; }
 	uint16_t getNumberOfImages() { return _images.size(); }
 	Image *getImage(uint16_t index) { return _images[index]; }
