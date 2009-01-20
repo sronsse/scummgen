@@ -78,6 +78,7 @@ bool Context::resolveSymbol(string symbol, uint16_t &value, SymbolType &type)
 {
 	for (int i = _instances.size() - 1; i >= 0; i--)
 	{
+		// Check all the different symbol types
 		if (_instances[i]->_constantSymbols.find(symbol) != _instances[i]->_constantSymbols.end())
 		{
 			value = _instances[i]->_constantSymbols[symbol];
@@ -96,6 +97,11 @@ bool Context::resolveSymbol(string symbol, uint16_t &value, SymbolType &type)
 			type = SYMBOL_FUNCTION;
 			return true;
 		}
+
+		// When reaching an inlined function context here,
+		// it means the symbol doesn't exist in the current context
+		if (_instances[i]->_type == CONTEXT_INLINED)
+			return false;
 	}
 	return false;
 }
@@ -165,6 +171,11 @@ bool Context::symbolExists(string name)
 			return true;
 		if (_instances[i]->_functionSymbols.find(name) != _instances[i]->_functionSymbols.end())
 			return true;
+
+		// When reaching an inlined function context here,
+		// it means the symbol doesn't exist in the current context
+		if (_instances[i]->_type == CONTEXT_INLINED)
+			return false;
 	}
 	return false;
 }

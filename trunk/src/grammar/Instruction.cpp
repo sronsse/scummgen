@@ -590,7 +590,7 @@ void Instruction::setOpcodes()
 int16_t Instruction::toInteger(string s)
 {
 	istringstream iss(s);
-	int16_t result;
+	int32_t result;
 	if (!(iss >> result))
 		Log::getInstance().write(LOG_ERROR, "\"%s\" is not an integer !\n", s.c_str());
 	return result;
