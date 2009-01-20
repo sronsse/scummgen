@@ -598,23 +598,35 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		uint32_t labelCounter = Context::labelCounter;
 		Context::labelCounter++;
 
-		Context context(CONTEXT_INLINED, &declarations, NULL, -1, -1, labelCounter);
-		Context::pushContext(&context);
+		// Create the inlined context and push it a first time to get the argument addresses
+		Context *context = new Context(CONTEXT_INLINED, &declarations, NULL, -1, -1, labelCounter);
+		Context::pushContext(context);
 
-		// Push parameters
+		// Store the addresses of the function arguments
+		vector<uint16_t> argumentAddresses;
 		for (int i = 0; i < _parameters.size(); i++)
 		{
 			uint16_t value;
 			SymbolType symbolType;
 			Context::resolveSymbol(function->getArgument(i)->getName(), value, symbolType);
-			ostringstream oss;
-			oss << value;
+			argumentAddresses.push_back(value);
+		}
+
+		// Pop the inlined context as the parameters shouldn't be aware of it
+		Context::popContext();
+		delete context;
+
+		// Push parameters
+		for (int i = 0; i < _parameters.size(); i++)
+		{
+			oss.str("");
+			oss << argumentAddresses[i];
 
 			// Special case for strings
 			if (_parameters[i]->getType() == EXPRESSION_STRING)
-				((StringExpression *)_parameters[i])->assign(instructions, value);
+				((StringExpression *)_parameters[i])->assign(instructions, argumentAddresses[i]);
 			else if (_parameters[i]->getType() == EXPRESSION_LIST)
-				((ListExpression *)_parameters[i])->assign(instructions, value);
+				((ListExpression *)_parameters[i])->assign(instructions, argumentAddresses[i]);
 			else
 			{
 				_parameters[i]->compile(instructions);
@@ -625,6 +637,10 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 			}
 		}
 
+		// Recreate the context and push it again for the block statement
+		context = new Context(CONTEXT_INLINED, &declarations, NULL, -1, -1, labelCounter);
+		Context::pushContext(context);
+
 		// Compile the function block statements
 		for (int i = 0; i < function->getBlockStatement()->getNumberOfStatements(); i++)
 			function->getBlockStatement()->getStatement(i)->compile(instructions);
@@ -633,11 +649,8 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		for (int i = 0; i < _parameters.size(); i++)
 			if (_parameters[i]->getType() == EXPRESSION_STRING || _parameters[i]->getType() == EXPRESSION_LIST)
 			{
-				uint16_t value;
-				SymbolType symbolType;
-				Context::resolveSymbol(function->getArgument(i)->getName(), value, symbolType);
-				ostringstream oss;
-				oss << value;
+				oss.str("");
+				oss << argumentAddresses[i];
 
 				// undim array
 				instructions.push_back(new Instruction("dimArray"));
@@ -657,7 +670,9 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		instructions.push_back(new Instruction("pushWordVar"));
 		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 
+		// No need to use the inlined context anymore
 		Context::popContext();
+		delete context;
 
 		// Delete the previous created declarations
 		for (int i = 0; i < declarations.size(); i++)
