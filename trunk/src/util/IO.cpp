@@ -145,7 +145,7 @@ void IO::writeU32BE(fstream &f, uint32_t data)
 
 void IO::writeBits(vector<uint8_t> &v, uint8_t byte, uint32_t &bytePos, uint8_t &bitPos, uint8_t nBits)
 {
-	for (int i = 0; i < nBits; i++)
+	for (int i = nBits - 1; i >= 0; i--)
 	{
 		if (bitPos == 0)
 			v.push_back(0);
