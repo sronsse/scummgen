@@ -19,90 +19,78 @@ extern int yylineno;
 
 const uint8_t Room::MIN_LOCAL_ID = 200;
 
-Room::Room(string dirName)
+Room::Room():
+_id(0),
+_name(""),
+_background(NULL),
+_palette(NULL),
+_map(NULL),
+_entryFunction(NULL),
+_exitFunction(NULL)
 {
-	_entryFunction = NULL;
-	_exitFunction = NULL;
+	
+}
 
+void Room::load(string dirPath)
+{
 	Log::getInstance().write(LOG_INFO, "Room\n");
 	Log::getInstance().indent();
-
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "room.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	int posB = dirName.find_last_of('/') - 1;
-	int posA = dirName.find_last_of('/', posB) + 1;
-	_name = dirName.substr(posA, posB + 1 - posA);
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	static uint8_t currentID = 1;
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
-	uint16_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "nZPlanes: %u\n", nZPlanes);
+	XMLFile xmlFile;
+	xmlFile.open(dirPath + "room.xml");
+	XMLNode *node = xmlFile.getRootNode();
 
-	_background = new Image(dirName, "background.bmp", nZPlanes);
-	_palette = new Palette(dirName);
-	loadObjects(dirName + "objects/");
-	_map = new Map(dirName);
+	_name = node->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	loadScripts(dirName + "scripts/");
-	loadCostumes(dirName + "costumes/");
+	_background = new Image();
+	_background->load(dirPath + node->getChild("background")->getStringContent() + "/");
+	_palette = new Palette(dirPath);
+	loadObjects(dirPath, node);
+	_map = new Map;
+	_map->load(dirPath + node->getChild("map")->getStringContent() + "/");
+	loadScripts(dirPath, node);
+	loadCostumes(dirPath, node);
 
 	addDeclarations();
-	updatePalette();
 
 	Log::getInstance().unIndent();
 }
 
-void Room::loadObjects(string dirName)
+void Room::loadObjects(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "objects.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-		return;
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
-		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
+	{
+		Object *object = new Object();
+		object->load(dirPath + child->getStringContent() + "/");
+		_objects.push_back(object);
+	}
 }
 
-void Room::loadScripts(string dirName)
+void Room::loadScripts(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "scripts.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Room doesn't contain any script !\n");
-		return;
-	}
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("script", i++)) != NULL)
-		_scripts.push_back(dirName + child->getStringContent() + ".sgc");
+		_scripts.push_back(dirPath + child->getStringContent());
 }
 
-void Room::loadCostumes(string dirName)
+void Room::loadCostumes(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "costumes.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-		return;
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("costume", i++)) != NULL)
-		_costumes.push_back(new Costume(dirName + child->getStringContent() + "/"));
+	{
+		Costume *costume = new Costume();
+		costume->load(dirPath + child->getStringContent() + "/");
+		_costumes.push_back(costume);
+	}
 }
 
 void Room::addDeclarations()
@@ -136,6 +124,7 @@ void Room::addDeclarations()
 	Log::getInstance().unIndent();
 }
 
+#if 0
 void Room::updatePalette()
 {
 	uint16_t nOriginalColors = _palette->getNumberOfColors();
@@ -153,13 +142,13 @@ void Room::updatePalette()
 		}
 
 	// Add the colors of the room costumes to our array of local colors
-	for (int i = 0; i < _costumes.size(); i++)
+	/*for (int i = 0; i < _costumes.size(); i++)
 	{
 		_costumes[i]->setPaletteBaseIndex(nOriginalColors + localColors.size());
 
 		for (int j = 0; j < _costumes[i]->getNumberOfColors(); j++)
 			localColors.push_back(_costumes[i]->getColor(j));
-	}
+	}*/
 
 	// Update room palette
 	if (_palette->getNumberOfColors() + localColors.size() > Palette::MAX_COLORS)
@@ -170,6 +159,7 @@ void Room::updatePalette()
 	for (int i = 0; i < localColors.size(); i++)
 		_palette->setColor(nOriginalColors + i, localColors[i]);
 }
+#endif
 
 void Room::parse(vector<Declaration *> &declarations)
 {
@@ -283,17 +273,22 @@ void Room::compile()
 
 Room::~Room()
 {
-	delete _background;
-	delete _palette;
+	if (_background != NULL)
+		delete _background;
+	if (_palette != NULL)
+		delete _palette;
 	for (int i = 0; i < _objects.size(); i++)
 		delete _objects[i];
-	delete _map;
+	if (_map != NULL)
+		delete _map;
 	for (int i = 0; i < _costumes.size(); i++)
 		delete _costumes[i];
 	for (int i = 0; i < _declarations.size(); i++)
 		delete _declarations[i];
-	delete _entryFunction;
-	delete _exitFunction;
+	if (_entryFunction != NULL)
+		delete _entryFunction;
+	if (_exitFunction != NULL)
+		delete _exitFunction;
 	for (int i = 0; i < _functions.size(); i++)
 		delete _functions[i];
 }

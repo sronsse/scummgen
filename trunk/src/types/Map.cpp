@@ -4,7 +4,26 @@
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-Box::Box(XMLNode *node, uint8_t id)
+Box::Box():
+_id(0),
+_name(""),
+_ulx(0),
+_uly(0),
+_urx(0),
+_ury(0),
+_lrx(0),
+_lry(0),
+_llx(0),
+_lly(0),
+_mask(0),
+_flags(0),
+_scale(0),
+_centerX(0),
+_centerY(0)
+{
+}
+
+void Box::load(XMLNode *node, uint8_t id)
 {
 	_id = id;
 
@@ -35,7 +54,15 @@ Box::~Box()
 {
 }
 
-Scale::Scale(XMLNode *node)
+Scale::Scale():
+_s1(0),
+_y1(0),
+_s2(0),
+_y2(0)
+{
+}
+
+void Scale::load(XMLNode *node)
 {
 	Log::getInstance().write(LOG_INFO, "Scale\n");
 	Log::getInstance().indent();
@@ -228,15 +255,18 @@ Matrix::~Matrix()
 {
 }
 
-Map::Map(string dirName)
+Map::Map():
+_matrix(NULL)
 {
-	_matrix = NULL;
+}
 
+void Map::load(string dirPath)
+{
 	Log::getInstance().write(LOG_INFO, "Map\n");
 	Log::getInstance().indent();
 
 	XMLFile xmlFile;
-	xmlFile.open(dirName + "map.xml");
+	xmlFile.open(dirPath + "map.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
 	if (rootNode == NULL)
@@ -249,11 +279,19 @@ Map::Map(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("box", i++)) != NULL)
-		_boxes.push_back(new Box(child, i));
+	{
+		Box *box = new Box();
+		box->load(child, i);
+		_boxes.push_back(box);
+	}
 
 	i = 0;
 	while ((child = rootNode->getChild("scale", i++)) != NULL)
-		_scales.push_back(new Scale(child));
+	{
+		Scale *scale = new Scale();
+		scale->load(child);
+		_scales.push_back(scale);
+	}
 
 	_matrix = new Matrix(&_boxes);
 

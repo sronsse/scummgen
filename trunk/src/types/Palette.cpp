@@ -35,19 +35,19 @@ Cycle::~Cycle()
 {
 }
 
-Palette::Palette(string dirName)
+Palette::Palette(string dirPath)
 {
 	Log::getInstance().write(LOG_INFO, "Palette\n");
 	Log::getInstance().indent();
 
 	BMPFile bmpFile;
-	bmpFile.open(dirName +  "background.bmp");
+	bmpFile.open(dirPath +  "background.bmp");
 
 	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
 		_colors.push_back(bmpFile.getColor(i));
 
 	XMLFile xmlFile;
-	xmlFile.open(dirName + "palette.xml");
+	xmlFile.open(dirPath + "palette.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
 	_transparentIndex = node->getChild("transparentIndex")->getIntegerContent();
@@ -65,4 +65,3 @@ Palette::~Palette()
 	for (int i = 0; i < _cycles.size(); i++)
 		delete _cycles[i];
 }
-

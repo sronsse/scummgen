@@ -6,6 +6,7 @@
 #include <vector>
 using namespace std;
 
+class XMLNode;
 class Image;
 class Palette;
 class Object;
@@ -19,8 +20,8 @@ class Room
 private:
 	static const uint8_t MIN_LOCAL_ID;
 
-	string _name;
 	uint8_t _id;
+	string _name;
 	Image *_background;
 	Palette *_palette;
 	vector<Object *> _objects;
@@ -32,13 +33,13 @@ private:
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
 
-	void loadObjects(string dirName);
-	void loadScripts(string dirName);
-	void loadCostumes(string dirName);
+	void loadObjects(string dirPath, XMLNode *node);
+	void loadScripts(string dirPath, XMLNode *node);
+	void loadCostumes(string dirPath, XMLNode *node);
 	void addDeclarations();
-	void updatePalette();
 public:
-	Room(string dirName);
+	Room();
+	void load(string dirPath);
 	void parse(vector<Declaration *> &declarations);
 	void compile();
 	string getName() { return _name; }

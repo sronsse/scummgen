@@ -24,7 +24,15 @@ const uint8_t Game::N_DEFAULT_ACTORS = 12;
 const uint16_t Game::MAX_WORD_VARIABLES = 8192;
 const uint8_t Game::MAX_LOCAL_VARIABLES = 16;
 
-Array::Array(XMLNode *node)
+Array::Array():
+_varNumber(0),
+_dimA(0),
+_dimB(0),
+_type(0)
+{
+}
+
+void Array::load(XMLNode *node)
 {
 	Log::getInstance().write(LOG_INFO, "Array\n");
 	Log::getInstance().indent();
@@ -48,13 +56,20 @@ Array::~Array()
 {
 }
 
-Game::Game(string dirName)
+Game::Game():
+_longName(""),
+_shortName(""),
+_key(0)
+{
+}
+
+void Game::load(string dirPath)
 {
 	Log::getInstance().write(LOG_INFO, "Game\n");
 	Log::getInstance().indent();
 
 	XMLFile xmlFile;
-	if (!xmlFile.open(dirName + "game.xml"))
+	if (!xmlFile.open(dirPath + "game.xml"))
 		Log::getInstance().write(LOG_ERROR, "Couldn't find any game in the specified directory !\n");
 	XMLNode *node = xmlFile.getRootNode();
 
@@ -70,155 +85,121 @@ Game::Game(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("array", i++)) != NULL)
-		_arrays.push_back(new Array(child));
+	{
+		Array *array = new Array();
+		array->load(child);
+		_arrays.push_back(array);
+	}
 
-	loadObjects(dirName + "objects/");
-	loadMidis(dirName + "midis/");
-	loadCostumes(dirName + "costumes/");
-	loadRooms(dirName + "rooms/");
-	loadScripts(dirName + "scripts/");
-	loadCharsets(dirName + "charsets/");
-	loadVoices(dirName + "voices/");
+	loadObjects(dirPath, node);
+	loadMidis(dirPath, node);
+	loadCostumes(dirPath, node);
+	loadRooms(dirPath, node);
+	loadScripts(dirPath, node);
+	loadCharsets(dirPath, node);
+	loadVoices(dirPath, node);
 
 	addDeclarations();
-	updatePalettes();
 
 	Log::getInstance().unIndent();
 }
 
-void Game::loadObjects(string dirName)
+void Game::loadObjects(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "objects.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-		return;
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("object", i++)) != NULL)
-		_objects.push_back(new Object(dirName + child->getStringContent() + "/"));
-}
-
-void Game::loadMidis(string dirName)
-{
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "midis.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
 	{
-		Log::getInstance().write(LOG_WARNING, "Game does not contain any music !\n");
-		return;
+		Object *object = new Object();
+		object->load(dirPath + child->getStringContent() + "/");
+		_objects.push_back(object);
 	}
 
+	if (_objects.empty())
+		Log::getInstance().write(LOG_WARNING, "Game does not contain any global object !\n");
+}
+
+void Game::loadMidis(string dirPath, XMLNode *node)
+{
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("midi", i++)) != NULL)
-		_midis.push_back(new Midi(dirName + child->getStringContent() + ".mid"));
-}
-
-void Game::loadCostumes(string dirName)
-{
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "costumes.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
 	{
-		Log::getInstance().write(LOG_WARNING, "Game does not contain any global costume !\n");
-		return;
+		Midi *midi = new Midi();
+		midi->load(dirPath + child->getStringContent() + "/");
+		_midis.push_back(midi);
 	}
 
+	if (_midis.empty())
+		Log::getInstance().write(LOG_WARNING, "Game does not contain any music !\n");
+}
+
+void Game::loadCostumes(string dirPath, XMLNode *node)
+{
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("costume", i++)) != NULL)
-		_costumes.push_back(new Costume(dirName + child->getStringContent() + "/"));
+	{
+		Costume *costume = new Costume();
+		costume->load(dirPath + child->getStringContent() + "/");
+		_costumes.push_back(costume);
+	}
 
 	if (_costumes.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any global costume !\n");
 }
 
-void Game::loadRooms(string dirName)
+void Game::loadRooms(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "rooms.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Game does not contain any room !\n");
-		return;
-	}
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("room", i++)) != NULL)
-		_rooms.push_back(new Room(dirName + child->getStringContent() + "/"));
+	{
+		Room *room = new Room();
+		room->load(dirPath + child->getStringContent() + "/");
+		_rooms.push_back(room);
+	}
 
 	if (_rooms.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any room !\n");
 }
 
-void Game::loadScripts(string dirName)
+void Game::loadScripts(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "scripts.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Couldn't find any global script !\n");
-		return;
-	}
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("script", i++)) != NULL)
-		_scripts.push_back(dirName + child->getStringContent() + ".sgc");
+		_scripts.push_back(dirPath + child->getStringContent());
 
 	if (_scripts.empty())
 		Log::getInstance().write(LOG_WARNING, "Couldn't find any global script !\n");
 }
 
-void Game::loadCharsets(string dirName)
+void Game::loadCharsets(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "charsets.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Game does not contain any charset !\n");
-		return;
-	}
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("charset", i++)) != NULL)
-		_charsets.push_back(new Charset(dirName + child->getStringContent() + "/"));
+	{
+		Charset *charset = new Charset();
+		charset->load(dirPath + child->getStringContent() + "/");
+		_charsets.push_back(charset);
+	}
 
 	if (_charsets.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any charset !\n");
 }
 
-void Game::loadVoices(string dirName)
+void Game::loadVoices(string dirPath, XMLNode *node)
 {
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "voices.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Game does not contain any voice !\n");
-		return;
-	}
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("voice", i++)) != NULL)
-		_voices.push_back(new Voice(dirName + child->getStringContent() + "/"));
+	{
+		Voice *voice;
+		voice->load(dirPath + child->getStringContent() + "/");
+		_voices.push_back(voice);
+	}
 
 	if (_voices.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any voice !\n");
@@ -261,6 +242,7 @@ void Game::addDeclarations()
 	Log::getInstance().unIndent();
 }
 
+#if 0
 void Game::updatePalettes()
 {
 	vector<Color> globalColors;
@@ -279,7 +261,7 @@ void Game::updatePalettes()
 		}
 
 	// Add the colors of all the costumes to our array of global colors
-	for (int i = 0; i < _costumes.size(); i++)
+	/*for (int i = 0; i < _costumes.size(); i++)
 	{
 		vector<Color> colors;
 		for (int j = 0; j < _costumes[i]->getNumberOfColors(); j++)
@@ -287,7 +269,7 @@ void Game::updatePalettes()
 		globalColors.insert(globalColors.begin(), colors.begin(), colors.end());
 
 		_costumes[i]->setPaletteBaseIndex(Palette::MAX_COLORS - globalColors.size());
-	}
+	}*/
 
 	// Update room palettes
 	for (int i = 0; i < _rooms.size(); i++)
@@ -301,7 +283,7 @@ void Game::updatePalettes()
 			_rooms[i]->getPalette()->setColor(Palette::MAX_COLORS - globalColors.size() + j, globalColors[j]);
 	}
 }
-
+#endif
 void Game::parse()
 {
 	Log::getInstance().write(LOG_INFO, "Parsing game...\n");

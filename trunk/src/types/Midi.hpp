@@ -3,21 +3,20 @@
 
 #include <stdint.h>
 #include <string>
-#include <vector>
 using namespace std;
 
 class Midi
 {
 private:
-	string _name;
 	uint16_t _id;
-	vector<uint8_t> _dataBytes;
+	string _name;
+	string _midiPath;
 public:
-	Midi(string fileName);
-	string getName() { return _name; }
+	Midi();
+	void load(string dirPath);
 	uint16_t getID() { return _id; }
-	uint32_t getNumberOfDataBytes() { return _dataBytes.size(); }
-	uint8_t getDataByte(uint32_t index) { return _dataBytes[index]; }
+	string getName() { return _name; }
+	string getMidiPath() { return _midiPath; }
 	~Midi();
 };
 
