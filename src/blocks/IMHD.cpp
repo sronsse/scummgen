@@ -1,4 +1,5 @@
 #include "IMHD.hpp"
+#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Object.hpp"
 #include "types/Image.hpp"
@@ -9,11 +10,21 @@ IMHD::IMHD(Object *object)
 {
 	_id = object->getID();
 	_nImages = object->getNumberOfImages();
-	_nZPlanesPerImage = _nImages > 0 ? object->getImage(0)->getNumberOfZPlanes() : 0;
+	_nZPlanesPerImage = _nImages == 0 ? 0 : object->getImage(0)->getNumberOfZPlanePaths();
 	_x = object->getImageX();
 	_y = object->getImageY();
-	_width = _nImages > 0 ? object->getImage(0)->getWidth() : 0;
-	_height = _nImages > 0 ? object->getImage(0)->getHeight() : 0;
+	if (_nImages == 0)
+	{
+		_width = 0;
+		_height = 0;
+	}
+	else
+	{
+		BMPFile bmpFile;
+		bmpFile.open(object->getImage(0)->getBitmapPath());
+		_width = bmpFile.getWidth();
+		_height = bmpFile.getHeight();
+	}
 	for (int i = 0; i < object->getNumberOfHotspots(); i++)
 	{
 		_hotspotXs.push_back(object->getHotspotX(i));
@@ -63,4 +74,3 @@ void IMHD::write(fstream &f)
 IMHD::~IMHD()
 {
 }
-

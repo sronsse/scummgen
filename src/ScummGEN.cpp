@@ -92,7 +92,8 @@ void ScummGEN::load(string dirName)
 	Log::getInstance().write(LOG_INFO, "Loading game data structures...\n");
 	Log::getInstance().indent();
 
-	_game = new Game(dirName);
+	_game = new Game();
+	_game->load(dirName);
 	_game->parse();
 	_game->compile();
 

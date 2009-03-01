@@ -1,17 +1,20 @@
 #include "ZPxx.hpp"
+#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Image.hpp"
 
 const uint8_t ZPxx::STRIP_WIDTH = 8;
 const uint8_t ZPxx::MAX_BYTES = 0x7F;
 
-ZPxx::ZPxx(ZPlane *zPlane, uint8_t index)
+ZPxx::ZPxx(string filePath, uint8_t index)
 {
+	BMPFile bmpFile;
+	bmpFile.open(filePath);
 	_index = index;
-	for (int i = 0; i < zPlane->getWidth() / STRIP_WIDTH; i++)
+	for (int i = 0; i < bmpFile.getWidth() / STRIP_WIDTH; i++)
 	{
 		vector<uint8_t> strip;
-		uint16_t h = zPlane->getHeight();
+		uint16_t h = bmpFile.getHeight();
 		while (h > 0)
 		{
 			uint8_t nBytes = h > MAX_BYTES ? MAX_BYTES : h;
@@ -20,7 +23,7 @@ ZPxx::ZPxx(ZPlane *zPlane, uint8_t index)
 			{
 				uint8_t byte = 0;
 				for (int k = 0; k < STRIP_WIDTH; k++)
-					byte |= zPlane->getPixel(i * STRIP_WIDTH + k, zPlane->getHeight() - h) << (STRIP_WIDTH - 1 - k);
+					byte |= bmpFile.getPixel(i * STRIP_WIDTH + k, bmpFile.getHeight() - h) << (STRIP_WIDTH - 1 - k);
 				strip.push_back(byte);
 				h--;
 			}
@@ -61,4 +64,3 @@ void ZPxx::write(fstream &f)
 ZPxx::~ZPxx()
 {
 }
-

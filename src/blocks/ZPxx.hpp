@@ -6,8 +6,6 @@
 #include <vector>
 using namespace std;
 
-class ZPlane;
-
 class ZPxx
 {
 private:
@@ -18,7 +16,7 @@ private:
 	vector<vector<uint8_t> > _strips;
 	vector<uint16_t> _offsets;
 public:
-	ZPxx(ZPlane *zPlane, uint8_t index);
+	ZPxx(string filePath, uint8_t index);
 	uint32_t getSize();
 	void write(fstream &f);
 	~ZPxx();

@@ -8,8 +8,8 @@ IMxx::IMxx(Image *image, uint8_t index)
 {
 	_index = index;
 	_smap = new SMAP(image);
-	for (int i = 0; i < image->getNumberOfZPlanes(); i++)
-		_zpxxs.push_back(new ZPxx(image->getZPlane(i), i + 1));
+	for (int i = 0; i < image->getNumberOfZPlanePaths(); i++)
+		_zpxxs.push_back(new ZPxx(image->getZPlanePath(i), i + 1));
 }
 
 uint32_t IMxx::getSize()
@@ -38,4 +38,3 @@ IMxx::~IMxx()
 	for (int i = 0; i < _zpxxs.size(); i++)
 		delete _zpxxs[i];
 }
-

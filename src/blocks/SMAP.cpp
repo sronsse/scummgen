@@ -1,4 +1,5 @@
 #include "SMAP.hpp"
+#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Image.hpp"
 
@@ -7,13 +8,15 @@ const uint8_t SMAP::CID_NO_COMPRESSION = 0x01;
 
 SMAP::SMAP(Image *image)
 {
-	for (int i = 0; i < image->getWidth() / STRIP_WIDTH; i++)
+	BMPFile bmpFile;
+	bmpFile.open(image->getBitmapPath());
+	for (int i = 0; i < bmpFile.getWidth() / STRIP_WIDTH; i++)
 	{
 		vector<uint8_t> strip;
 		strip.push_back(CID_NO_COMPRESSION);
-		for (int j = 0; j < image->getHeight(); j++)
+		for (int j = 0; j < bmpFile.getHeight(); j++)
 			for (int k = 0; k < STRIP_WIDTH; k++)
-				strip.push_back(image->getPixel(i * STRIP_WIDTH + k, j));
+				strip.push_back(bmpFile.getPixel(i * STRIP_WIDTH + k, j));
 		_strips.push_back(strip);
 	}
 	uint32_t firstOffset = 0;
@@ -50,4 +53,3 @@ void SMAP::write(fstream &f)
 SMAP::~SMAP()
 {
 }
-

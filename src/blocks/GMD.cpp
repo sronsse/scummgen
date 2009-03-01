@@ -1,11 +1,14 @@
 #include "GMD.hpp"
 #include "util/IO.hpp"
+#include "util/MIDFile.hpp"
 #include "types/Midi.hpp"
 
 GMD::GMD(Midi *midi)
 {
-	for (int i = 0; i < midi->getNumberOfDataBytes(); i++)
-		_dataBytes.push_back(midi->getDataByte(i));
+	MIDFile midFile;
+	midFile.open(midi->getMidiPath());
+	for (int i = 0; i < midFile.getNumberOfDataBytes(); i++)
+		_dataBytes.push_back(midFile.getDataByte(i));
 }
 
 uint32_t GMD::getSize()
