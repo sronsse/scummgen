@@ -8,6 +8,7 @@ using namespace std;
 
 class Char;
 class Charset;
+class BMPFile;
 
 class CHAR
 {
@@ -27,9 +28,9 @@ private:
 	vector<int8_t> _yOffsets;
 	vector<vector<uint8_t> > _dataBytes;
 
-	void getFrames(Charset *charset);
+	void getFrames(Charset *charset, BMPFile *bmpFile);
 	void calculateOffsets(Charset *charset);
-	void getDataBytes(Charset *charset, Char *chr, vector<uint8_t> &dataBytes);
+	void getDataBytes(Charset *charset, Char *chr, BMPFile *bmpFile, vector<uint8_t> &dataBytes);
 public:
 	CHAR(Charset *charset);
 	uint32_t getSize();

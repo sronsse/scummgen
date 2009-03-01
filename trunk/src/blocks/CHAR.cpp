@@ -1,4 +1,5 @@
 #include "CHAR.hpp"
+#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Charset.hpp"
 
@@ -8,10 +9,13 @@ const int CHAR::MAGIC_NUMBER_UNKNOWN = 0x0363;
 
 CHAR::CHAR(Charset *charset)
 {
-	for (int i = 0; i < N_COLORS; i++)
-		_palette.push_back(charset->getPaletteIndex(i));
+	BMPFile bmpFile;
+	bmpFile.open(charset->getBitmapPath());
 
-	_bpp = charset->getBPP();
+	for (int i = 0; i < N_COLORS; i++)
+		_palette.push_back(0);
+
+	_bpp = bmpFile.getBPP();
 
 	_fontHeight = charset->getFontHeight();
 
@@ -20,11 +24,11 @@ CHAR::CHAR(Charset *charset)
 		if (charset->getChar(i)->getID() + 1 > _nChars)
 			_nChars = charset->getChar(i)->getID() + 1;
 
-	getFrames(charset);
+	getFrames(charset, &bmpFile);
 	calculateOffsets(charset);
 }
 
-void CHAR::getFrames(Charset *charset)
+void CHAR::getFrames(Charset *charset, BMPFile *bmpFile)
 {
 	for (int i = 0; i < charset->getNumberOfChars(); i++)
 	{
@@ -33,7 +37,7 @@ void CHAR::getFrames(Charset *charset)
 		_xOffsets.push_back(charset->getChar(i)->getXOffset());
 		_yOffsets.push_back(charset->getChar(i)->getYOffset());
 		vector<uint8_t> dataBytes;
-		getDataBytes(charset, charset->getChar(i), dataBytes);
+		getDataBytes(charset, charset->getChar(i), bmpFile, dataBytes);
 		_dataBytes.push_back(dataBytes);
 	}
 }
@@ -62,13 +66,13 @@ void CHAR::calculateOffsets(Charset *charset)
 	}
 }
 
-void CHAR::getDataBytes(Charset *charset, Char *chr, vector<uint8_t> &dataBytes)
+void CHAR::getDataBytes(Charset *charset, Char *chr, BMPFile *bmpFile, vector<uint8_t> &dataBytes)
 {
 	uint32_t bytePos = 0;
 	uint8_t bitPos = 0;
 	for (int i = 0; i < chr->getHeight(); i++)
 		for (int j = 0; j < chr->getWidth(); j++)
-			IO::writeBits(dataBytes, charset->getPixel(chr->getX() + j, chr->getY() + i), bytePos, bitPos, _bpp);
+			IO::writeBits(dataBytes, bmpFile->getPixel(chr->getX() + j, chr->getY() + i), bytePos, bitPos, _bpp);
 }
 
 uint32_t CHAR::getSize()
@@ -121,4 +125,3 @@ void CHAR::write(fstream &f)
 CHAR::~CHAR()
 {
 }
-

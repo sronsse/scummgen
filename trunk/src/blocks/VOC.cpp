@@ -1,5 +1,6 @@
 #include "VOC.hpp"
 #include "util/IO.hpp"
+#include "util/WAVFile.hpp"
 #include "types/Voice.hpp"
 
 const int VOC::HEADER_SIZE = 26;
@@ -11,9 +12,11 @@ const int VOC::PCM_CODEC_ID = 0;
 
 VOC::VOC(Voice *voice)
 {
-	_freqDivisor = 256 - 1000000 / voice->getSampleRate();
-	for (int i = 0; i < voice->getNumberOfDataBytes(); i++)
-		_dataBytes.push_back(voice->getDataByte(i));
+	WAVFile wavFile;
+	wavFile.open(voice->getWavePath());
+	_freqDivisor = 256 - 1000000 / wavFile.getSampleRate();
+	for (int i = 0; i < wavFile.getNumberOfDataBytes(); i++)
+		_dataBytes.push_back(wavFile.getDataByte(i));
 }
 
 uint32_t VOC::getSize()

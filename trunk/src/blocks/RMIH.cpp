@@ -4,7 +4,7 @@
 
 RMIH::RMIH(Image *image)
 {
-	_nZPlanes = image->getNumberOfZPlanes();
+	_nZPlanes = image->getNumberOfZPlanePaths();
 }
 
 uint32_t RMIH::getSize()
@@ -26,4 +26,3 @@ void RMIH::write(fstream &f)
 RMIH::~RMIH()
 {
 }
-
