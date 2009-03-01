@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include "util/BMPFile.hpp"
 using namespace std;
 
 class XMLNode;
@@ -25,7 +24,8 @@ private:
 	uint16_t _dimB;
 	uint16_t _type;
 public:
-	Array(XMLNode *node);
+	Array();
+	void load(XMLNode *node);
 	uint16_t getVarNumber() { return _varNumber; }
 	uint16_t getDimA() { return _dimA; }
 	uint16_t getDimB() { return _dimB; }
@@ -50,21 +50,21 @@ private:
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
 
-	void loadObjects(string dirName);
-	void loadMidis(string dirName);
-	void loadCostumes(string dirName);
-	void loadRooms(string dirName);
-	void loadScripts(string dirName);
-	void loadCharsets(string dirName);
-	void loadVoices(string dirName);
+	void loadObjects(string dirPath, XMLNode *node);
+	void loadMidis(string dirPath, XMLNode *node);
+	void loadCostumes(string dirPath, XMLNode *node);
+	void loadRooms(string dirPath, XMLNode *node);
+	void loadScripts(string dirPath, XMLNode *node);
+	void loadCharsets(string dirPath, XMLNode *node);
+	void loadVoices(string dirPath, XMLNode *node);
 	void addDeclarations();
-	void updatePalettes();
 public:
 	static const uint8_t N_DEFAULT_ACTORS;
 	static const uint16_t MAX_WORD_VARIABLES;
 	static const uint8_t MAX_LOCAL_VARIABLES;
 
-	Game(string dirName);
+	Game();
+	void load(string dirPath);
 	void parse();
 	void compile();
 	string getLongName() { return _longName; }
@@ -91,4 +91,3 @@ public:
 };
 
 #endif
-

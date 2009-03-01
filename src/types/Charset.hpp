@@ -19,7 +19,8 @@ private:
 	int8_t _xOffset;
 	int8_t _yOffset;
 public:
-	Char(XMLNode *node);
+	Char();
+	void load(XMLNode *node);
 	uint16_t getID() { return _id; }
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
@@ -32,27 +33,17 @@ public:
 class Charset
 {
 private:
-	static const uint8_t N_COLORS;
-
-	string _name;
-	uint32_t _width;
-	uint32_t _height;
-	vector<vector<uint8_t> > _pixels;
 	uint16_t _id;
-	vector<uint8_t> _palette;
-	uint8_t _bpp;
+	string _name;
+	string _bitmapPath;
 	uint8_t _fontHeight;
 	vector<Char *>_chars;
 public:
-	Charset(string dirName);
-	string getName() { return _name; }
-	uint32_t getWidth() { return _width; }
-	uint32_t getHeight() { return _height; }
-	uint8_t getPixel(uint32_t i, uint32_t j) { return _pixels[i][j]; }
+	Charset();
+	void load(string dirPath);
 	uint16_t getID() { return _id; }
-	uint8_t getNumberOfPaletteIndices() { return _palette.size(); }
-	uint8_t getPaletteIndex(uint8_t index) { return _palette[index]; }
-	uint8_t getBPP() { return _bpp; }
+	string getName() { return _name; }
+	string getBitmapPath() { return _bitmapPath; }
 	uint8_t getFontHeight() { return _fontHeight; }
 	uint16_t getNumberOfChars() { return _chars.size(); }
 	Char *getChar(uint16_t index) { return _chars[index]; }
@@ -60,4 +51,3 @@ public:
 };
 
 #endif
-

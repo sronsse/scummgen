@@ -5,41 +5,42 @@
 
 const uint8_t Anim::N_DIRECTIONS = 4;
 
-Anim::Anim(string fileName, uint8_t id)
+Anim::Anim():
+_id(0),
+_name(""),
+_loop(false)
+{
+}
+
+void Anim::load(XMLNode *node, uint8_t id)
 {
 	Log::getInstance().write(LOG_INFO, "Anim\n");
 	Log::getInstance().indent();
 
-	int posA = fileName.find_last_of('/') + 1;
-	int posB = fileName.find_last_of('.') - 1;
-	_name = fileName.substr(posA, posB - posA + 1);
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
-
 	_id = id;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
-	XMLFile xmlFile;
-	xmlFile.open(fileName);
-	XMLNode *rootNode = xmlFile.getRootNode();
+	_name = node->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_loop = rootNode->getChild("loop")->getBooleanContent();
+	_loop = node->getChild("loop")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "loop: %s\n", _loop ? "true" : "false");
 
 	// Read the four sub animations
-	readSubAnim(rootNode, "west");
-	readSubAnim(rootNode, "east");
-	readSubAnim(rootNode, "south");
-	readSubAnim(rootNode, "north");
+	readSubAnim(node, "west");
+	readSubAnim(node, "east");
+	readSubAnim(node, "south");
+	readSubAnim(node, "north");
 
 	Log::getInstance().unIndent();
 }
 
-void Anim::readSubAnim(XMLNode *rootNode, string name)
+void Anim::readSubAnim(XMLNode *node, string name)
 {
 	vector<uint8_t> commands;
 	int i = 0;
 	XMLNode *child, *child2;
-	if ((child = rootNode->getChild(name, 0)) != NULL)
+	if ((child = node->getChild(name, 0)) != NULL)
 		while ((child2 = child->getChild("command", i++)) != NULL)
 			commands.push_back(child2->getIntegerContent());
 	else
@@ -51,37 +52,45 @@ Anim::~Anim()
 {
 }
 
-Frame::Frame(XMLNode *node, string dirName)
+Frame::Frame():
+_bitmapPath(""),
+_x(0),
+_y(0),
+_width(0),
+_height(0),
+_xOffset(0),
+_yOffset(0)
+{
+}
+
+void Frame::load(XMLNode *node, string dirPath)
 {
 	Log::getInstance().write(LOG_INFO, "Frame\n");
 	Log::getInstance().indent();
 
-	_bitmapName = node->getChild("bitmapName")->getStringContent();
-	uint16_t x = node->getChild("x")->getIntegerContent();
-	uint16_t y = node->getChild("y")->getIntegerContent();
-	_width = node->getChild("width")->getIntegerContent();
-	_height = node->getChild("height")->getIntegerContent();
-	_xOffset = node->getChild("xOffset")->getIntegerContent();
-	_yOffset = node->getChild("yOffset")->getIntegerContent();
+	_bitmapPath = dirPath + node->getChild("bitmapName")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
 
-	Log::getInstance().write(LOG_INFO, "bitmapName: %s\n", _bitmapName.c_str());
-	Log::getInstance().write(LOG_INFO, "x: %u\n", x);
-	Log::getInstance().write(LOG_INFO, "y: %u\n", y);
+	_x = node->getChild("x")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "x: %u\n", _x);
+
+	_y = node->getChild("y")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "y: %u\n", _y);
+
+	_width = node->getChild("width")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
+
+	_height = node->getChild("height")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
+
+	_xOffset = node->getChild("xOffset")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "xOffset: %d\n", _xOffset);
+
+	_yOffset = node->getChild("yOffset")->getIntegerContent();
+	Log::getInstance().write(LOG_INFO, "yOffset: %d\n", _yOffset);
 
 	if (_width == 0 || _height == 0)
 		Log::getInstance().write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
-
-	BMPFile bmpFile;
-	bmpFile.open(dirName + _bitmapName + ".bmp");
-	for (int i = 0; i < _width; i++)
-	{
-		vector<uint8_t> pixelColumn;
-		for (int j = 0; j < _height; j++)
-			pixelColumn.push_back(bmpFile.getPixel(x + i, y + j));
-		_pixels.push_back(pixelColumn);
-	}
 
 	Log::getInstance().unIndent();
 }
@@ -90,23 +99,30 @@ Frame::~Frame()
 {
 }
 
-Costume::Costume(string dirName)
+Costume::Costume():
+_id(0),
+_name(""),
+_mirror(true),
+_width(0),
+_height(0)
+{
+}
+
+void Costume::load(string dirPath)
 {
 	Log::getInstance().write(LOG_INFO, "Costume\n");
 	Log::getInstance().indent();
-
-	int posB = dirName.find_last_of('/') - 1;
-	int posA = dirName.find_last_of('/', posB) + 1;
-	_name = dirName.substr(posA, posB - posA + 1);
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	static uint16_t currentID = 1;
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
 
 	XMLFile xmlFile;
-	xmlFile.open(dirName + "costume.xml");
+	xmlFile.open(dirPath + "costume.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
+
+	_name = rootNode->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "mirror: %d\n", _mirror);
@@ -114,19 +130,25 @@ Costume::Costume(string dirName)
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("anim", i)) != NULL)
-		_anims.push_back(new Anim(dirName + "anims/" + child->getStringContent() + ".xml", i++));
+	{
+		Anim *anim = new Anim();
+		anim->load(child, i++);
+		_anims.push_back(anim);
+	}
 
 	i = 0;
 	while ((child = rootNode->getChild("frame", i++)) != NULL)
-		_frames.push_back(new Frame(child, dirName + "frames/"));
+	{
+		Frame *frame = new Frame();
+		frame->load(child, dirPath);
+		_frames.push_back(frame);
+	}
 
-	// Check for empty lists
 	if (_anims.empty())
 		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any animation !\n");
 	if (_frames.empty())
 		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any frame !\n");
 
-	// Specify the costume dimensions
 	_width = 0;
 	_height = 0;
 	for (int i = 0; i < _frames.size(); i++)
@@ -138,14 +160,6 @@ Costume::Costume(string dirName)
 	}
 	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);
 	Log::getInstance().write(LOG_INFO, "height: %d\n", _height);
-
-
-	// Get the costume colors from the first frame
-	_paletteBaseIndex = 0;
-	BMPFile bmpFile;
-	bmpFile.open(dirName + "frames/" + _frames[0]->getBitmapName() + ".bmp");
-	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
-		_colors.push_back(bmpFile.getColor(i));
 
 	Log::getInstance().unIndent();
 }

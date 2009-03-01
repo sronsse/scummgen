@@ -6,26 +6,41 @@
 #include "Game.hpp"
 #include "Image.hpp"
 
-Object::Object(string dirName)
+Object::Object():
+_name(""),
+_displayName(""),
+_imageX(0),
+_imageY(0),
+_x(0),
+_y(0),
+_width(0),
+_height(0),
+_flags(0),
+_parent(0),
+_owner(0),
+_actorDir(0),
+_classData(0)
+{
+}
+
+void Object::load(string dirPath)
 {
 	XMLFile xmlFile;
-	xmlFile.open(dirName + "object.xml");
+	xmlFile.open(dirPath + "object.xml");
 	XMLNode *node = xmlFile.getRootNode();
 
 	Log::getInstance().write(LOG_INFO, "Object\n");
 	Log::getInstance().indent();
 
-	int posB = dirName.find_last_of('/') - 1;
-	int posA = dirName.find_last_of('/', posB) + 1;
-	_name = dirName.substr(posA, posB + 1 - posA);
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
-
 	static uint16_t currentID = Game::N_DEFAULT_ACTORS + 1;
 	_id = currentID++;
 	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
+	_name = node->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+
 	_displayName = node->getChild("displayName")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "displayName: %u\n", _displayName.c_str());
+	Log::getInstance().write(LOG_INFO, "displayName: %s\n", _displayName.c_str());
 
 	_imageX = node->getChild("imageX")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "imageX: %u\n", _imageX);
@@ -51,9 +66,6 @@ Object::Object(string dirName)
 	_x = node->getChild("x")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "x: %u\n", _x);
 
-	uint16_t nZPlanes = node->getChild("nZPlanes")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "nZPlanes: %u\n", nZPlanes);
-
 	_y = node->getChild("y")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "y: %u\n", _y);
 
@@ -78,32 +90,17 @@ Object::Object(string dirName)
 	_classData = node->getChild("classData")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "classData: %x\n", _classData);
 
-	loadImages(dirName, nZPlanes);
+	i = 0;
+	while ((child = node->getChild("image", i++)) != NULL)
+	{
+		Image *image = new Image();
+		image->load(dirPath + child->getStringContent() + "/");
+		_images.push_back(image);
+	}
 
 	_function = NULL;
 
 	Log::getInstance().unIndent();
-}
-
-void Object::loadImages(string dirName, uint16_t nZPlanes)
-{
-	XMLFile xmlFile;
-	xmlFile.open(dirName + "images.xml");
-	XMLNode *node = xmlFile.getRootNode();
-
-	if (node == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Object does not contain any image !\n");
-		return;
-	}
-
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("image", i++)) != NULL)
-		_images.push_back(new Image(dirName + child->getStringContent() + "/", "image.bmp", nZPlanes));
-
-	if (_images.empty())
-		Log::getInstance().write(LOG_WARNING, "Object does not contain any image !\n");
 }
 
 Object::~Object()
@@ -113,4 +110,3 @@ Object::~Object()
 	if (_function != NULL)
 		delete _function;
 }
-

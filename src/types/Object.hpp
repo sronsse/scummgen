@@ -12,9 +12,9 @@ class Function;
 class Object
 {
 private:
-	string _name;
-	string _displayName;
 	uint16_t _id;
+	string _name;
+	string _displayName;	
 	vector<Image *> _images;
 	uint16_t _imageX;
 	uint16_t _imageY;
@@ -30,10 +30,9 @@ private:
 	uint8_t _actorDir;	
 	uint32_t _classData;
 	Function *_function;
-
-	void loadImages(string dirName, uint16_t nZPlanes);
 public:
-	Object(string dirName);
+	Object();
+	void load(string dirName);
 	string getName() { return _name; }
 	string getDisplayName() { return _displayName; }
 	uint16_t getID() { return _id; }

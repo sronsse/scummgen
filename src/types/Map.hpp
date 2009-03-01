@@ -24,7 +24,8 @@ private:
 	float _centerY;
 	vector<string> _neighbours;
 public:
-	Box(XMLNode *node, uint8_t id);
+	Box();
+	void load(XMLNode *node, uint8_t id);
 	string getName() { return _name; }
 	uint8_t getID() { return _id; }
 	int16_t getULX() { return _ulx; }
@@ -53,7 +54,8 @@ private:
 	uint16_t _s2;
 	uint16_t _y2;
 public:
-	Scale(XMLNode *node);
+	Scale();
+	void load(XMLNode *node);
 	uint16_t getS1() { return _s1; }
 	uint16_t getY1() { return _y1; }
 	uint16_t getS2() { return _s2; }
@@ -118,7 +120,8 @@ private:
 	vector<Scale *> _scales;
 	Matrix *_matrix;
 public:
-	Map(string dirName);
+	Map();
+	void load(string dirName);
 	uint8_t getNumberOfBoxes() { return _boxes.size(); }
 	Box *getBox(uint8_t index) { return _boxes[index]; }
 	uint8_t getNumberOfScales() { return _scales.size(); }
