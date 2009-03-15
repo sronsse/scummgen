@@ -2,13 +2,15 @@
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
+#include "Palette.hpp"
 
 Image::Image():
-_bitmapPath("")
+_bitmapPath(""),
+_paletteBaseIndex(0)
 {
 }
 
-void Image::load(string dirPath)
+void Image::load(string dirPath, Palette *palette, bool global)
 {
 	Log::getInstance().write(LOG_INFO, "Image\n");
 	Log::getInstance().indent();
@@ -24,6 +26,8 @@ void Image::load(string dirPath)
 	XMLNode *child;
 	while ((child = rootNode->getChild("zPlaneName", i++)) != NULL)
 		_zPlanePaths.push_back(dirPath + child->getStringContent());
+
+	_paletteBaseIndex = palette->add(_bitmapPath, !global);
 
 	Log::getInstance().unIndent();
 }

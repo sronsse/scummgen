@@ -16,7 +16,12 @@ SMAP::SMAP(Image *image)
 		strip.push_back(CID_NO_COMPRESSION);
 		for (int j = 0; j < bmpFile.getHeight(); j++)
 			for (int k = 0; k < STRIP_WIDTH; k++)
-				strip.push_back(bmpFile.getPixel(i * STRIP_WIDTH + k, j));
+			{
+				uint8_t pixel = 0;
+				if (bmpFile.getPixel(i * STRIP_WIDTH + k, j) != 0)
+					pixel = bmpFile.getPixel(i * STRIP_WIDTH + k, j) + image->getPaletteBaseIndex();
+				strip.push_back(pixel);
+			}
 		_strips.push_back(strip);
 	}
 	uint32_t firstOffset = 0;

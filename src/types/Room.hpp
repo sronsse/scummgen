@@ -22,10 +22,10 @@ private:
 
 	uint8_t _id;
 	string _name;
-	Image *_background;
 	Palette *_palette;
-	vector<Object *> _objects;
+	Image *_background;
 	Map *_map;
+	vector<Object *> _objects;
 	vector<string> _scripts;
 	vector<Costume *> _costumes;
 	Function *_entryFunction;
@@ -44,11 +44,11 @@ public:
 	void compile();
 	string getName() { return _name; }
 	uint8_t getID() { return _id; }
-	Image *getBackground() { return _background; }
 	Palette *getPalette() { return _palette; }
+	Image *getBackground() { return _background; }	
+	Map *getMap() { return _map; }
 	uint16_t getNumberOfObjects() { return _objects.size(); }
 	Object *getObject(uint16_t index) { return _objects[index]; }
-	Map *getMap() { return _map; }
 	uint16_t getNumberOfCostumes() { return _costumes.size(); }
 	Costume *getCostume(uint16_t index) { return _costumes[index]; }
 	Function *getEntryFunction() { return _entryFunction; }

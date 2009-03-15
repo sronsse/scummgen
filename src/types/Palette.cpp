@@ -4,7 +4,15 @@
 
 const uint16_t Palette::MAX_COLORS = 256;
 
-Cycle::Cycle(XMLNode *node)
+Cycle::Cycle():
+_id(0),
+_start(0),
+_end(0),
+_delay(0),
+_forward(true)
+{}
+
+void Cycle::load(XMLNode *node)
 {
 	Log::getInstance().write(LOG_INFO, "Cycle\n");
 	Log::getInstance().indent();
@@ -35,16 +43,15 @@ Cycle::~Cycle()
 {
 }
 
-Palette::Palette(string dirPath)
+Palette::Palette():
+_transparentIndex(0)
+{
+}
+
+void Palette::load(string dirPath)
 {
 	Log::getInstance().write(LOG_INFO, "Palette\n");
 	Log::getInstance().indent();
-
-	BMPFile bmpFile;
-	bmpFile.open(dirPath +  "background.bmp");
-
-	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
-		_colors.push_back(bmpFile.getColor(i));
 
 	XMLFile xmlFile;
 	xmlFile.open(dirPath + "palette.xml");
@@ -53,11 +60,47 @@ Palette::Palette(string dirPath)
 	_transparentIndex = node->getChild("transparentIndex")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
 
-	XMLNode *childNode;
-	for (int i = 0; (childNode = node->getChild("cycle", i)) != NULL; i++)
-		_cycles.push_back(new Cycle(childNode));
+	_colors.resize(MAX_COLORS);
+	_startCursor = 0;
+	_endCursor = MAX_COLORS;
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("cycle", i++)) != NULL)
+	{
+		Cycle *cycle = new Cycle();
+		cycle->load(child);
+		_cycles.push_back(cycle);
+	}
 
 	Log::getInstance().unIndent();
+}
+
+uint8_t Palette::add(string bitmapPath, bool fromStart)
+{
+	BMPFile bmpFile;
+	bmpFile.open(bitmapPath);
+
+	if (fromStart)
+	{
+		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+		{
+			_colors[_startCursor++] = bmpFile.getColor(i);
+			if (_startCursor == _endCursor)
+				Log::getInstance().write(LOG_ERROR, "Palette contains too many colors !\n");
+		}
+		return _startCursor - bmpFile.getNumberOfColors();
+	}
+	else
+	{
+		for (int i = bmpFile.getNumberOfColors() - 1; i >= 0; i--)
+		{
+			_colors[--_endCursor] = bmpFile.getColor(i);
+			if (_startCursor == _endCursor)
+				Log::getInstance().write(LOG_ERROR, "Palette contains too many colors !\n");
+		}
+		return _endCursor;
+	}
 }
 
 Palette::~Palette()

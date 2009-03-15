@@ -2,6 +2,7 @@
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
+#include "Palette.hpp"
 
 const uint8_t Anim::N_DIRECTIONS = 4;
 
@@ -104,11 +105,12 @@ _id(0),
 _name(""),
 _mirror(true),
 _width(0),
-_height(0)
+_height(0),
+_paletteBaseIndex(0)
 {
 }
 
-void Costume::load(string dirPath)
+void Costume::load(string dirPath, Palette *palette, bool global)
 {
 	Log::getInstance().write(LOG_INFO, "Costume\n");
 	Log::getInstance().indent();
@@ -160,6 +162,8 @@ void Costume::load(string dirPath)
 	}
 	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);
 	Log::getInstance().write(LOG_INFO, "height: %d\n", _height);
+
+	_paletteBaseIndex = palette->add(_frames[0]->getBitmapPath(), !global);
 
 	Log::getInstance().unIndent();
 }

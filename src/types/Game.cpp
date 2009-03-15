@@ -91,10 +91,10 @@ void Game::load(string dirPath)
 		_arrays.push_back(array);
 	}
 
+	loadRooms(dirPath, node);
 	loadObjects(dirPath, node);
 	loadMidis(dirPath, node);
 	loadCostumes(dirPath, node);
-	loadRooms(dirPath, node);
 	loadScripts(dirPath, node);
 	loadCharsets(dirPath, node);
 	loadVoices(dirPath, node);
@@ -104,6 +104,21 @@ void Game::load(string dirPath)
 	Log::getInstance().unIndent();
 }
 
+void Game::loadRooms(string dirPath, XMLNode *node)
+{
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("room", i++)) != NULL)
+	{
+		Room *room = new Room();
+		room->load(dirPath + child->getStringContent() + "/");
+		_rooms.push_back(room);
+	}
+
+	if (_rooms.empty())
+		Log::getInstance().write(LOG_WARNING, "Game does not contain any room !\n");
+}
+
 void Game::loadObjects(string dirPath, XMLNode *node)
 {
 	int i = 0;
@@ -111,7 +126,7 @@ void Game::loadObjects(string dirPath, XMLNode *node)
 	while ((child = node->getChild("object", i++)) != NULL)
 	{
 		Object *object = new Object();
-		object->load(dirPath + child->getStringContent() + "/");
+		object->load(dirPath + child->getStringContent() + "/", _rooms[0]->getPalette(), true);
 		_objects.push_back(object);
 	}
 
@@ -141,27 +156,12 @@ void Game::loadCostumes(string dirPath, XMLNode *node)
 	while ((child = node->getChild("costume", i++)) != NULL)
 	{
 		Costume *costume = new Costume();
-		costume->load(dirPath + child->getStringContent() + "/");
+		costume->load(dirPath + child->getStringContent() + "/", _rooms[0]->getPalette(), true);
 		_costumes.push_back(costume);
 	}
 
 	if (_costumes.empty())
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any global costume !\n");
-}
-
-void Game::loadRooms(string dirPath, XMLNode *node)
-{
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("room", i++)) != NULL)
-	{
-		Room *room = new Room();
-		room->load(dirPath + child->getStringContent() + "/");
-		_rooms.push_back(room);
-	}
-
-	if (_rooms.empty())
-		Log::getInstance().write(LOG_WARNING, "Game does not contain any room !\n");
 }
 
 void Game::loadScripts(string dirPath, XMLNode *node)
@@ -242,48 +242,6 @@ void Game::addDeclarations()
 	Log::getInstance().unIndent();
 }
 
-#if 0
-void Game::updatePalettes()
-{
-	vector<Color> globalColors;
-
-	// Add the colors of all the objects to our array of global colors
-	for (int i = 0; i < _objects.size(); i++)
-		if (_objects[i]->getNumberOfImages() > 0)
-		{
-			vector<Color> colors;
-			for (int j = 0; j < _objects[i]->getImage(0)->getNumberOfColors(); j++)
-				colors.push_back(_objects[i]->getImage(0)->getColor(j));
-			globalColors.insert(globalColors.begin(), colors.begin(), colors.end());
-
-			for (int j = 0; j < _objects[i]->getNumberOfImages(); j++)
-				_objects[i]->getImage(j)->setPaletteBaseIndex(Palette::MAX_COLORS - globalColors.size());
-		}
-
-	// Add the colors of all the costumes to our array of global colors
-	/*for (int i = 0; i < _costumes.size(); i++)
-	{
-		vector<Color> colors;
-		for (int j = 0; j < _costumes[i]->getNumberOfColors(); j++)
-			colors.push_back(_costumes[i]->getColor(j));
-		globalColors.insert(globalColors.begin(), colors.begin(), colors.end());
-
-		_costumes[i]->setPaletteBaseIndex(Palette::MAX_COLORS - globalColors.size());
-	}*/
-
-	// Update room palettes
-	for (int i = 0; i < _rooms.size(); i++)
-	{
-		if (_rooms[i]->getPalette()->getNumberOfColors() + globalColors.size() > Palette::MAX_COLORS)
-			Log::getInstance().write(LOG_ERROR, "The global computed palette is too big to be inserted into room \"%s\" !\n", _rooms[i]->getName().c_str());
-
-		_rooms[i]->getPalette()->resize(Palette::MAX_COLORS);
-
-		for (int j = 0; j < globalColors.size(); j++)
-			_rooms[i]->getPalette()->setColor(Palette::MAX_COLORS - globalColors.size() + j, globalColors[j]);
-	}
-}
-#endif
 void Game::parse()
 {
 	Log::getInstance().write(LOG_INFO, "Parsing game...\n");

@@ -2,6 +2,7 @@
 #include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Costume.hpp"
+#include "types/Palette.hpp"
 
 const uint8_t COST::DEFAULT_FORMAT = 0x60;
 const uint32_t COST::UNKNOWN = 0;
@@ -28,7 +29,12 @@ COST::COST(Costume *costume)
 
 	// Costume redirection palette
 	for (int i = 0; i < nColors; i++)
-		_palette.push_back(0);
+	{
+		uint8_t index = 0;
+		if (costume->getPaletteBaseIndex() + i < Palette::MAX_COLORS)
+			index = costume->getPaletteBaseIndex() + i;
+		_palette.push_back(index);
+	}
 
 	calculateAnimCmdsOffset(costume);
 	calculateLimbOffsets(costume);

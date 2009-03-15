@@ -19,7 +19,8 @@ private:
 	uint8_t _delay;
 	bool _forward;
 public:
-	Cycle(XMLNode *node);
+	Cycle();
+	void load(XMLNode *node);
 	string getName() { return _name; }
 	uint8_t getID()  { return _id; }
 	uint8_t getStart()  { return _start; }
@@ -35,17 +36,18 @@ private:
 	vector<Color> _colors;
 	vector<Cycle *> _cycles;
 	uint8_t _transparentIndex;
+	uint16_t _startCursor;
+	uint16_t _endCursor;
 public:
 	static const uint16_t MAX_COLORS;
 
-	Palette(string dirName);
-	uint16_t getNumberOfColors() { return _colors.size(); }
+	Palette();
+	void load(string dirName);
 	Color getColor(uint8_t index) { return _colors[index]; }
-	void setColor(uint8_t index, Color color) { _colors[index] = color; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
 	uint8_t getTransparentIndex() { return _transparentIndex; }
-	void resize(uint16_t size) { Color black = { 0, 0, 0 }; _colors.resize(size, black); }
+	uint8_t add(string bitmapPath, bool fromStart);
 	~Palette();
 };
 
