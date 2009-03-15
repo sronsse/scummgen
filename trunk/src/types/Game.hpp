@@ -50,10 +50,10 @@ private:
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
 
+	void loadRooms(string dirPath, XMLNode *node);
 	void loadObjects(string dirPath, XMLNode *node);
 	void loadMidis(string dirPath, XMLNode *node);
 	void loadCostumes(string dirPath, XMLNode *node);
-	void loadRooms(string dirPath, XMLNode *node);
 	void loadScripts(string dirPath, XMLNode *node);
 	void loadCharsets(string dirPath, XMLNode *node);
 	void loadVoices(string dirPath, XMLNode *node);

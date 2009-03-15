@@ -7,6 +7,7 @@
 using namespace std;
 
 class Image;
+class Palette;
 class Function;
 
 class Object
@@ -32,7 +33,7 @@ private:
 	Function *_function;
 public:
 	Object();
-	void load(string dirName);
+	void load(string dirName, Palette *palette, bool global);
 	string getName() { return _name; }
 	string getDisplayName() { return _displayName; }
 	uint16_t getID() { return _id; }

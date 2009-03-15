@@ -47,12 +47,16 @@ void Room::load(string dirPath)
 	_name = node->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
+	_palette = new Palette();
+	_palette->load(dirPath);
+
 	_background = new Image();
-	_background->load(dirPath + node->getChild("background")->getStringContent() + "/");
-	_palette = new Palette(dirPath);
-	loadObjects(dirPath, node);
+	_background->load(dirPath + node->getChild("background")->getStringContent() + "/", _palette, false);
+
 	_map = new Map;
 	_map->load(dirPath + node->getChild("map")->getStringContent() + "/");
+
+	loadObjects(dirPath, node);
 	loadScripts(dirPath, node);
 	loadCostumes(dirPath, node);
 
@@ -68,7 +72,7 @@ void Room::loadObjects(string dirPath, XMLNode *node)
 	while ((child = node->getChild("object", i++)) != NULL)
 	{
 		Object *object = new Object();
-		object->load(dirPath + child->getStringContent() + "/");
+		object->load(dirPath + child->getStringContent() + "/", _palette, false);
 		_objects.push_back(object);
 	}
 }
@@ -88,7 +92,7 @@ void Room::loadCostumes(string dirPath, XMLNode *node)
 	while ((child = node->getChild("costume", i++)) != NULL)
 	{
 		Costume *costume = new Costume();
-		costume->load(dirPath + child->getStringContent() + "/");
+		costume->load(dirPath + child->getStringContent() + "/", _palette, false);
 		_costumes.push_back(costume);
 	}
 }
@@ -123,43 +127,6 @@ void Room::addDeclarations()
 
 	Log::getInstance().unIndent();
 }
-
-#if 0
-void Room::updatePalette()
-{
-	uint16_t nOriginalColors = _palette->getNumberOfColors();
-	vector<Color> localColors;
-
-	// Add the colors of the room objects to our array of local colors
-	for (int i = 0; i < _objects.size(); i++)
-		if (_objects[i]->getNumberOfImages() > 0)
-		{
-			for (int j = 0; j < _objects[i]->getNumberOfImages(); j++)
-				_objects[i]->getImage(j)->setPaletteBaseIndex(nOriginalColors + localColors.size());
-
-			for (int j = 0; j < _objects[i]->getImage(0)->getNumberOfColors(); j++)
-				localColors.push_back(_objects[i]->getImage(0)->getColor(j));
-		}
-
-	// Add the colors of the room costumes to our array of local colors
-	/*for (int i = 0; i < _costumes.size(); i++)
-	{
-		_costumes[i]->setPaletteBaseIndex(nOriginalColors + localColors.size());
-
-		for (int j = 0; j < _costumes[i]->getNumberOfColors(); j++)
-			localColors.push_back(_costumes[i]->getColor(j));
-	}*/
-
-	// Update room palette
-	if (_palette->getNumberOfColors() + localColors.size() > Palette::MAX_COLORS)
-		Log::getInstance().write(LOG_ERROR, "The local computed palette is too big to be inserted !\n");
-
-	_palette->resize(_palette->getNumberOfColors() + localColors.size());
-
-	for (int i = 0; i < localColors.size(); i++)
-		_palette->setColor(nOriginalColors + i, localColors[i]);
-}
-#endif
 
 void Room::parse(vector<Declaration *> &declarations)
 {

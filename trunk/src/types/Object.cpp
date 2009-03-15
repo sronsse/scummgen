@@ -23,7 +23,7 @@ _classData(0)
 {
 }
 
-void Object::load(string dirPath)
+void Object::load(string dirPath, Palette *palette, bool global)
 {
 	XMLFile xmlFile;
 	xmlFile.open(dirPath + "object.xml");
@@ -94,7 +94,7 @@ void Object::load(string dirPath)
 	while ((child = node->getChild("image", i++)) != NULL)
 	{
 		Image *image = new Image();
-		image->load(dirPath + child->getStringContent() + "/");
+		image->load(dirPath + child->getStringContent() + "/", palette, global);
 		_images.push_back(image);
 	}
 

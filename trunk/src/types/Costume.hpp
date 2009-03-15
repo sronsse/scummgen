@@ -7,6 +7,7 @@
 using namespace std;
 
 class XMLNode;
+class Palette;
 
 typedef enum
 {
@@ -74,7 +75,7 @@ private:
 	uint8_t _paletteBaseIndex;
 public:
 	Costume();
-	void load(string dirPath);
+	void load(string dirPath, Palette *palette, bool global);
 	uint16_t getID() { return _id; }
 	string getName() { return _name; }
 	uint16_t getWidth() { return _width; }
@@ -84,6 +85,7 @@ public:
 	Anim *getAnim(uint32_t index) { return _anims[index]; }
 	uint8_t getNumberOfFrames() { return _frames.size(); }
 	Frame *getFrame(uint8_t index) { return _frames[index]; }
+	uint8_t getPaletteBaseIndex() { return _paletteBaseIndex; }
 	~Costume();
 };
 
