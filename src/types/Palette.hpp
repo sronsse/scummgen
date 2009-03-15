@@ -33,6 +33,23 @@ public:
 class Palette
 {
 private:
+	static const Color COLOR_BLACK;
+	static const Color COLOR_DARK_BLUE;
+	static const Color COLOR_JAPANESE_LAUREL;
+	static const Color COLOR_PERSIAN_GREEN;
+	static const Color COLOR_BRIGHT_RED;
+	static const Color COLOR_FLIRT;
+	static const Color COLOR_CHELSEA_GEM;
+	static const Color COLOR_SILVER_CHALICE;
+	static const Color COLOR_SCORPION;
+	static const Color COLOR_DODGER_BLUE;
+	static const Color COLOR_SCREAMIN_GREEN;
+	static const Color COLOR_AQUAMARINE;
+	static const Color COLOR_PERSIMMON;
+	static const Color COLOR_PINK_FLAMINGO;
+	static const Color COLOR_GORSE;
+	static const Color COLOR_WHITE;
+
 	vector<Color> _colors;
 	vector<Cycle *> _cycles;
 	uint8_t _transparentIndex;
