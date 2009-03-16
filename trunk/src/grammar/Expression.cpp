@@ -371,57 +371,14 @@ void UnaryExpression::compile(vector<Instruction *> &instructions)
 	switch (_type)
 	{
 		case EXPRESSION_UMINUS:
+			instructions.push_back(new Instruction("pushByte"));
+			instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 			_e->compile(instructions);
-			instructions.push_back(new Instruction("uminus"));
-			return;
-		case EXPRESSION_NOT:
-			_e->compile(instructions);
-			instructions.push_back(new Instruction("not"));
-			return;
-		default:
-			break;
-	}
-
-	// If we're here, it means the expression has to be a variable
-	string identifier = ((VariableExpression *)_e)->getIdentifier();
-	uint16_t value;
-	SymbolType symbolType;
-	if (!Context::resolveSymbol(identifier, value, symbolType))
-		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
-	if (symbolType != SYMBOL_VARIABLE)
-		Log::getInstance().write(LOG_ERROR, "Only variables can be incremented or decremented !\n");
-	ostringstream oss;
-	oss << value;
-
-	switch (_type)
-	{
-		case EXPRESSION_UMINUS:
-			_e->compile(instructions);
-			instructions.push_back(new Instruction("uminus"));
+			instructions.push_back(new Instruction("sub"));
 			break;
 		case EXPRESSION_NOT:
 			_e->compile(instructions);
 			instructions.push_back(new Instruction("not"));
-			break;
-		case EXPRESSION_PREINC:
-			instructions.push_back(new Instruction("wordVarInc"));
-			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-			_e->compile(instructions);
-			break;
-		case EXPRESSION_POSTINC:
-			_e->compile(instructions);
-			instructions.push_back(new Instruction("wordVarInc"));
-			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-			break;
-		case EXPRESSION_PREDEC:
-			instructions.push_back(new Instruction("wordVarDec"));
-			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-			_e->compile(instructions);
-			break;
-		case EXPRESSION_POSTDEC:
-			_e->compile(instructions);
-			instructions.push_back(new Instruction("wordVarDec"));
-			instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 			break;
 		default:
 			break;
@@ -500,38 +457,65 @@ BinaryExpression::~BinaryExpression()
 	delete _e2;
 }
 
-AssignmentExpression::AssignmentExpression(AssignableExpression *a, Expression *e):
+AssignmentExpression::AssignmentExpression(AssignmentType assignmentType, bool preOperation, AssignableExpression *a, Expression *e):
 Expression(EXPRESSION_ASSIGNMENT)
 {
+	_assignmentType = assignmentType;
+	_preOperation = preOperation;
 	_assignableExpression = a;
 	_expression = e;
 }
 
 void AssignmentExpression::compile(vector<Instruction *> &instructions)
 {
+	// Check the assignable expression type as it should be a variable or a list entry
 	string identifier = _assignableExpression->getIdentifier();
-
 	uint16_t address;
 	SymbolType symbolType;
 	if (!Context::resolveSymbol(identifier, address, symbolType))
 		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
-
 	if (symbolType != SYMBOL_VARIABLE)
-		Log::getInstance().write(LOG_ERROR, "Assignements only apply to variables !\n");
-
+		Log::getInstance().write(LOG_ERROR, "Assignements only apply to variables and list entry expressions !\n");
 	ostringstream oss;
 	oss << address;
+
+	// Push the assignable expression on the stack in case of a "post-operation"
+	if (!_preOperation)
+		_assignableExpression->compile(instructions);
 
 	if (_assignableExpression->getType() == EXPRESSION_VARIABLE)
 	{
 		// We have to consider strings and arrays differently
 		if (_expression->getType() == EXPRESSION_STRING)
+		{
+			if (_assignmentType != ASSIGNMENT_EQUAL)
+				Log::getInstance().write(LOG_ERROR, "Incrementations and decrementations don't apply to strings !\n");
 			((StringExpression *)_expression)->assign(instructions, address);
+		}
 		else if (_expression->getType() == EXPRESSION_LIST)
+		{
+			if (_assignmentType != ASSIGNMENT_EQUAL)
+				Log::getInstance().write(LOG_ERROR, "Incrementations and decrementations don't apply to lists !\n");
 			((ListExpression *)_expression)->assign(instructions, address);
+		}
 		else
 		{
-			_expression->compile(instructions);
+			switch (_assignmentType)
+			{
+				case ASSIGNMENT_EQUAL:
+					_expression->compile(instructions);
+					break;
+				case ASSIGNMENT_INC:
+					_assignableExpression->compile(instructions);
+					_expression->compile(instructions);
+					instructions.push_back(new Instruction("add"));
+					break;
+				case ASSIGNMENT_DEC:
+					_assignableExpression->compile(instructions);
+					_expression->compile(instructions);
+					instructions.push_back(new Instruction("sub"));
+					break;
+			}
 
 			// Write variable
 			instructions.push_back(new Instruction("writeWordVar"));
@@ -541,19 +525,37 @@ void AssignmentExpression::compile(vector<Instruction *> &instructions)
 	// It's a list entry expression
 	else 
 	{
+		if ((_expression->getType() == EXPRESSION_STRING) || (_expression->getType() == EXPRESSION_LIST))
+			Log::getInstance().write(LOG_ERROR, "Cannot assign strings or lists to list entry expressions !\n");
+
 		// Push base
 		((ListEntryExpression *)_assignableExpression)->getExpression()->compile(instructions);
 
-		_expression->compile(instructions);
+		switch (_assignmentType)
+		{
+			case ASSIGNMENT_EQUAL:
+				_expression->compile(instructions);
+				break;
+			case ASSIGNMENT_INC:
+				_assignableExpression->compile(instructions);
+				_expression->compile(instructions);
+				instructions.push_back(new Instruction("add"));
+				break;
+			case ASSIGNMENT_DEC:
+				_assignableExpression->compile(instructions);
+				_expression->compile(instructions);
+				instructions.push_back(new Instruction("sub"));
+				break;
+		}
 
 		// wordArrayWrite instruction
 		instructions.push_back(new Instruction("wordArrayWrite"));
 		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 	}
 
-	// Push the variable we just wrote on the stack
-	instructions.push_back(new Instruction("pushWordVar"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	// Push what we just wrote on the stack in case of a "pre-operation"
+	if (_preOperation)
+		_assignableExpression->compile(instructions);
 }
 
 AssignmentExpression::~AssignmentExpression()

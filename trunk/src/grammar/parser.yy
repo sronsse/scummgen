@@ -242,7 +242,7 @@ expression:
 		expressionCollector.pop_back();
 		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
 		expressionCollector.pop_back();
-		AssignmentExpression *assignmentExpression = new AssignmentExpression(assignableExpression, expression);
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_EQUAL, false, assignableExpression, expression);
 		expressionCollector.push_back(assignmentExpression);
 	}
 	| '(' expression ')'
@@ -386,39 +386,51 @@ expression:
 		Expression *expression = Expression::simplifyBinaryExpression(EXPRESSION_LOR, expression1, expression2);
 		expressionCollector.push_back(expression);
 	}
-	| T_IDENTIFIER T_INC expression
+	| assignable T_INC expression
 	{
 		Expression *expression = expressionCollector.back();
 		expressionCollector.pop_back();
-		AssignmentExpression *assignmentExpression = new AssignmentExpression(new VariableExpression($1), new BinaryExpression(EXPRESSION_ADD, new VariableExpression($1), expression));
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_INC, false, assignableExpression, expression);
 		expressionCollector.push_back(assignmentExpression);
 	}
-	| T_IDENTIFIER T_DEC expression
+	| assignable T_DEC expression
 	{
 		Expression *expression = expressionCollector.back();
 		expressionCollector.pop_back();
-		AssignmentExpression *assignmentExpression = new AssignmentExpression(new VariableExpression($1), new BinaryExpression(EXPRESSION_SUB, new VariableExpression($1), expression));
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_DEC, false, assignableExpression, expression);
 		expressionCollector.push_back(assignmentExpression);
 	}
-	| T_UNI_INC T_IDENTIFIER
+	| T_UNI_INC assignable
 	{
-		Expression *expression = new UnaryExpression(EXPRESSION_PREINC, new VariableExpression($2));
-		expressionCollector.push_back(expression);
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_INC, true, assignableExpression, new ConstantExpression(1));
+		expressionCollector.push_back(assignmentExpression);
 	}
-	| T_IDENTIFIER T_UNI_INC
+	| assignable T_UNI_INC
 	{
-		Expression *expression = new UnaryExpression(EXPRESSION_POSTINC, new VariableExpression($1));
-		expressionCollector.push_back(expression);
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_INC, false, assignableExpression, new ConstantExpression(1));
+		expressionCollector.push_back(assignmentExpression);
 	}
-	| T_UNI_DEC T_IDENTIFIER
+	| T_UNI_DEC assignable
 	{
-		Expression *expression = new UnaryExpression(EXPRESSION_PREDEC, new VariableExpression($2));
-		expressionCollector.push_back(expression);
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_DEC, true, assignableExpression, new ConstantExpression(1));
+		expressionCollector.push_back(assignmentExpression);
 	}
-	| T_IDENTIFIER T_UNI_DEC
+	| assignable T_UNI_DEC
 	{
-		Expression *expression = new UnaryExpression(EXPRESSION_POSTDEC, new VariableExpression($1));
-		expressionCollector.push_back(expression);
+		AssignableExpression *assignableExpression = (AssignableExpression *)expressionCollector.back();
+		expressionCollector.pop_back();
+		AssignmentExpression *assignmentExpression = new AssignmentExpression(ASSIGNMENT_DEC, false, assignableExpression, new ConstantExpression(1));
+		expressionCollector.push_back(assignmentExpression);
 	}
 	| callExpression
 	;
