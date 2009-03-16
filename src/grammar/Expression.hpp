@@ -33,11 +33,7 @@ typedef enum
 	EXPRESSION_LAND,
 	EXPRESSION_LOR,
 	EXPRESSION_ASSIGNMENT,
-	EXPRESSION_CALL,
-	EXPRESSION_PREINC,
-	EXPRESSION_POSTINC,
-	EXPRESSION_PREDEC,
-	EXPRESSION_POSTDEC
+	EXPRESSION_CALL
 } ExpressionType;
 
 class Expression
@@ -152,13 +148,22 @@ public:
 	~BinaryExpression();
 };
 
+typedef enum
+{
+	ASSIGNMENT_EQUAL,
+	ASSIGNMENT_INC,
+	ASSIGNMENT_DEC
+} AssignmentType;
+
 class AssignmentExpression: public Expression
 {
 private:
+	AssignmentType _assignmentType;
+	bool _preOperation;
 	AssignableExpression *_assignableExpression;
 	Expression *_expression;
 public:
-	AssignmentExpression(AssignableExpression *a, Expression *e);
+	AssignmentExpression(AssignmentType assignmentType, bool preOperation, AssignableExpression *a, Expression *e);
 	void compile(vector<Instruction *> &instructions);
 	~AssignmentExpression();
 };
