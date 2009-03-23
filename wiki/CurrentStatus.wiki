@@ -4,6 +4,18 @@ You can follow ScummGEN's advancement on this page.
 
 ----
 
+== March 23, 2009 ==
+
+Happy new year to everyone ! Yes, I'm a bit late, sorry about that. These past months have seen a lot of improvements for the project.
+
+I improved the compiler quite a bit to allow the use of lists. This is a feature that I really wanted to add some time ago but never really found the time to develop. Strings were already working but adding a lot of those would eat memory in ScummVM - this is now fixed. Increment and decrement operators can now be used in scripts which makes for loops more C-like. Lastly, "verb" statements were added to the compiler, which is essential to the usage of object scripts.
+
+Concerning the SCUMM blocks, RLE compression was added to the costumes generation. I also solved a bug in CHAR blocks which now allows users to properly change font colors through scripts.
+
+Finally, a lot of work was done concerning the build system. I changed almost all the classes to allow them to be created and deleted at any point in time. Before, the application would start and create all the game types by loading XML files, BMP files, WAV files etc. Now when game types are created, they are empty - the purpose of this is to allow editors to create new objects, rooms or costumes, and build the whole game whenever the user clicks on a "build button".
+
+I could continue working on small things concerning the generated blocks, but I think that it's now time to start working on editors. The choice made for the project is to go with GTK+, a library which can be used in Windows, Linux and MacOSX. Expect to see some progress on this soon !
+
 == December 30, 2008 ==
 
 Alright, I thought I would try to add news at least once a month, I didn't have much time left ;) If you've been following the SVN status, you've seen that a lot of progress has been made since the last entry to this page. I'll try to describe what I've done, what I've understood, and what I'm planning to work on.
