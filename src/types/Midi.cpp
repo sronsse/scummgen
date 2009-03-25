@@ -14,18 +14,17 @@ void Midi::load(string dirPath)
 	Log::getInstance().write(LOG_INFO, "Midi\n");
 	Log::getInstance().indent();
 
-	static uint16_t currentID = 1;
-	_id = currentID++;
-	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
-
 	XMLFile xmlFile;
 	xmlFile.open(dirPath + "midi.xml");
-	XMLNode *node = xmlFile.getRootNode();
+	XMLNode *rootNode = xmlFile.getRootNode();
 	
-	_name = node->getChild("name")->getStringContent();
+	_name = rootNode->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_midiPath = dirPath + node->getChild("midiName")->getStringContent();
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	_midiPath = dirPath + rootNode->getChild("midiName")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "midiPath: %s\n", _midiPath.c_str());
 
 	Log::getInstance().unIndent();

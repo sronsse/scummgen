@@ -23,10 +23,8 @@ _centerY(0)
 {
 }
 
-void Box::load(XMLNode *node, uint8_t id)
+void Box::load(XMLNode *node)
 {
-	_id = id;
-
 	_name = node->getChild("name")->getStringContent();
 	_ulx = node->getChild("ulx")->getIntegerContent();
 	_uly = node->getChild("uly")->getIntegerContent();
@@ -276,12 +274,15 @@ void Map::load(string dirPath)
 		return;
 	}
 
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("box", i++)) != NULL)
 	{
 		Box *box = new Box();
-		box->load(child, i);
+		box->load(child);
 		_boxes.push_back(box);
 	}
 
@@ -293,9 +294,19 @@ void Map::load(string dirPath)
 		_scales.push_back(scale);
 	}
 
-	_matrix = new Matrix(&_boxes);
-
 	Log::getInstance().unIndent();
+}
+
+void Map::prepare()
+{
+	// Set boxes IDs
+	for (int i = 0; i < _boxes.size(); i++)
+		_boxes[i]->setID(i + 1);
+
+	// Construct matrix
+	if (_matrix != NULL)
+		delete _matrix;
+	_matrix = new Matrix(&_boxes);
 }
 
 Map::~Map()

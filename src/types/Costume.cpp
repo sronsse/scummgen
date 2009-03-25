@@ -13,13 +13,10 @@ _loop(false)
 {
 }
 
-void Anim::load(XMLNode *node, uint8_t id)
+void Anim::load(XMLNode *node)
 {
 	Log::getInstance().write(LOG_INFO, "Anim\n");
 	Log::getInstance().indent();
-
-	_id = id;
-	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
 
 	_name = node->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
@@ -115,10 +112,6 @@ void Costume::load(string dirPath, Palette *palette, bool global)
 	Log::getInstance().write(LOG_INFO, "Costume\n");
 	Log::getInstance().indent();
 
-	static uint16_t currentID = 1;
-	_id = currentID++;
-	Log::getInstance().write(LOG_INFO, "id: %d\n", _id);
-
 	XMLFile xmlFile;
 	xmlFile.open(dirPath + "costume.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
@@ -126,15 +119,18 @@ void Costume::load(string dirPath, Palette *palette, bool global)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::getInstance().write(LOG_INFO, "mirror: %d\n", _mirror);
 
 	int i = 0;
 	XMLNode *child;
-	while ((child = rootNode->getChild("anim", i)) != NULL)
+	while ((child = rootNode->getChild("anim", i++)) != NULL)
 	{
 		Anim *anim = new Anim();
-		anim->load(child, i++);
+		anim->load(child);
 		_anims.push_back(anim);
 	}
 

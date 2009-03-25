@@ -4,6 +4,5 @@ SUBDIRS = blocks \
           util
 
 bin_PROGRAMS = scummgen
-scummgen_SOURCES = main.cpp \
-                   ScummGEN.cpp ScummGEN.hpp
-scummgen_LDADD = blocks/libblocks.la types/libtypes.la util/libutil.la grammar/libgrammar.la @XML_LIBS@
+scummgen_SOURCES = main.cpp
+scummgen_LDADD = types/libtypes.la blocks/libblocks.la grammar/libgrammar.la util/libutil.la @XML_LIBS@

@@ -19,6 +19,12 @@ void Image::load(string dirPath, Palette *palette, bool global)
 	xmlFile.open(dirPath + "image.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
+	_name = rootNode->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+
 	_bitmapPath = dirPath + rootNode->getChild("bitmapName")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
 

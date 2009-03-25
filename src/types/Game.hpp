@@ -13,6 +13,7 @@ class Midi;
 class Costume;
 class Charset;
 class Voice;
+class Script;
 class Declaration;
 class Function;
 
@@ -36,13 +37,17 @@ public:
 class Game
 {
 private:
-	string _longName;
-	string _shortName;
+	static const char *INDEX_FILE_EXTENSION;
+	static const char *RESOURCE_FILE_EXTENSION;
+	static const char *VOICE_FILE_NAME;
+
+	string _name;
+	string _description;
 	uint8_t _key;
 	vector<Array *> _arrays;
 	vector<Room *> _rooms;
 	vector<Object *> _objects;
-	vector<string> _scripts;
+	vector<Script *> _scripts;
 	vector<Midi *> _midis;
 	vector<Costume *> _costumes;
 	vector<Charset *> _charsets;
@@ -57,7 +62,10 @@ private:
 	void loadScripts(string dirPath, XMLNode *node);
 	void loadCharsets(string dirPath, XMLNode *node);
 	void loadVoices(string dirPath, XMLNode *node);
-	void addDeclarations();
+	void prepare();
+	void parse();
+	void compile();
+	void generate(string outputDirPath);
 public:
 	static const uint8_t N_DEFAULT_ACTORS;
 	static const uint16_t MAX_WORD_VARIABLES;
@@ -65,10 +73,9 @@ public:
 
 	Game();
 	void load(string dirPath);
-	void parse();
-	void compile();
-	string getLongName() { return _longName; }
-	string getShortName() { return _shortName; }
+	void build(string outputDirPath);
+	string getName() { return _name; }
+	string getDescription() { return _description; }
 	uint8_t getKey() { return _key; }
 	uint16_t getNumberOfArrays() { return _arrays.size(); }
 	Array *getArray(uint16_t index) { return _arrays[index]; }

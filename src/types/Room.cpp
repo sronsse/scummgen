@@ -4,20 +4,14 @@
 #include "util/XMLFile.hpp"
 #include "grammar/Context.hpp"
 #include "grammar/Declaration.hpp"
-#include "grammar/Function.hpp"
 #include "grammar/Statement.hpp"
 #include "Image.hpp"
 #include "Palette.hpp"
 #include "Object.hpp"
 #include "Map.hpp"
+#include "Script.hpp"
 #include "Costume.hpp"
-
-// External flex/bison declarations
-extern FILE *yyin;
-extern int yyparse(vector<Declaration *> &declarations, vector<Function *> &functions);
-extern int yylineno;
-
-const uint8_t Room::MIN_LOCAL_ID = 200;
+const uint8_t Room::MIN_LOCAL_SCRIPT_ID = 200;
 
 Room::Room():
 _id(0),
@@ -27,8 +21,7 @@ _palette(NULL),
 _map(NULL),
 _entryFunction(NULL),
 _exitFunction(NULL)
-{
-	
+{	
 }
 
 void Room::load(string dirPath)
@@ -36,31 +29,28 @@ void Room::load(string dirPath)
 	Log::getInstance().write(LOG_INFO, "Room\n");
 	Log::getInstance().indent();
 
-	static uint8_t currentID = 1;
-	_id = currentID++;
-	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
-
 	XMLFile xmlFile;
 	xmlFile.open(dirPath + "room.xml");
-	XMLNode *node = xmlFile.getRootNode();
+	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_name = node->getChild("name")->getStringContent();
+	_name = rootNode->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_palette = new Palette();
 	_palette->load(dirPath);
 
 	_background = new Image();
-	_background->load(dirPath + node->getChild("background")->getStringContent() + "/", _palette, false);
+	_background->load(dirPath + rootNode->getChild("background")->getStringContent() + "/", _palette, false);
 
 	_map = new Map;
-	_map->load(dirPath + node->getChild("map")->getStringContent() + "/");
+	_map->load(dirPath);
 
-	loadObjects(dirPath, node);
-	loadScripts(dirPath, node);
-	loadCostumes(dirPath, node);
-
-	addDeclarations();
+	loadObjects(dirPath, rootNode);
+	loadScripts(dirPath, rootNode);
+	loadCostumes(dirPath, rootNode);
 
 	Log::getInstance().unIndent();
 }
@@ -82,7 +72,14 @@ void Room::loadScripts(string dirPath, XMLNode *node)
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("script", i++)) != NULL)
-		_scripts.push_back(dirPath + child->getStringContent());
+	{
+		Script *script = new Script();
+		script->load(dirPath + child->getStringContent() + "/");
+		_scripts.push_back(script);
+	}
+
+	if (_scripts.empty())
+		Log::getInstance().write(LOG_WARNING, "Couldn't find any local script !\n");
 }
 
 void Room::loadCostumes(string dirPath, XMLNode *node)
@@ -97,35 +94,36 @@ void Room::loadCostumes(string dirPath, XMLNode *node)
 	}
 }
 
-void Room::addDeclarations()
+void Room::prepare()
 {
-	Log::getInstance().write(LOG_INFO, "Adding room local resource declarations...\n");
-	Log::getInstance().indent();
-
-	// Palette cycles declarations
-	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getCycle(i)->getName(), _palette->getCycle(i)->getID()));
-
-	// Object declarations
+	// Prepare resources
+	_palette->prepare();
+	_map->prepare();
 	for (int i = 0; i < _objects.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+		_objects[i]->prepare();
 
-	// Costume declarations
+	// Set resource IDs
 	for (int i = 0; i < _costumes.size(); i++)
-	{
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
 		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
-		{
-			Anim *anim = _costumes[i]->getAnim(j);
-			_declarations.push_back(new Declaration(DECLARATION_CONST, anim->getName(), anim->getID()));
-		}
+			_costumes[i]->getAnim(j)->setID(j);
+
+	// Clear declarations and functions
+	for (int i = 0; i < _declarations.size(); i++)
+		delete _declarations[i];
+	_declarations.clear();
+	if (_entryFunction != NULL)
+	{
+		delete _entryFunction;
+		_entryFunction = NULL;
 	}
-
-	// Box declarations
-	for (int i = 0; i < _map->getNumberOfBoxes(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _map->getBox(i)->getName(), _map->getBox(i)->getID()));
-
-	Log::getInstance().unIndent();
+	if (_exitFunction != NULL)
+	{
+		delete _exitFunction;
+		_exitFunction = NULL;
+	}
+	for (int i = 0; i < _functions.size(); i++)
+		delete _functions[i];
+	_functions.clear();
 }
 
 void Room::parse(vector<Declaration *> &declarations)
@@ -133,26 +131,21 @@ void Room::parse(vector<Declaration *> &declarations)
 	Log::getInstance().write(LOG_INFO, "Parsing room \"%s\"...\n", _name.c_str());
 	Log::getInstance().indent();
 
-	if (_scripts.empty())
-		Log::getInstance().write(LOG_WARNING, "Couldn't find any local script !\n");
-
 	bool foundEntry = false;
 	bool foundExit = false;
-	uint16_t id = MIN_LOCAL_ID;
+	uint16_t id = MIN_LOCAL_SCRIPT_ID;
 
+	// Parse all the local scripts
 	for (int i = 0; i < _scripts.size(); i++)
 	{
-		Log::getInstance().write(LOG_INFO, "Parsing \"%s\"...\n", _scripts[i].c_str());
-		yyin = fopen(_scripts[i].c_str(), "r");
 		vector<Function *> functions;
-		yylineno = 1;
-		if (yyparse(declarations, functions))
-		{
-			fclose(yyin);
-			for (int j = 0; j < functions.size(); j++)
-				delete functions[j];
-			Log::getInstance().write(LOG_ERROR, "Parsing error !\n");
-		}
+		_scripts[i]->parse(declarations, functions);
+
+		// Check if local variables have fixed addresses
+		for (int j = 0; j < declarations.size(); j++)
+			if (declarations[i]->hasFixedAddress())
+				Log::getInstance().write(LOG_ERROR, "Local variables can't have fixed addresses !\n");
+
 		for (int j = 0; j < functions.size(); j++)
 			if (functions[j]->getName() == "entry")
 			{
@@ -190,7 +183,6 @@ void Room::parse(vector<Declaration *> &declarations)
 					_functions.push_back(functions[j]);
 				}
 			}
-		fclose(yyin);
 	}
 
 	// If no entry or exit function has been specified, we create empty ones
@@ -204,9 +196,31 @@ void Room::parse(vector<Declaration *> &declarations)
 		Log::getInstance().write(LOG_WARNING, "Couldn't find the exit function !\n");
 		_exitFunction = new Function(FUNCTION_NORMAL, "exit", new BlockStatement());
 	}
+
+	// Add empty object functions if necessary
 	for (int i = 0; i < _objects.size(); i++)
 		if (_objects[i]->getFunction() == NULL)
-			_objects[i]->setFunction(new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", new BlockStatement()));
+		{
+			VerbStatement *vs = new VerbStatement();
+			BlockStatement *bs = new BlockStatement();
+			bs->addStatement(vs);
+			Function *f = new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", bs);
+			_objects[i]->setFunction(f);
+		}
+
+	// Set local resources declarations
+	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getCycle(i)->getName(), _palette->getCycle(i)->getID()));
+	for (int i = 0; i < _objects.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+	for (int i = 0; i < _costumes.size(); i++)
+	{
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
+			_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName() + "_" + _costumes[i]->getAnim(j)->getName(), _costumes[i]->getAnim(j)->getID()));
+	}
+	for (int i = 0; i < _map->getNumberOfBoxes(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _map->getBox(i)->getName(), _map->getBox(i)->getID()));
 
 	Log::getInstance().unIndent();
 }
@@ -219,19 +233,18 @@ void Room::compile()
 	Context context(CONTEXT_ROOM, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
 
-	// We compile local functions
+	// Compile the entry and exit functions
+	_entryFunction->compile();
+	_exitFunction->compile();
+
+	// Compile local functions
 	for (int i = 0; i < _functions.size(); i++)
 		if (_functions[i]->getType() != FUNCTION_INLINED)
 			_functions[i]->compile();
 
-	// Then we compile the entry and exit functions
-	_entryFunction->compile();
-	_exitFunction->compile();
-
-	// Finally we compile the object functions
+	// Compile objects
 	for (int i = 0; i < _objects.size(); i++)
-		if (_objects[i]->getFunction() != NULL)
-			_objects[i]->getFunction()->compile();
+		_objects[i]->compile();
 
 	Context::popContext();
 
@@ -248,6 +261,8 @@ Room::~Room()
 		delete _objects[i];
 	if (_map != NULL)
 		delete _map;
+	for (int i = 0; i < _scripts.size(); i++)
+		delete _scripts[i];
 	for (int i = 0; i < _costumes.size(); i++)
 		delete _costumes[i];
 	for (int i = 0; i < _declarations.size(); i++)

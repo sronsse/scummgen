@@ -602,6 +602,10 @@ Instruction::Instruction(string opcodeName)
 	_address = Context::currentAddress;
 	_opcodeName = opcodeName;
 
+	// Set up opcodes table unless it has been set already
+	if (_opcodes.empty())
+		setOpcodes();
+
 	// Check if opcode exists
 	if (_opcodes.find(_opcodeName) == _opcodes.end())
 		Log::getInstance().write(LOG_ERROR, "Unknown opcode \"%s\" !\n", _opcodeName.c_str());

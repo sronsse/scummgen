@@ -21,8 +21,9 @@ private:
 public:
 	Cycle();
 	void load(XMLNode *node);
+	uint8_t getID() { return _id; }
+	void setID(uint8_t id) { _id = id; }
 	string getName() { return _name; }
-	uint8_t getID()  { return _id; }
 	uint8_t getStart()  { return _start; }
 	uint8_t getEnd() { return _end; }
 	uint8_t getDelay()  { return _delay; }
@@ -50,6 +51,7 @@ private:
 	static const Color COLOR_GORSE;
 	static const Color COLOR_WHITE;
 
+	string _description;
 	vector<Color> _colors;
 	vector<Cycle *> _cycles;
 	uint8_t _transparentIndex;
@@ -60,6 +62,8 @@ public:
 
 	Palette();
 	void load(string dirName);
+	void prepare();
+	string getDescription() { return _description; }
 	Color getColor(uint8_t index) { return _colors[index]; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
