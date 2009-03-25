@@ -30,8 +30,9 @@ public:
 	static const uint8_t N_DIRECTIONS;
 
 	Anim();
-	void load(XMLNode *node, uint8_t id);
+	void load(XMLNode *node);
 	uint8_t getID() { return _id; }
+	void setID(uint8_t id) { _id = id; }
 	string getName() { return _name; }
 	bool isLoop() { return _loop; }
 	uint16_t getNumberOfCommands(AnimDirection direction) { return _commands[(int)direction].size(); }
@@ -67,6 +68,7 @@ class Costume
 private:
 	uint16_t _id;
 	string _name;
+	string _description;
 	uint16_t _width;
 	uint16_t _height;
 	bool _mirror;
@@ -77,7 +79,9 @@ public:
 	Costume();
 	void load(string dirPath, Palette *palette, bool global);
 	uint16_t getID() { return _id; }
+	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }
+	string getDescription() { return _description; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
 	bool isMirror() { return _mirror; }

@@ -15,6 +15,7 @@ class Object
 private:
 	uint16_t _id;
 	string _name;
+	string _description;
 	string _displayName;	
 	vector<Image *> _images;
 	uint16_t _imageX;
@@ -34,9 +35,13 @@ private:
 public:
 	Object();
 	void load(string dirName, Palette *palette, bool global);
-	string getName() { return _name; }
-	string getDisplayName() { return _displayName; }
+	void prepare();
+	void compile();
 	uint16_t getID() { return _id; }
+	void setID(uint16_t id) { _id = id; }
+	string getName() { return _name; }
+	string getDescription() { return _description; }
+	string getDisplayName() { return _displayName; }
 	uint16_t getNumberOfImages() { return _images.size(); }
 	Image *getImage(uint16_t index) { return _images[index]; }
 	uint16_t getImageX() { return _imageX; }

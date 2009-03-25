@@ -2,34 +2,35 @@
 #include <string>
 #include <config.h>
 #include "util/Log.hpp"
-#include "ScummGEN.hpp"
+#include "types/Game.hpp"
 using namespace std;
 
 int main(int argc, char **argv)
 {
+	cout << PACKAGE_STRING << endl;
+
 	if (argc != 2)
 	{
 		cout << "Usage: " << argv[0] << " <game directory>\n";
 		return 0;
 	}
 
-	cout << PACKAGE_STRING << endl;
-
 	Log::getInstance().setActive(true);
+
+	Game game;
 
 	// First, we load our game data structure using the game directory as an input,
 	// taking care of any exception which could occur
+	string dirPath = argv[1];
 	try
 	{
-		ScummGEN::getInstance().load(argv[1]);
+		game.load(dirPath);
+		game.build("");
 	}
 	catch (int e)
 	{
 		return e;
 	}
-
-	// Then, we generate the final resources
-	ScummGEN::getInstance().generate("");
 
 	cout << "Game generated successfully !\n";
 	return 0;

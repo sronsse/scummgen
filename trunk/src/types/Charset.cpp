@@ -41,12 +41,11 @@ void Charset::load(string dirPath)
 	xmlFile.open(dirPath + "charset.xml");
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	static uint16_t currentID = 1;
-	_id = currentID++;
-	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
-
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_bitmapPath = dirPath + rootNode->getChild("bitmapName")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());

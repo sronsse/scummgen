@@ -12,38 +12,42 @@ class Palette;
 class Object;
 class Map;
 class Costume;
+class Script;
 class Declaration;
 class Function;
 
 class Room
 {
 private:
-	static const uint8_t MIN_LOCAL_ID;
+	static const uint8_t MIN_LOCAL_SCRIPT_ID;
 
 	uint8_t _id;
 	string _name;
+	string _description;
 	Palette *_palette;
 	Image *_background;
 	Map *_map;
 	vector<Object *> _objects;
-	vector<string> _scripts;
+	vector<Script *> _scripts;
 	vector<Costume *> _costumes;
-	Function *_entryFunction;
-	Function *_exitFunction;
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
+	Function *_entryFunction;
+	Function *_exitFunction;
 
 	void loadObjects(string dirPath, XMLNode *node);
 	void loadScripts(string dirPath, XMLNode *node);
 	void loadCostumes(string dirPath, XMLNode *node);
-	void addDeclarations();
 public:
 	Room();
 	void load(string dirPath);
+	void prepare();
 	void parse(vector<Declaration *> &declarations);
 	void compile();
-	string getName() { return _name; }
 	uint8_t getID() { return _id; }
+	void setID(uint8_t id) { _id = id; }
+	string getName() { return _name; }
+	string getDescription() { return _description; }
 	Palette *getPalette() { return _palette; }
 	Image *getBackground() { return _background; }	
 	Map *getMap() { return _map; }

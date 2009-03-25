@@ -38,10 +38,6 @@ void Cycle::load(XMLNode *node)
 	_name = node->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	static uint8_t currentID = 1;
-	_id = currentID++;
-	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
-
 	_start = node->getChild("start")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "start: %u\n", _start);
 
@@ -93,14 +89,17 @@ void Palette::load(string dirPath)
 
 	XMLFile xmlFile;
 	xmlFile.open(dirPath + "palette.xml");
-	XMLNode *node = xmlFile.getRootNode();
+	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_transparentIndex = node->getChild("transparentIndex")->getIntegerContent();
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	_transparentIndex = rootNode->getChild("transparentIndex")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
 
 	int i = 0;
 	XMLNode *child;
-	while ((child = node->getChild("cycle", i++)) != NULL)
+	while ((child = rootNode->getChild("cycle", i++)) != NULL)
 	{
 		Cycle *cycle = new Cycle();
 		cycle->load(child);
@@ -108,6 +107,13 @@ void Palette::load(string dirPath)
 	}
 
 	Log::getInstance().unIndent();
+}
+
+void Palette::prepare()
+{
+	// Set cycles IDs
+	for (int i = 0; i < _cycles.size(); i++)
+		_cycles[i]->setID(i + 1);
 }
 
 uint8_t Palette::add(string bitmapPath, bool fromStart)

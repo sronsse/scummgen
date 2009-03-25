@@ -8,5 +8,6 @@ libtypes_la_SOURCES = Charset.cpp Charset.hpp \
                       Object.cpp Object.hpp \
                       Palette.cpp Palette.hpp \
                       Room.cpp Room.hpp \
+                      Script.cpp Script.hpp \
                       Voice.cpp Voice.hpp
 libtypes_la_CPPFLAGS = -I$(top_srcdir)/src @XML_CFLAGS@

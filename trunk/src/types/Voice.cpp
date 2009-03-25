@@ -20,6 +20,9 @@ void Voice::load(string dirPath)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+
 	_wavePath = dirPath + rootNode->getChild("waveName")->getStringContent();
 	Log::getInstance().write(LOG_INFO, "wavePath: %s\n", _wavePath.c_str());
 

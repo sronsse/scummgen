@@ -25,9 +25,10 @@ private:
 	vector<string> _neighbours;
 public:
 	Box();
-	void load(XMLNode *node, uint8_t id);
+	void load(XMLNode *node);
 	string getName() { return _name; }
 	uint8_t getID() { return _id; }
+	uint8_t setID(uint8_t id) { _id = id; }
 	int16_t getULX() { return _ulx; }
 	int16_t getULY() { return _uly; }
 	int16_t getURX() { return _urx; }
@@ -116,12 +117,15 @@ class Map
 private:
 	static const uint8_t N_SCALES;
 
+	string _description;
 	vector<Box *> _boxes;
 	vector<Scale *> _scales;
 	Matrix *_matrix;
 public:
 	Map();
 	void load(string dirName);
+	void prepare();
+	string getDescription() { return _description; }
 	uint8_t getNumberOfBoxes() { return _boxes.size(); }
 	Box *getBox(uint8_t index) { return _boxes[index]; }
 	uint8_t getNumberOfScales() { return _scales.size(); }

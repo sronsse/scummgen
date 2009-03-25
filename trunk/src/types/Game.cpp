@@ -2,6 +2,17 @@
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
+#include "blocks/RNAM.hpp"
+#include "blocks/MAXS.hpp"
+#include "blocks/DROO.hpp"
+#include "blocks/DSCR.hpp"
+#include "blocks/DSOU.hpp"
+#include "blocks/DCOS.hpp"
+#include "blocks/DCHR.hpp"
+#include "blocks/DOBJ.hpp"
+#include "blocks/AARY.hpp"
+#include "blocks/LECF.hpp"
+#include "blocks/SOU2.hpp"
 #include "grammar/Context.hpp"
 #include "grammar/Declaration.hpp"
 #include "grammar/Function.hpp"
@@ -9,16 +20,16 @@
 #include "Room.hpp"
 #include "Object.hpp"
 #include "Midi.hpp"
+#include "Script.hpp"
 #include "Costume.hpp"
 #include "Charset.hpp"
 #include "Voice.hpp"
 #include "Image.hpp"
 #include "Palette.hpp"
 
-// External flex/bison declarations
-extern FILE *yyin;
-extern int yyparse(vector<Declaration *> &declarations, vector<Function *> &functions);
-extern int yylineno;
+const char *Game::INDEX_FILE_EXTENSION = ".000";
+const char *Game::RESOURCE_FILE_EXTENSION = ".001";
+const char *Game::VOICE_FILE_NAME = "MONSTER.SOU";
 
 const uint8_t Game::N_DEFAULT_ACTORS = 12;
 const uint16_t Game::MAX_WORD_VARIABLES = 8192;
@@ -57,8 +68,8 @@ Array::~Array()
 }
 
 Game::Game():
-_longName(""),
-_shortName(""),
+_name(""),
+_description(""),
 _key(0)
 {
 }
@@ -71,35 +82,33 @@ void Game::load(string dirPath)
 	XMLFile xmlFile;
 	if (!xmlFile.open(dirPath + "game.xml"))
 		Log::getInstance().write(LOG_ERROR, "Couldn't find any game in the specified directory !\n");
-	XMLNode *node = xmlFile.getRootNode();
+	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_longName = node->getChild("longName")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "longName: %s\n", _longName.c_str());
+	_name = rootNode->getChild("name")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_shortName = node->getChild("shortName")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "shortName: %s\n", _shortName.c_str());
+	_description = rootNode->getChild("description")->getStringContent();
+	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
 
-	_key = node->getChild("key")->getIntegerContent();
+	_key = rootNode->getChild("key")->getIntegerContent();
 	Log::getInstance().write(LOG_INFO, "key: 0x%02x\n", _key);
 
 	int i = 0;
 	XMLNode *child;
-	while ((child = node->getChild("array", i++)) != NULL)
+	while ((child = rootNode->getChild("array", i++)) != NULL)
 	{
 		Array *array = new Array();
 		array->load(child);
 		_arrays.push_back(array);
 	}
 
-	loadRooms(dirPath, node);
-	loadObjects(dirPath, node);
-	loadMidis(dirPath, node);
-	loadCostumes(dirPath, node);
-	loadScripts(dirPath, node);
-	loadCharsets(dirPath, node);
-	loadVoices(dirPath, node);
-
-	addDeclarations();
+	loadRooms(dirPath, rootNode);
+	loadObjects(dirPath, rootNode);
+	loadMidis(dirPath, rootNode);
+	loadCostumes(dirPath, rootNode);
+	loadScripts(dirPath, rootNode);
+	loadCharsets(dirPath, rootNode);
+	loadVoices(dirPath, rootNode);
 
 	Log::getInstance().unIndent();
 }
@@ -169,10 +178,14 @@ void Game::loadScripts(string dirPath, XMLNode *node)
 	int i = 0;
 	XMLNode *child;
 	while ((child = node->getChild("script", i++)) != NULL)
-		_scripts.push_back(dirPath + child->getStringContent());
+	{
+		Script *script = new Script();
+		script->load(dirPath + child->getStringContent() + "/");
+		_scripts.push_back(script);
+	}
 
 	if (_scripts.empty())
-		Log::getInstance().write(LOG_WARNING, "Couldn't find any global script !\n");
+		Log::getInstance().write(LOG_ERROR, "Couldn't find any global script !\n");
 }
 
 void Game::loadCharsets(string dirPath, XMLNode *node)
@@ -205,41 +218,50 @@ void Game::loadVoices(string dirPath, XMLNode *node)
 		Log::getInstance().write(LOG_WARNING, "Game does not contain any voice !\n");
 }
 
-void Game::addDeclarations()
+void Game::prepare()
 {
-	Log::getInstance().write(LOG_INFO, "Adding game global resource declarations...\n");
-	Log::getInstance().indent();
-
-	// Object declarations
+	// Prepare objects
 	for (int i = 0; i < _objects.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+		_objects[i]->prepare();
 
-	// Midi declarations
+	// Prepare rooms
+	for (int i = 0; i < _rooms.size(); i++)
+		_rooms[i]->prepare();
+
+	// Set resource IDs
+	uint8_t currentRoomID = 1;
+	uint16_t currentObjectID = N_DEFAULT_ACTORS + 1;
+	uint16_t currentMidiID = 1;
+	uint16_t currentCostumeID = 1;
+	uint16_t currentCharsetID = 1;
+	for (int i = 0; i < _rooms.size(); i++)
+	{
+		_rooms[i]->setID(currentRoomID++);
+		for (int j = 0; j < _rooms[i]->getNumberOfObjects(); j++)
+			_rooms[i]->getObject(j)->setID(currentObjectID++);
+		for (int j = 0; j < _rooms[i]->getNumberOfCostumes(); j++)
+			_rooms[i]->getCostume(j)->setID(currentCostumeID++);
+	}
+	for (int i = 0; i < _objects.size(); i++)
+		_objects[i]->setID(currentObjectID++);
 	for (int i = 0; i < _midis.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _midis[i]->getName(), _midis[i]->getID()));
-
-	// Costume declarations
+		_midis[i]->setID(currentMidiID++);
 	for (int i = 0; i < _costumes.size(); i++)
 	{
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+		_costumes[i]->setID(currentCostumeID++);
 		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
-		{
-			Anim *anim = _costumes[i]->getAnim(j);
-			_declarations.push_back(new Declaration(DECLARATION_CONST, anim->getName(), anim->getID()));
-		}
+			_costumes[i]->getAnim(j)->setID(j);
 	}
-
-	// Room declarations
-	for (int i = 0; i < _rooms.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getName(), _rooms[i]->getID()));
-
-	// Charset declarations
 	for (int i = 0; i < _charsets.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _charsets[i]->getName(), _charsets[i]->getID()));
+		_charsets[i]->setID(currentCharsetID++);
 
-	// TODO : add voice declarations
-
-	Log::getInstance().unIndent();
+	// Clear declarations and functions
+	for (int i = 0; i < _declarations.size(); i++)
+		delete _declarations[i];
+	_declarations.clear();
+	for (int i = 0; i < _functions.size(); i++)
+		delete _functions[i];
+	_functions.clear();
 }
 
 void Game::parse()
@@ -247,26 +269,15 @@ void Game::parse()
 	Log::getInstance().write(LOG_INFO, "Parsing game...\n");
 	Log::getInstance().indent();
 
-	if (_scripts.empty())
-		Log::getInstance().write(LOG_ERROR, "Couldn't find any global script !\n");
-
 	bool foundMain = false;
-	uint16_t id = 2;
+	uint16_t id = 2; // id 1 is reserved for the main function
 
+	// Parse global scripts
 	for (int i = 0; i < _scripts.size(); i++)
 	{
-		Log::getInstance().write(LOG_INFO, "Parsing \"%s\"...\n", _scripts[i].c_str());
-		Log::getInstance().indent();
-		yyin = fopen(_scripts[i].c_str(), "r");
 		vector<Function *> functions;
-		yylineno = 1;
-		if (yyparse(_declarations, functions))
-		{
-			fclose(yyin);
-			for (int j = 0; j < functions.size(); j++)
-				delete functions[j];
-			Log::getInstance().write(LOG_ERROR, "Parsing error !\n");
-		}
+		_scripts[i]->parse(_declarations, functions);
+
 		for (int j = 0; j < functions.size(); j++)
 			// Special case for the main function
 			if (functions[j]->getName() == "main")
@@ -299,16 +310,40 @@ void Game::parse()
 					_functions.push_back(functions[j]);
 				}
 			}
-		fclose(yyin);
-		Log::getInstance().unIndent();
 	}
 
+	// Check if the game main entry point has been found
 	if (!foundMain)
 		Log::getInstance().write(LOG_ERROR, "Couldn't find the main function !\n");
+
+	// Add empty object functions if necessary
 	for (int i = 0; i < _objects.size(); i++)
 		if (_objects[i]->getFunction() == NULL)
-			_objects[i]->setFunction(new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", new BlockStatement()));
+		{
+			VerbStatement *vs = new VerbStatement();
+			BlockStatement *bs = new BlockStatement();
+			bs->addStatement(vs);
+			Function *f = new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", bs);
+			_objects[i]->setFunction(f);
+		}
 
+	// Set global resources declarations
+	for (int i = 0; i < _objects.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+	for (int i = 0; i < _midis.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _midis[i]->getName(), _midis[i]->getID()));
+	for (int i = 0; i < _costumes.size(); i++)
+	{
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
+		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
+			_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName() + "_" + _costumes[i]->getAnim(j)->getName(), _costumes[i]->getAnim(j)->getID()));
+	}
+	for (int i = 0; i < _charsets.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _charsets[i]->getName(), _charsets[i]->getID()));
+	for (int i = 0; i < _rooms.size(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getName(), _rooms[i]->getID()));
+
+	// Parse rooms
 	for (int i = 0; i < _rooms.size(); i++)
 		_rooms[i]->parse(_declarations);
 
@@ -323,23 +358,82 @@ void Game::compile()
 	Context context(CONTEXT_GAME, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
 
-	// We compile global functions
+	// Compile global functions
 	for (int i = 0; i < _functions.size(); i++)
 		if (_functions[i]->getType() != FUNCTION_INLINED)
 			_functions[i]->compile();
 
-	// Then we compile the room functions
+	// Compile objects
+	for (int i = 0; i < _objects.size(); i++)
+		_objects[i]->compile();
+
+	// Compile rooms
 	for (int i = 0; i < _rooms.size(); i++)
 		_rooms[i]->compile();
-
-	// Finally we compile the object functions
-	for (int i = 0; i < _objects.size(); i++)
-		if (_objects[i]->getFunction() != NULL)
-			_objects[i]->getFunction()->compile();
 
 	Context::popContext();
 
 	Log::getInstance().unIndent();
+}
+
+void Game::generate(string outputDirPath)
+{
+	Log::getInstance().write(LOG_INFO, "Generating game resource files...\n");
+	Log::getInstance().indent();
+
+	// Create and write the resource file contents
+	LECF lecf(this);
+	string resourceFileName = outputDirPath + _name + RESOURCE_FILE_EXTENSION;
+	fstream resourceFile(resourceFileName.c_str(), ios::in | ios::out | ios::binary | ios::trunc);
+	IO::setKey(_key);
+	lecf.write(resourceFile);
+	resourceFile.close();
+
+	// Create and write the index file contents
+	RNAM rnam(this);
+	MAXS maxs(this);
+	DROO droo(this);
+	DSCR dscr(lecf.getLFLF(0));
+	DSOU dsou(this, &lecf);
+	DCOS dcos(this, &lecf);
+	DCHR dchr(lecf.getLFLF(0));
+	DOBJ dobj(this);
+	AARY aary(this);
+	string indexFileName = outputDirPath + _name + INDEX_FILE_EXTENSION;
+	fstream indexFile(indexFileName.c_str(), ios::in | ios::out | ios::binary | ios::trunc);
+	IO::setKey(_key);
+	rnam.write(indexFile);
+	maxs.write(indexFile);
+	droo.write(indexFile);
+	dscr.write(indexFile);
+	dsou.write(indexFile);
+	dcos.write(indexFile);
+	dchr.write(indexFile);
+	dobj.write(indexFile);
+	aary.write(indexFile);
+	indexFile.close();
+
+	// Create and write the voice file contents only if necessary
+	if (!_voices.empty())
+	{
+		SOU2 sou(this);
+		string voiceFileName = outputDirPath + VOICE_FILE_NAME;
+		fstream voiceFile(voiceFileName.c_str(), ios::in | ios::out | ios::binary | ios::trunc);
+		IO::setKey(0);
+		sou.write(voiceFile);
+		voiceFile.close();
+	}
+
+	Log::getInstance().unIndent();
+}
+
+void Game::build(string outputDirPath)
+{
+	// Prepare, parse, compile, and generate the game
+	prepare();
+	parse();
+	compile();
+	generate(outputDirPath);
 }
 
 Game::~Game()
@@ -352,6 +446,8 @@ Game::~Game()
 		delete _objects[i];
 	for (int i = 0; i < _midis.size(); i++)
 		delete _midis[i];
+	for (int i = 0; i < _scripts.size(); i++)
+		delete _scripts[i];
 	for (int i = 0; i < _costumes.size(); i++)
 		delete _costumes[i];
 	for (int i = 0; i < _charsets.size(); i++)
