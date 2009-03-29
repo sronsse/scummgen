@@ -2,6 +2,7 @@
 #define _XMLFILE_HPP_
 
 #include <libxml/tree.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
 using namespace std;
@@ -15,6 +16,8 @@ private:
 public:
 	XMLNode(string name, string content);
 	void addChild(XMLNode *child) { _children.push_back(child); }
+	uint32_t getNumberOfChildren() { return _children.size(); }
+	XMLNode *getChild(uint32_t index) { return _children[index]; }
 	XMLNode *getChild(string name);
 	XMLNode *getChild(string name, uint32_t index);
 	string getName() { return _name; }
@@ -27,13 +30,18 @@ public:
 class XMLFile
 {
 private:
+	static const uint8_t INDENT_WIDTH;
+
 	XMLNode *_rootNode;
 
-	void parse(XMLNode *&destNode, xmlNode *srcNode);
+	void read(xmlNode *srcNode, XMLNode *&destNode);
+	void write(XMLNode *srcNode, xmlNode *&destNode, uint8_t indent);
 public:
 	XMLFile();
 	bool open(string fileName);
+	bool save(string fileName);
 	XMLNode *getRootNode() { return _rootNode; }
+	void setRootNode(XMLNode *rootNode) { _rootNode = rootNode; }
 	~XMLFile();
 };
 
