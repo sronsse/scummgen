@@ -14,12 +14,13 @@ private:
 	string _content;
 	vector<XMLNode *> _children;
 public:
-	XMLNode(string name, string content);
-	void addChild(XMLNode *child) { _children.push_back(child); }
+	XMLNode(string name, string content = "");
+	XMLNode(string name, int content);
+	XMLNode(string name, bool content);
 	uint32_t getNumberOfChildren() { return _children.size(); }
 	XMLNode *getChild(uint32_t index) { return _children[index]; }
-	XMLNode *getChild(string name);
-	XMLNode *getChild(string name, uint32_t index);
+	XMLNode *getChild(string name, uint32_t index = 0);
+	void addChild(XMLNode *child) { _children.push_back(child); }
 	string getName() { return _name; }
 	string getStringContent() { return _content; }
 	int getIntegerContent() { return atoi(_content.c_str()); }

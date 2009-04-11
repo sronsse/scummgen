@@ -12,8 +12,8 @@ class XMLNode;
 class Cycle
 {
 private:
-	string _name;
 	uint8_t _id;
+	string _name;
 	uint8_t _start;
 	uint8_t _end;
 	uint8_t _delay;
@@ -21,6 +21,7 @@ private:
 public:
 	Cycle();
 	void load(XMLNode *node);
+	void save(XMLNode *node);
 	uint8_t getID() { return _id; }
 	void setID(uint8_t id) { _id = id; }
 	string getName() { return _name; }
@@ -34,6 +35,8 @@ public:
 class Palette
 {
 private:
+	static const string XML_FILE_NAME;
+	static const uint8_t N_COMMON_COLORS;
 	static const Color COLOR_BLACK;
 	static const Color COLOR_DARK_BLUE;
 	static const Color COLOR_JAPANESE_LAUREL;
@@ -62,6 +65,7 @@ public:
 
 	Palette();
 	void load(string dirName);
+	void save(string dirName);
 	void prepare();
 	string getDescription() { return _description; }
 	Color getColor(uint8_t index) { return _colors[index]; }

@@ -1,8 +1,12 @@
 #include "Map.hpp"
 #include <algorithm>
 #include <map>
+#include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
+
+const string Map::XML_FILE_NAME = "map.xml";
+const uint8_t Map::N_SLOTS = 4;
 
 Box::Box():
 _id(0),
@@ -18,13 +22,16 @@ _lly(0),
 _mask(0),
 _flags(0),
 _scale(0),
-_centerX(0),
-_centerY(0)
+_centerX(0.0f),
+_centerY(0.0f)
 {
 }
 
 void Box::load(XMLNode *node)
 {
+	Log::write(LOG_INFO, "Box\n");
+	Log::indent();
+
 	_name = node->getChild("name")->getStringContent();
 	_ulx = node->getChild("ulx")->getIntegerContent();
 	_uly = node->getChild("uly")->getIntegerContent();
@@ -40,9 +47,38 @@ void Box::load(XMLNode *node)
 
 	int i = 0;
 	XMLNode *child;
-	while ((child = node->getChild("neighbour", i++)) != NULL)
-		_neighbours.push_back(child->getStringContent());
+	while ((child = node->getChild("neighbor", i++)) != NULL)
+		_neighbors.push_back(child->getStringContent());
 
+	Log::unIndent();
+}
+
+void Box::save(XMLNode *node)
+{
+	Log::write(LOG_INFO, "Box\n");
+	Log::indent();
+
+	node->addChild(new XMLNode("name", _name));
+	node->addChild(new XMLNode("ulx", _ulx));
+	node->addChild(new XMLNode("uly", _uly));
+	node->addChild(new XMLNode("urx", _urx));
+	node->addChild(new XMLNode("ury", _ury));
+	node->addChild(new XMLNode("lrx", _lrx));
+	node->addChild(new XMLNode("lry", _lry));
+	node->addChild(new XMLNode("llx", _llx));
+	node->addChild(new XMLNode("lly", _lly));
+	node->addChild(new XMLNode("mask", _mask));
+	node->addChild(new XMLNode("flags", _flags));
+	node->addChild(new XMLNode("scale", _scale));
+
+	for (int i = 0; i < _neighbors.size(); i++)
+		node->addChild(new XMLNode("neighbor", _neighbors[i]));
+
+	Log::unIndent();
+}
+
+void Box::prepare()
+{
 	// We calculate here the barycenter of the box
 	_centerX = (_ulx + _urx + _lrx + _llx) / 4.0f;
 	_centerY = (_uly + _ury + _lry + _lly) / 4.0f;
@@ -62,15 +98,28 @@ _y2(0)
 
 void Scale::load(XMLNode *node)
 {
-	Log::getInstance().write(LOG_INFO, "Scale\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Scale\n");
+	Log::indent();
 
 	_s1 = node->getChild("s1")->getIntegerContent();
 	_y1 = node->getChild("y1")->getIntegerContent();
 	_s2 = node->getChild("s2")->getIntegerContent();
 	_y2 = node->getChild("y2")->getIntegerContent();
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
+}
+
+void Scale::save(XMLNode *node)
+{
+	Log::write(LOG_INFO, "Scale\n");
+	Log::indent();
+
+	node->addChild(new XMLNode("s1", _s1));
+	node->addChild(new XMLNode("y1", _y1));
+	node->addChild(new XMLNode("s2", _s2));
+	node->addChild(new XMLNode("y2", _y2));
+
+	Log::unIndent();
 }
 
 Scale::~Scale()
@@ -109,8 +158,8 @@ Node::~Node()
 
 Matrix::Matrix(vector<Box *> *boxes)
 {
-	Log::getInstance().write(LOG_INFO, "Building matrix...\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Building matrix...\n");
+	Log::indent();
 	
 	// Create nodes from boxes
 	vector<Node *> nodes;
@@ -123,12 +172,12 @@ Matrix::Matrix(vector<Box *> *boxes)
 		nodes.push_back(node);
 	}
 
-	// Add neighbours
+	// Add neighbors
 	for (int i = 0; i < boxes->size(); i++)
 	{
 		Box *box = (*boxes)[i];
-		for (int j = 0; j < box->getNumberOfNeighbours(); j++)
-			nodes[i]->addNeighbour(nodes[indices[box->getNeighbour(j)]]);
+		for (int j = 0; j < box->getNumberOfNeighbors(); j++)
+			nodes[i]->addNeighbor(nodes[indices[box->getNeighbor(j)]]);
 	}
 
 	// Calculate destinations using the A* algorithm between each box
@@ -167,11 +216,11 @@ Matrix::Matrix(vector<Box *> *boxes)
 		}
 
 		// Add entries 
-		Log::getInstance().write(LOG_INFO, "Box %u:\n", nodes[i]->getID());
-		Log::getInstance().indent();
+		Log::write(LOG_INFO, "Box %u:\n", nodes[i]->getID());
+		Log::indent();
 		for (int j = 0; j < from.size(); j++)
-			Log::getInstance().write(LOG_INFO, "From %u to %u -> dest = %u\n", from[j], to[j], dests[j]);
-		Log::getInstance().unIndent();
+			Log::write(LOG_INFO, "From %u to %u -> dest = %u\n", from[j], to[j], dests[j]);
+		Log::unIndent();
 		_from.push_back(from);
 		_to.push_back(to);
 		_dests.push_back(dests);
@@ -181,7 +230,7 @@ Matrix::Matrix(vector<Box *> *boxes)
 	for (int i = 0; i < nodes.size(); i++)
 		delete nodes[i];
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
 Node *Matrix::AStar(vector<Node *> *open, vector<Node *> *closed, Node *goal)
@@ -217,31 +266,31 @@ Node *Matrix::AStar(vector<Node *> *open, vector<Node *> *closed, Node *goal)
 	// Add the best node to the closed list as we're treating it now
 	closed->push_back(best);
 
-	// Add neighbours to the open list if needed
-	for (int i = 0; i < best->getNumberOfNeighbours(); i++)
+	// Add neighbors to the open list if needed
+	for (int i = 0; i < best->getNumberOfNeighbors(); i++)
 	{
-		// Get neighbour node
-		Node *neighbour = best->getNeighbour(i);
+		// Get neighbor node
+		Node *neighbor = best->getNeighbor(i);
 
-		// Check if neighbour is in the closed list already
+		// Check if neighbor is in the closed list already
 		bool found = false;
 		for (int j = 0; j < closed->size(); j++)
-			if ((*closed)[j] == neighbour)
+			if ((*closed)[j] == neighbor)
 			{
 				found = true;
 				break;
 			}
 
-		// If the neighbour is not in the closed list, we add it to the open list
+		// If the neighbor is not in the closed list, we add it to the open list
 		if (!found)
 		{
 			// Calculate A* costs
-			float g = best->getGCost() + best->distanceSquared(neighbour);
-			float h = neighbour->distanceSquared(goal);
-			neighbour->setParent(best);
-			neighbour->setGCost(g);
-			neighbour->setFCost(g + h);
-			open->push_back(neighbour);
+			float g = best->getGCost() + best->distanceSquared(neighbor);
+			float h = neighbor->distanceSquared(goal);
+			neighbor->setParent(best);
+			neighbor->setGCost(g);
+			neighbor->setFCost(g + h);
+			open->push_back(neighbor);
 			sort(open->begin(), open->end(), Node::compare);
 		}
 	}
@@ -260,22 +309,15 @@ _matrix(NULL)
 
 void Map::load(string dirPath)
 {
-	Log::getInstance().write(LOG_INFO, "Map\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Map\n");
+	Log::indent();
 
 	XMLFile xmlFile;
-	xmlFile.open(dirPath + "map.xml");
+	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	if (rootNode == NULL)
-	{
-		Log::getInstance().write(LOG_WARNING, "Room doesn't contain any map !\n");
-		Log::getInstance().unIndent();
-		return;
-	}
-
 	_description = rootNode->getChild("description")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	int i = 0;
 	XMLNode *child;
@@ -293,15 +335,55 @@ void Map::load(string dirPath)
 		scale->load(child);
 		_scales.push_back(scale);
 	}
+	for (i = _scales.size(); i < N_SLOTS; i++)
+		_scales.push_back(new Scale());
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
+}
+
+void Map::save(string dirPath)
+{
+	Log::write(LOG_INFO, "Map\n");
+	Log::indent();
+
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	XMLFile xmlFile;
+	XMLNode *rootNode = new XMLNode("map");
+	xmlFile.setRootNode(rootNode);
+
+	rootNode->addChild(new XMLNode("description", _description));
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	for (int i = 0; i < _boxes.size(); i++)
+	{
+		XMLNode *child = new XMLNode("box");
+		rootNode->addChild(child);
+		_boxes[i]->save(child);
+	}
+
+	for (int i = 0; i < _scales.size(); i++)
+	{
+		XMLNode *child = new XMLNode("scale");
+		rootNode->addChild(child);
+		_scales[i]->save(child);
+	}
+
+	if (!xmlFile.save(dirPath + XML_FILE_NAME))
+		Log::write(LOG_ERROR, "Couldn't save costume to the specified directory !\n");
+
+	Log::unIndent();
 }
 
 void Map::prepare()
 {
-	// Set boxes IDs
+	// Prepapre and set boxes IDs
 	for (int i = 0; i < _boxes.size(); i++)
+	{
+		_boxes[i]->prepare();
 		_boxes[i]->setID(i + 1);
+	}
 
 	// Construct matrix
 	if (_matrix != NULL)

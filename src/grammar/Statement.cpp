@@ -191,7 +191,7 @@ void SwitchStatement::compile(vector<Instruction *> &instructions)
 		if (caseExpression == NULL)
 		{
 			if (defaultStatement != NULL)
-				Log::getInstance().write(LOG_ERROR, "Only one default statement is allowed in switch statements !\n");
+				Log::write(LOG_ERROR, "Only one default statement is allowed in switch statements !\n");
 			defaultStatement = _caseStatements[i];
 			defaultLabel = labelCounter + i;
 			continue;
@@ -204,26 +204,26 @@ void SwitchStatement::compile(vector<Instruction *> &instructions)
 		caseExpression->compile(instructions);
 
 		// We check that the case expression is constant
-		uint16_t value;
+		uint32_t value;
 		if (caseExpression->getType() == EXPRESSION_VARIABLE)
 		{
 			string identifier = ((VariableExpression *)caseExpression)->getIdentifier();
 			SymbolType symbolType;
 			if (!Context::resolveSymbol(identifier, value, symbolType))
-				Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
+				Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
 			if (symbolType != SYMBOL_CONSTANT)
-				Log::getInstance().write(LOG_ERROR, "Case expression \"%s\" is not constant !\n", identifier.c_str());
+				Log::write(LOG_ERROR, "Case expression \"%s\" is not constant !\n", identifier.c_str());
 		}
 		else
 		{
 			if (caseExpression->getType() != EXPRESSION_CONSTANT)
-				Log::getInstance().write(LOG_ERROR, "Case expressions should always be constant !\n");
+				Log::write(LOG_ERROR, "Case expressions should always be constant !\n");
 			value = ((ConstantExpression *)caseExpression)->getNumber();
 		}
 
 		// We check that the case expression has not already been used
 		if (!caseValues.insert(value).second)
-			Log::getInstance().write(LOG_ERROR, "Case value \"%d\" already used !\n", value);
+			Log::write(LOG_ERROR, "Case value \"%d\" already used !\n", value);
 
 		// if instruction
 		instructions.push_back(new Instruction("eq"));
@@ -246,7 +246,7 @@ void SwitchStatement::compile(vector<Instruction *> &instructions)
 	}
 	else
 	{
-		Log::getInstance().write(LOG_WARNING, "Switch statement has no default case !\n");
+		Log::write(LOG_WARNING, "Switch statement has no default case !\n");
 
 		// jump instruction
 		oss << "LABEL_" << labelCounter + _caseStatements.size();
@@ -305,7 +305,7 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 		if (caseExpression == NULL)
 		{
 			if (defaultStatement != NULL)
-				Log::getInstance().write(LOG_ERROR, "Only one default statement is allowed in switch statements !\n");
+				Log::write(LOG_ERROR, "Only one default statement is allowed in switch statements !\n");
 			defaultStatement = _caseStatements[i];
 			// Default statements are equivalent to a verb of value 0xFF
 			instructions.push_back(new Instruction(VALUE_BYTE, "255"));
@@ -314,26 +314,26 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 		}
 
 		// We check that the case expression is constant
-		uint16_t value;
+		uint32_t value;
 		if (caseExpression->getType() == EXPRESSION_VARIABLE)
 		{
 			string identifier = ((VariableExpression *)caseExpression)->getIdentifier();
 			SymbolType symbolType;
 			if (!Context::resolveSymbol(identifier, value, symbolType))
-				Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
+				Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
 			if (symbolType != SYMBOL_CONSTANT)
-				Log::getInstance().write(LOG_ERROR, "Case expression \"%s\" is not constant !\n", identifier.c_str());
+				Log::write(LOG_ERROR, "Case expression \"%s\" is not constant !\n", identifier.c_str());
 		}
 		else
 		{
 			if (caseExpression->getType() != EXPRESSION_CONSTANT)
-				Log::getInstance().write(LOG_ERROR, "Case expressions should always be constant !\n");
+				Log::write(LOG_ERROR, "Case expressions should always be constant !\n");
 			value = ((ConstantExpression *)caseExpression)->getNumber();
 		}
 
 		// We check that the case expression has not already been used
 		if (!caseValues.insert(value).second)
-			Log::getInstance().write(LOG_ERROR, "Case value \"%d\" already used !\n", value);
+			Log::write(LOG_ERROR, "Case value \"%d\" already used !\n", value);
 
 		// Add verb table entry (the address is filled later)
 		oss << value;
@@ -343,7 +343,7 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 	}
 
 	if (defaultStatement == NULL)
-		Log::getInstance().write(LOG_WARNING, "Verb statement has no default case !\n");
+		Log::write(LOG_WARNING, "Verb statement has no default case !\n");
 
 	// End of table index
 	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
@@ -488,7 +488,7 @@ void ContinueStatement::compile(vector<Instruction *> &instructions)
 
 	int32_t label = Context::getContinueLabel();
 	if (label == -1)
-		Log::getInstance().write(LOG_ERROR, "Keyword \"continue\" can only be used within loops !\n");
+		Log::write(LOG_ERROR, "Keyword \"continue\" can only be used within loops !\n");
 
 	// jump instruction
 	oss << "LABEL_" << label;
@@ -510,7 +510,7 @@ void BreakStatement::compile(vector<Instruction *> &instructions)
 
 	int32_t label = Context::getBreakLabel();
 	if (label == -1)
-		Log::getInstance().write(LOG_ERROR, "Keyword \"break\" can only be used within loops or switches !\n");
+		Log::write(LOG_ERROR, "Keyword \"break\" can only be used within loops or switches !\n");
 
 	// jump instruction
 	oss << "LABEL_" << label;
@@ -533,7 +533,7 @@ void ReturnStatement::compile(vector<Instruction *> &instructions)
 
 	// If an expression has been specified, we return it (only if we're in an inlined function)
 	if (_expression != NULL && Context::getFunctionType() != FUNCTION_INLINED)
-		Log::getInstance().write(LOG_ERROR, "Return values are only accepted in inlined functions !\n");
+		Log::write(LOG_ERROR, "Return values are only accepted in inlined functions !\n");
 
 	if (Context::getFunctionType() == FUNCTION_INLINED && _expression != NULL)
 	{
@@ -541,7 +541,7 @@ void ReturnStatement::compile(vector<Instruction *> &instructions)
 		_expression->compile(instructions);
 
 		// Write result
-		uint16_t value;
+		uint32_t value;
 		SymbolType symbolType;
 		Context::resolveSymbol("returnValue", value, symbolType);
 		oss << value;
@@ -588,7 +588,7 @@ void AssemblyStatement::compile(vector<Instruction *> &instructions)
 		if (valueType != VALUE_NULL)
 		{
 			if (i == _tokens.size())
-				Log::getInstance().write(LOG_ERROR, "A value is expected !\n");
+				Log::write(LOG_ERROR, "A value is expected !\n");
 			originalValue = _tokens[i++];
 		}
 
@@ -597,14 +597,14 @@ void AssemblyStatement::compile(vector<Instruction *> &instructions)
 		if (valueType == VALUE_BYTE || valueType == VALUE_WORD)
 		{
 			istringstream iss(originalValue);
-			uint16_t v;
+			uint32_t v;
 			if (iss >> v)
 				convertedValue = originalValue;
 			else
 			{
 				SymbolType symbolType;
 				if (!Context::resolveSymbol(originalValue, v, symbolType))
-					Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", originalValue.c_str());
+					Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", originalValue.c_str());
 				ostringstream oss;
 				oss << v;
 				convertedValue = oss.str();

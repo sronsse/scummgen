@@ -25,12 +25,14 @@ private:
 	bool _loop;
 	vector<vector<uint8_t> > _commands;
 
-	void readSubAnim(XMLNode *node, string name);
+	void loadSubAnim(XMLNode *node, AnimDirection direction);
+	void saveSubAnim(XMLNode *node, AnimDirection direction);
 public:
 	static const uint8_t N_DIRECTIONS;
 
 	Anim();
 	void load(XMLNode *node);
+	void save(XMLNode *node);
 	uint8_t getID() { return _id; }
 	void setID(uint8_t id) { _id = id; }
 	string getName() { return _name; }
@@ -53,6 +55,8 @@ private:
 public:
 	Frame();
 	void load(XMLNode *node, string dirPath);
+	void save(XMLNode *node, string dirPath);
+	void prepare();
 	string getBitmapPath() { return _bitmapPath; }
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
@@ -66,6 +70,8 @@ public:
 class Costume
 {
 private:
+	static const string XML_FILE_NAME;
+
 	uint16_t _id;
 	string _name;
 	string _description;
@@ -77,7 +83,9 @@ private:
 	uint8_t _paletteBaseIndex;
 public:
 	Costume();
-	void load(string dirPath, Palette *palette, bool global);
+	void load(string dirPath);
+	void save(string dirPath);
+	void prepare(Palette *palette, bool global);
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }

@@ -25,7 +25,9 @@ uint32_t IMxx::getSize()
 
 void IMxx::write(fstream &f)
 {
-	IO::writeString(f, "IM" + IO::getStringFromIndex(_index, 2));
+	char identifier[4];
+	sprintf(identifier, "IM%02u", _index);
+	IO::writeString(f, identifier);
 	IO::writeU32BE(f, getSize());
 	_smap->write(f);
 	for (int i = 0; i < _zpxxs.size(); i++)

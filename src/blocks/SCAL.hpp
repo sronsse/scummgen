@@ -11,7 +11,6 @@ class Map;
 class SCAL
 {
 private:
-	static const uint8_t N_SLOTS;
 	static const uint8_t DEFAULT_SCALE;
 	static const uint8_t DEFAULT_Y1;
 	static const uint8_t DEFAULT_Y2;

@@ -6,30 +6,18 @@ using namespace std;
 
 const uint8_t Log::INDENT_WIDTH = 4;
 
-Log &Log::getInstance()
-{
-	static Log instance;
-	return instance;
-}
+uint8_t Log::_indent = 0;
+ofstream Log::_output;
 
-Log::Log()
+void Log::reset()
 {
-	_active = false;
-	_indent = 0;
-}
-
-void Log::setActive(bool active)
-{
-	_active = active;
-	if (active && !_output.is_open())
-		_output.open("log.txt", ios::out);
+	if (_output.is_open())
+		_output.close();
+	_output.open("log.txt", ios::out);
 }
 
 void Log::write(LogType type, const char *s, ...)
 {
-	if (!_active)
-		return;
-
 	char buf[1024];
 	va_list va;
 
@@ -56,9 +44,8 @@ void Log::write(LogType type, const char *s, ...)
 	}
 }
 
-Log::~Log()
+void Log::close()
 {
 	if (_output.is_open())
 		_output.close();
 }
-

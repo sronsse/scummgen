@@ -22,10 +22,12 @@ private:
 	uint16_t _scale;
 	float _centerX;
 	float _centerY;
-	vector<string> _neighbours;
+	vector<string> _neighbors;
 public:
 	Box();
 	void load(XMLNode *node);
+	void save(XMLNode *node);
+	void prepare();
 	string getName() { return _name; }
 	uint8_t getID() { return _id; }
 	uint8_t setID(uint8_t id) { _id = id; }
@@ -40,8 +42,8 @@ public:
 	uint8_t getMask() { return _mask; }
 	uint8_t getFlags() { return _flags; }
 	uint16_t getScale() { return _scale; }
-	uint8_t getNumberOfNeighbours() { return _neighbours.size(); }
-	string getNeighbour(uint8_t index) { return _neighbours[index]; }
+	uint8_t getNumberOfNeighbors() { return _neighbors.size(); }
+	string getNeighbor(uint8_t index) { return _neighbors[index]; }
 	float getCenterX() { return _centerX; }
 	float getCenterY() { return _centerY; }
 	~Box();
@@ -57,6 +59,7 @@ private:
 public:
 	Scale();
 	void load(XMLNode *node);
+	void save(XMLNode *node);
 	uint16_t getS1() { return _s1; }
 	uint16_t getY1() { return _y1; }
 	uint16_t getS2() { return _s2; }
@@ -73,7 +76,7 @@ private:
 	float _gCost;
 	float _posX;
 	float _posY;
-	vector<Node *> _neighbours;
+	vector<Node *> _neighbors;
 public:
 	static bool compare(Node *node1, Node *node2);
 
@@ -88,9 +91,9 @@ public:
 	void setGCost(float gCost) { _gCost = gCost; }
 	float getPosX() { return _posX; }
 	float getPosY() { return _posY; }
-	uint8_t getNumberOfNeighbours() { return _neighbours.size(); }
-	Node *getNeighbour(uint8_t index) { return _neighbours[index]; }
-	void addNeighbour(Node *neighbour) { _neighbours.push_back(neighbour); }
+	uint8_t getNumberOfNeighbors() { return _neighbors.size(); }
+	Node *getNeighbor(uint8_t index) { return _neighbors[index]; }
+	void addNeighbor(Node *neighbor) { _neighbors.push_back(neighbor); }
 	float distanceSquared(Node *node);
 	~Node();
 };
@@ -115,15 +118,18 @@ public:
 class Map
 {
 private:
-	static const uint8_t N_SCALES;
+	static const string XML_FILE_NAME;
 
 	string _description;
 	vector<Box *> _boxes;
 	vector<Scale *> _scales;
 	Matrix *_matrix;
 public:
+	static const uint8_t N_SLOTS;
+
 	Map();
 	void load(string dirName);
+	void save(string dirName);
 	void prepare();
 	string getDescription() { return _description; }
 	uint8_t getNumberOfBoxes() { return _boxes.size(); }

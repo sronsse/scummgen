@@ -43,4 +43,3 @@ SOU2::~SOU2()
 	for (int i = 0; i < _vocs.size(); i++)
 		delete _vocs[i];
 }
-

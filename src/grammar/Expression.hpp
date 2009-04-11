@@ -88,6 +88,7 @@ private:
 	static const uint8_t VERB_MESSAGE;
 	static const uint8_t NAME_MESSAGE;
 	static const uint8_t STRING_MESSAGE;
+	static const uint8_t VOICE_MESSAGE;
 
 	string _string;
 

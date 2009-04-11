@@ -56,4 +56,3 @@ void VOC::write(fstream &f)
 VOC::~VOC()
 {
 }
-

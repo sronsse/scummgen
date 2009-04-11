@@ -21,6 +21,7 @@ private:
 public:
 	Char();
 	void load(XMLNode *node);
+	void save(XMLNode *node);
 	uint16_t getID() { return _id; }
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
@@ -33,6 +34,8 @@ public:
 class Charset
 {
 private:
+	static const string XML_FILE_NAME;
+
 	uint16_t _id;
 	string _name;
 	string _description;
@@ -42,6 +45,7 @@ private:
 public:
 	Charset();
 	void load(string dirPath);
+	void save(string dirPath);
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }

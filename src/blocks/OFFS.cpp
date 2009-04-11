@@ -1,6 +1,5 @@
 #include "OFFS.hpp"
 #include "util/IO.hpp"
-#include "util/Log.hpp"
 #include "APAL.hpp"
 
 OFFS::OFFS(vector<APAL *> apals)

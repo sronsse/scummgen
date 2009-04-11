@@ -1,4 +1,5 @@
 %{
+#include "types/Script.hpp"
 #include "util/Log.hpp"
 #include "Declaration.hpp"
 #include "Expression.hpp"
@@ -101,7 +102,7 @@ int parseString()
 		previous = c;
 	}
 	if (c != '\"')
-		Log::getInstance().write(LOG_INFO, "Line %u: string length too long !\n", lineNumber);
+		Log::write(LOG_INFO, "Line %u: string length too long !\n", lineNumber);
 
 	yylval.string[STRING_LENGTH - 1] = 0;
 	return T_STRING;

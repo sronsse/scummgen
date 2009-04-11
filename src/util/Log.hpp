@@ -18,20 +18,14 @@ class Log
 private:
 	static const uint8_t INDENT_WIDTH;
 
-	bool _active;
-	uint8_t _indent;
-	ofstream _output;
-
-	Log();
-	~Log();
+	static uint8_t _indent;
+	static ofstream _output;
 public:
-	static Log &getInstance();
-
-	void setActive(bool active);
-	void indent() { _indent++; }
-	void unIndent() { _indent--; }
-	void write(LogType type, const char *s, ...);
+	static void reset();
+	static void indent() { _indent++; }
+	static void unIndent() { _indent--; }
+	static void write(LogType type, const char *s, ...);
+	static void close();
 };
 
 #endif
-

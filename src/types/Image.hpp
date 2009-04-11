@@ -10,6 +10,8 @@ class Palette;
 class Image
 {
 private:
+	static const string XML_FILE_NAME;
+
 	string _name;
 	string _description;
 	string _bitmapPath;
@@ -17,9 +19,11 @@ private:
 	uint8_t _paletteBaseIndex;
 public:
 	Image();
+	void load(string dirPath);
+	void save(string dirPath);
+	void prepare(Palette *palette, bool global);
 	string getName() { return _name; }
-	string getDescription() { return _description; }
-	void load(string dirPath, Palette *palette, bool global);
+	string getDescription() { return _description; }	
 	string getBitmapPath() { return _bitmapPath; }
 	uint16_t getNumberOfZPlanePaths() { return _zPlanePaths.size(); }
 	string getZPlanePath(uint16_t index) { return _zPlanePaths[index]; }

@@ -592,7 +592,7 @@ int16_t Instruction::toInteger(string s)
 	istringstream iss(s);
 	int32_t result;
 	if (!(iss >> result))
-		Log::getInstance().write(LOG_ERROR, "\"%s\" is not an integer !\n", s.c_str());
+		Log::write(LOG_ERROR, "\"%s\" is not an integer !\n", s.c_str());
 	return result;
 }
 
@@ -608,7 +608,7 @@ Instruction::Instruction(string opcodeName)
 
 	// Check if opcode exists
 	if (_opcodes.find(_opcodeName) == _opcodes.end())
-		Log::getInstance().write(LOG_ERROR, "Unknown opcode \"%s\" !\n", _opcodeName.c_str());
+		Log::write(LOG_ERROR, "Unknown opcode \"%s\" !\n", _opcodeName.c_str());
 
 	// Update current address
 	Context::currentAddress++;
@@ -703,7 +703,7 @@ void Instruction::assemble(vector<uint8_t> &byteCode)
 			}
 			break;
 		case INSTRUCTION_LABEL:
-			Log::getInstance().write(LOG_ERROR, "Labels can't be assembled !\n");
+			Log::write(LOG_ERROR, "Labels can't be assembled !\n");
 	}
 }
 

@@ -1,4 +1,7 @@
 #include "IO.hpp"
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
 
 uint8_t IO::_key;
 
@@ -158,16 +161,25 @@ void IO::writeBits(vector<uint8_t> &v, uint8_t byte, uint32_t &bytePos, uint8_t 
 	}
 }
 
-string IO::getStringFromIndex(uint32_t index, uint8_t nDigits)
+bool IO::copyFile(string srcFileName, string destFileName)
 {
-	char s[nDigits + 1];
-	uint32_t v = 1;
-	for (int i = nDigits - 1; i >= 0; i--)
-	{
-		s[i] = (char)((index % (v * 10)) / v + (int)'0');
-		v *= 10;
-	}
-	s[nDigits] = 0;
-	return s;
+	ifstream ifs(srcFileName.c_str(), ios::in | ios::binary);
+	if (!ifs.is_open())
+		return false;
+
+	ofstream ofs(destFileName.c_str(), ios::out | ios::binary | ios::trunc);
+	if (!ofs.is_open())
+		return false;
+
+	ofs << ifs.rdbuf();
+
+	ifs.close();
+	ofs.close();
+	return true;
 }
 
+bool IO::createDirectory(string dirPath)
+{
+	umask(0);
+	return !(mkdir(dirPath.c_str(), 0777) != 0 && errno != EEXIST);
+}

@@ -47,18 +47,18 @@ void Context::pushContext(Context *context)
 		case CONTEXT_WHILE:
 			contextType = "while";
 	}
-	Log::getInstance().write(LOG_INFO, "Pushing context (%s)...\n", contextType.c_str());
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Pushing context (%s)...\n", contextType.c_str());
+	Log::indent();
 
 	// Compute the different kinds of symbols
-	Log::getInstance().write(LOG_INFO, "Computing symbols...\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Computing symbols...\n");
+	Log::indent();
 	context->setConstantSymbols();
 	context->setVariableSymbols(true);
 	context->setVariableSymbols(false);
 	context->setFunctionSymbols();
 	context->displaySymbols();
-	Log::getInstance().unIndent();
+	Log::unIndent();
 
 	// When we enter functions, we have to reset the label counter and the current instruction address
 	if (context->_type == CONTEXT_FUNCTION)
@@ -71,10 +71,10 @@ void Context::pushContext(Context *context)
 void Context::popContext()
 {
 	_instances.pop_back();
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
-bool Context::resolveSymbol(string symbol, uint16_t &value, SymbolType &type)
+bool Context::resolveSymbol(string symbol, uint32_t &value, SymbolType &type)
 {
 	for (int i = _instances.size() - 1; i >= 0; i--)
 	{
@@ -180,9 +180,9 @@ bool Context::symbolExists(string name)
 	return false;
 }
 
-bool Context::isAddressUsed(uint16_t address)
+bool Context::isAddressUsed(uint32_t address)
 {
-	map<string, uint16_t>::const_iterator iterator;
+	map<string, uint32_t>::const_iterator iterator;
 	for (int i = _instances.size() - 1; i >= 0; i--)
 		for (iterator = _instances[i]->_variableSymbols.begin(); iterator != _instances[i]->_variableSymbols.end(); iterator++)
 			if (iterator->second == address)
@@ -210,7 +210,7 @@ void Context::setConstantSymbols()
 		{
 			string name = (*_declarations)[i]->getName();
 			if (symbolExists(name))
-				Log::getInstance().write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
+				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
 			_constantSymbols[name] = (*_declarations)[i]->getValue();
 		}
 }
@@ -227,24 +227,24 @@ void Context::setVariableSymbols(bool fixedAddresses)
 			if ((*_declarations)[i]->hasFixedAddress() != fixedAddresses)
 			{
 				if (_type != CONTEXT_GAME)
-					Log::getInstance().write(LOG_ERROR, "Cannot specify the address of local variable !\n");
+					Log::write(LOG_ERROR, "Cannot specify the address of local variable !\n");
 				continue;
 			}
 
 			string name = (*_declarations)[i]->getName();
-			uint16_t address;
+			uint32_t address;
 
 			// Check if symbol doesn't exist already
 			if (symbolExists(name))
-				Log::getInstance().write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
+				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
 
 			// Check if address is not already taken in case it's a fixed address
-			map<string, uint16_t>::const_iterator iterator = _variableSymbols.begin();
+			map<string, uint32_t>::const_iterator iterator = _variableSymbols.begin();
 			if (fixedAddresses)
 			{
 				address = (*_declarations)[i]->getValue();
 				if (isAddressUsed(address))
-					Log::getInstance().write(LOG_ERROR, "Symbol \"%s\" can't be mapped as this address is already used !\n", name.c_str());
+					Log::write(LOG_ERROR, "Symbol \"%s\" can't be mapped as this address is already used !\n", name.c_str());
 			}
 			// Search through the map to get the smallest available address
 			else
@@ -258,7 +258,7 @@ void Context::setVariableSymbols(bool fixedAddresses)
 			// (and make sure we reserve the last local variable for temporary arrays)
 			if ((_type == CONTEXT_GAME && address >= Game::MAX_WORD_VARIABLES)
 			|| (_type != CONTEXT_GAME && (address < LOCAL_VARIABLE_MASK || address >= ((Game::MAX_LOCAL_VARIABLES - 1) | LOCAL_VARIABLE_MASK))))
-				Log::getInstance().write(LOG_ERROR, "Symbol \"%s\" can't be mapped as this address is invalid !\n", name.c_str());
+				Log::write(LOG_ERROR, "Symbol \"%s\" can't be mapped as this address is invalid !\n", name.c_str());
 			_variableSymbols[name] = address;
 		}
 }
@@ -272,22 +272,22 @@ void Context::setFunctionSymbols()
 	{
 		string name = (*_functions)[i]->getName();
 		if (symbolExists(name))
-			Log::getInstance().write(LOG_ERROR, "Function \"%s\" already declared !\n", name.c_str());
+			Log::write(LOG_ERROR, "Function \"%s\" already declared !\n", name.c_str());
 		_functionSymbols[name] = (*_functions)[i]->getID();
 	}
 }
 
 void Context::displaySymbols()
 {
-	map<string, uint16_t>::const_iterator iterator;
+	map<string, uint32_t>::const_iterator iterator;
 	for (iterator = _constantSymbols.begin(); iterator != _constantSymbols.end(); iterator++)
-		Log::getInstance().write(LOG_INFO, "%s - 0x%04x\n", iterator->first.c_str(), iterator->second);
+		Log::write(LOG_INFO, "%s - 0x%08x\n", iterator->first.c_str(), iterator->second);
 
 	for (iterator = _variableSymbols.begin(); iterator != _variableSymbols.end(); iterator++)
-		Log::getInstance().write(LOG_INFO, "%s - 0x%04x\n", iterator->first.c_str(), iterator->second);
+		Log::write(LOG_INFO, "%s - 0x%08x\n", iterator->first.c_str(), iterator->second);
 
 	for (iterator = _functionSymbols.begin(); iterator != _functionSymbols.end(); iterator++)
-		Log::getInstance().write(LOG_INFO, "%s - 0x%04x\n", iterator->first.c_str(), iterator->second);
+		Log::write(LOG_INFO, "%s - 0x%08x\n", iterator->first.c_str(), iterator->second);
 }
 
 Context::~Context()
