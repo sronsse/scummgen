@@ -13,6 +13,7 @@ const uint8_t StringExpression::INT_MESSAGE = 4;
 const uint8_t StringExpression::VERB_MESSAGE = 5;
 const uint8_t StringExpression::NAME_MESSAGE = 6;
 const uint8_t StringExpression::STRING_MESSAGE = 7;
+const uint8_t StringExpression::VOICE_MESSAGE = 10;
 
 Expression *Expression::simplifyUnaryExpression(ExpressionType type, Expression *e)
 {
@@ -52,7 +53,7 @@ Expression *Expression::simplifyBinaryExpression(ExpressionType type, Expression
 			break;
 		case EXPRESSION_DIV:
 			if (((ConstantExpression *)e2)->getNumber() == 0)
-				Log::getInstance().write(LOG_ERROR, "Found a division by zero !\n");
+				Log::write(LOG_ERROR, "Found a division by zero !\n");
 			result = new ConstantExpression(((ConstantExpression *)e1)->getNumber() / ((ConstantExpression *)e2)->getNumber());
 			break;
 		case EXPRESSION_MUL:
@@ -104,10 +105,10 @@ AssignableExpression(EXPRESSION_VARIABLE, identifier)
 
 void VariableExpression::compile(vector<Instruction *> &instructions)
 {
-	uint16_t value;
+	uint32_t value;
 	SymbolType symbolType;
 	if (!Context::resolveSymbol(_identifier, value, symbolType))
-		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", _identifier.c_str());
+		Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", _identifier.c_str());
 	ostringstream oss;
 	oss << value;
 	if (symbolType == SYMBOL_VARIABLE)
@@ -179,7 +180,7 @@ char StringExpression::parseEscapeCharacter(string s, int &pos)
 			c = '%';
 			break;
 		default:
-			Log::getInstance().write(LOG_ERROR, "Unknown escape character in string \"%s\" !\n", s.c_str());
+			Log::write(LOG_ERROR, "Unknown escape character in string \"%s\" !\n", s.c_str());
 	}
 
 	return c;
@@ -193,26 +194,58 @@ string StringExpression::parseSpecialCode(string s, int &pos)
 	convertedString += STRING_OPCODE;
 
 	// Get special code
+	uint8_t specialCode;
 	switch (s[pos++])
 	{
 		case 'i':
-			convertedString += INT_MESSAGE;
-			convertedString += parseSymbol(s, pos);
+			specialCode = INT_MESSAGE;
 			break;
 		case 'v':
-			convertedString += VERB_MESSAGE;
-			convertedString += parseSymbol(s, pos);
+			specialCode = VERB_MESSAGE;
 			break;
 		case 'n':
-			convertedString += NAME_MESSAGE;
-			convertedString += parseSymbol(s, pos);
+			specialCode = NAME_MESSAGE;
 			break;
 		case 's':
-			convertedString += STRING_MESSAGE;
-			convertedString += parseSymbol(s, pos);
+			specialCode = STRING_MESSAGE;
+			break;
+		case 'V':
+			specialCode = VOICE_MESSAGE;
 			break;
 		default:
-			Log::getInstance().write(LOG_ERROR, "Unknown special code in string \"%s\" !\n", s.c_str());
+			Log::write(LOG_ERROR, "Unknown special code in string \"%s\" !\n", s.c_str());
+	}
+	convertedString += specialCode;
+
+	// Parse, resolve and add symbol to the string
+	string symbol = parseSymbol(s, pos);
+	istringstream iss(symbol);
+	uint32_t value;
+	if (!(iss >> value))
+	{
+		SymbolType symbolType;
+		if (!Context::resolveSymbol(symbol, value, symbolType))
+			Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" in string \"%s\" !\n", symbol.c_str(), s.c_str());
+	}
+	convertedString += (uint8_t)value;
+	convertedString += (uint8_t)(value >> 8);
+
+	// Specific case for voices
+	if (specialCode == VOICE_MESSAGE)
+	{
+		uint8_t zero = 0;
+		convertedString += STRING_OPCODE;
+		convertedString += VOICE_MESSAGE;
+		convertedString += (uint8_t)(value >> 16);
+		convertedString += (uint8_t)(value >> 24);
+		convertedString += STRING_OPCODE;
+		convertedString += VOICE_MESSAGE;
+		convertedString += zero;
+		convertedString += zero;
+		convertedString += STRING_OPCODE;
+		convertedString += VOICE_MESSAGE;
+		convertedString += zero;
+		convertedString += zero;
 	}
 
 	return convertedString;
@@ -220,17 +253,15 @@ string StringExpression::parseSpecialCode(string s, int &pos)
 
 string StringExpression::parseSymbol(string s, int &pos)
 {
-	string convertedString;
-
 	if (s[pos++] != '{')
-		Log::getInstance().write(LOG_ERROR, "Expected '{' while parsing special code in string \"%s\" !\n", s.c_str());
+		Log::write(LOG_ERROR, "Expected '{' while parsing special code in string \"%s\" !\n", s.c_str());
 
 	// Get symbol
 	string symbol;
 	for (;;)
 	{
 		if (s[pos] == string::npos)
-			Log::getInstance().write(LOG_ERROR, "Expected '}' while parsing special code in string \"%s\" !\n", s.c_str());
+			Log::write(LOG_ERROR, "Expected '}' while parsing special code in string \"%s\" !\n", s.c_str());
 
 		if (s[pos] == '}')
 		{
@@ -241,26 +272,12 @@ string StringExpression::parseSymbol(string s, int &pos)
 		symbol += s[pos++];
 	}
 
-	// Resolve symbol
-	istringstream iss(symbol);
-	uint16_t value;
-	if (!(iss >> value))
-	{
-		SymbolType symbolType;
-		if (!Context::resolveSymbol(symbol, value, symbolType))
-			Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" in string \"%s\" !\n", symbol.c_str(), s.c_str());
-	}
-
-	// Add the symbol to the string
-	convertedString += (uint8_t)value;
-	convertedString += (uint8_t)(value >> 8);
-
-	return convertedString;
+	return symbol;
 }
 
 void StringExpression::compile(vector<Instruction *> &instructions)
 {
-	Log::getInstance().write(LOG_ERROR, "String expressions can't be evaluated as is !\n");
+	Log::write(LOG_ERROR, "String expressions can't be evaluated as is !\n");
 }
 
 void StringExpression::assign(vector<Instruction *> &instructions, uint32_t address)
@@ -292,7 +309,7 @@ Expression(EXPRESSION_LIST)
 
 void ListExpression::compile(vector<Instruction *> &instructions)
 {
-	Log::getInstance().write(LOG_ERROR, "List expressions can't be evaluated as is !\n");
+	Log::write(LOG_ERROR, "List expressions can't be evaluated as is !\n");
 }
 
 void ListExpression::assign(vector<Instruction *> &instructions, uint32_t address)
@@ -340,10 +357,10 @@ AssignableExpression(EXPRESSION_LIST_ENTRY, identifier)
 
 void ListEntryExpression::compile(vector<Instruction *> &instructions)
 {
-	uint16_t value;
+	uint32_t value;
 	SymbolType symbolType;
 	if (!Context::resolveSymbol(_identifier, value, symbolType))
-		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", _identifier.c_str());
+		Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", _identifier.c_str());
 	ostringstream oss;
 	oss << value;
 
@@ -470,12 +487,12 @@ void AssignmentExpression::compile(vector<Instruction *> &instructions)
 {
 	// Check the assignable expression type as it should be a variable or a list entry
 	string identifier = _assignableExpression->getIdentifier();
-	uint16_t address;
+	uint32_t address;
 	SymbolType symbolType;
 	if (!Context::resolveSymbol(identifier, address, symbolType))
-		Log::getInstance().write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
+		Log::write(LOG_ERROR, "Could not resolve symbol \"%s\" !\n", identifier.c_str());
 	if (symbolType != SYMBOL_VARIABLE)
-		Log::getInstance().write(LOG_ERROR, "Assignements only apply to variables and list entry expressions !\n");
+		Log::write(LOG_ERROR, "Assignements only apply to variables and list entry expressions !\n");
 	ostringstream oss;
 	oss << address;
 
@@ -489,13 +506,13 @@ void AssignmentExpression::compile(vector<Instruction *> &instructions)
 		if (_expression->getType() == EXPRESSION_STRING)
 		{
 			if (_assignmentType != ASSIGNMENT_EQUAL)
-				Log::getInstance().write(LOG_ERROR, "Incrementations and decrementations don't apply to strings !\n");
+				Log::write(LOG_ERROR, "Incrementations and decrementations don't apply to strings !\n");
 			((StringExpression *)_expression)->assign(instructions, address);
 		}
 		else if (_expression->getType() == EXPRESSION_LIST)
 		{
 			if (_assignmentType != ASSIGNMENT_EQUAL)
-				Log::getInstance().write(LOG_ERROR, "Incrementations and decrementations don't apply to lists !\n");
+				Log::write(LOG_ERROR, "Incrementations and decrementations don't apply to lists !\n");
 			((ListExpression *)_expression)->assign(instructions, address);
 		}
 		else
@@ -526,7 +543,7 @@ void AssignmentExpression::compile(vector<Instruction *> &instructions)
 	else 
 	{
 		if ((_expression->getType() == EXPRESSION_STRING) || (_expression->getType() == EXPRESSION_LIST))
-			Log::getInstance().write(LOG_ERROR, "Cannot assign strings or lists to list entry expressions !\n");
+			Log::write(LOG_ERROR, "Cannot assign strings or lists to list entry expressions !\n");
 
 		// Push base
 		((ListEntryExpression *)_assignableExpression)->getExpression()->compile(instructions);
@@ -577,10 +594,10 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 	// Get function
 	Function *function = Context::getFunction(_functionName);
 	if (function == NULL)
-		Log::getInstance().write(LOG_ERROR, "Function \"%s\" has not been declared !\n", _functionName.c_str());
+		Log::write(LOG_ERROR, "Function \"%s\" has not been declared !\n", _functionName.c_str());
 
 	if (_parameters.size() != function->getNumberOfArguments())
-		Log::getInstance().write(LOG_ERROR, "Function \"%s\" should have %u argument(s) !\n", _functionName.c_str(), function->getNumberOfArguments());
+		Log::write(LOG_ERROR, "Function \"%s\" should have %u argument(s) !\n", _functionName.c_str(), function->getNumberOfArguments());
 
 	// If the function is inlined, we compile it and add the instructions to the current function
 	if (function->getType() == FUNCTION_INLINED)
@@ -608,7 +625,7 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		vector<uint16_t> argumentAddresses;
 		for (int i = 0; i < _parameters.size(); i++)
 		{
-			uint16_t value;
+			uint32_t value;
 			SymbolType symbolType;
 			Context::resolveSymbol(function->getArgument(i)->getName(), value, symbolType);
 			argumentAddresses.push_back(value);
@@ -664,7 +681,7 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		instructions.push_back(new Instruction(labelCounter));
 		
 		// Push return value
-		uint16_t value;
+		uint32_t value;
 		SymbolType symbolType;
 		Context::resolveSymbol("returnValue", value, symbolType);
 		oss.str("");

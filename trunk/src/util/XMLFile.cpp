@@ -1,5 +1,6 @@
 #include "XMLFile.hpp"
 #include <fstream>
+#include <sstream>
 #include <libxml/parser.h>
 #include "Log.hpp"
 using namespace std;
@@ -12,13 +13,18 @@ XMLNode::XMLNode(string name, string content)
 	_content = content;
 }
 
-XMLNode *XMLNode::getChild(string name)
+XMLNode::XMLNode(string name, int content)
 {
-	for (int i = 0; i < _children.size(); i++)
-		if (name == _children[i]->getName())
-			return _children[i];
+	_name = name;
+	ostringstream oss;
+	oss << content;
+	_content = oss.str();
+}
 
-	return NULL;
+XMLNode::XMLNode(string name, bool content)
+{
+	_name = name;
+	_content = content ? "true" : "false";
 }
 
 XMLNode *XMLNode::getChild(string name, uint32_t index)
@@ -70,21 +76,18 @@ void XMLFile::write(XMLNode *srcNode, xmlNode *&destNode, uint8_t indent)
 
 	for (int i = 0; i < srcNode->getNumberOfChildren(); i++)
 	{
+		// Add new line if the current child is not the last one
+		space = "\n";
+		for (int j = 0; j < (indent + 1) * INDENT_WIDTH; j++)
+			space += ' ';
+		childTextNode = xmlNewText((const xmlChar *)space.c_str());
+		xmlAddChild(destNode, childTextNode);
+
 		// Add child
 		xmlNode *node;
 		write(srcNode->getChild(i), node, indent + 1);
 		node->type = XML_ELEMENT_NODE;
 		xmlAddChild(destNode, node);
-
-		// Add new line if the current child is not the last one
-		if (i != srcNode->getNumberOfChildren() - 1)
-		{
-			space = "\n";
-			for (int j = 0; j < (indent + 1) * INDENT_WIDTH; j++)
-				space += ' ';
-			childTextNode = xmlNewText((const xmlChar *)space.c_str());
-			xmlAddChild(destNode, childTextNode);
-		}
 	}
 
 	// Add new line if the node has children
@@ -101,11 +104,10 @@ void XMLFile::write(XMLNode *srcNode, xmlNode *&destNode, uint8_t indent)
 bool XMLFile::open(string fileName)
 {
 	// Check if file exists
-	Log::getInstance().write(LOG_WARNING, "Cannot open file \"%s\" !\n", fileName.c_str());
 	ifstream f(fileName.c_str(), ios::in);
 	if (!f.is_open())
 	{
-		Log::getInstance().write(LOG_WARNING, "Cannot open file \"%s\" !\n", fileName.c_str());
+		Log::write(LOG_WARNING, "Could not open file \"%s\" !\n", fileName.c_str());
 		f.close();
 		return false;
 	}
@@ -127,7 +129,7 @@ bool XMLFile::save(string fileName)
 	// Check the root node is valid
 	if (_rootNode == NULL)
 	{
-		Log::getInstance().write(LOG_WARNING, "Root node has not been created !\n");\
+		Log::write(LOG_WARNING, "Root node has not been created !\n");
 		return false;
 	}
 
@@ -140,7 +142,11 @@ bool XMLFile::save(string fileName)
 	xmlDocSetRootElement(doc, rootNode);
 
 	// Write XML File
-	xmlSaveFile(fileName.c_str(), doc);
+	if (xmlSaveFile(fileName.c_str(), doc) == -1)
+	{
+		Log::write(LOG_WARNING, "Could not open file \"%s\" for writing !\n", fileName.c_str());
+		return false;
+	}
 
 	xmlFreeDoc(doc);
 
@@ -154,4 +160,3 @@ XMLFile::~XMLFile()
 
 	xmlCleanupParser();
 }
-

@@ -16,14 +16,14 @@ class Declaration
 private:
 	DeclarationType _type;
 	string _name;
-	uint16_t _value;
+	uint32_t _value;
 	bool _fixedAddress;
 public:
 	Declaration(DeclarationType type, string name);
-	Declaration(DeclarationType type, string name, uint16_t value);
+	Declaration(DeclarationType type, string name, uint32_t value);
 	DeclarationType getType() { return _type; }
 	string getName() { return _name; }
-	uint16_t getValue() { return _value; }
+	uint32_t getValue() { return _value; }
 	bool hasFixedAddress() { return _fixedAddress; }
 	~Declaration();
 };

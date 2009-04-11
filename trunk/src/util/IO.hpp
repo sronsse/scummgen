@@ -29,8 +29,8 @@ public:
 	static void writeU32LE(fstream &f, uint32_t data);
 	static void writeU32BE(fstream &f, uint32_t data);
 	static void writeBits(vector<uint8_t> &v, uint8_t byte, uint32_t &bytePos, uint8_t &bitPos, uint8_t nBits);
-	static string getStringFromIndex(uint32_t index, uint8_t nDigits);
+	static bool copyFile(string srcFileName, string destFileName);
+	static bool createDirectory(string dirPath);
 };
 
 #endif
-

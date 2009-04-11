@@ -19,6 +19,7 @@ class Function;
 class Room
 {
 private:
+	static const string XML_FILE_NAME;
 	static const uint8_t MIN_LOCAL_SCRIPT_ID;
 
 	uint8_t _id;
@@ -38,9 +39,13 @@ private:
 	void loadObjects(string dirPath, XMLNode *node);
 	void loadScripts(string dirPath, XMLNode *node);
 	void loadCostumes(string dirPath, XMLNode *node);
+	void saveObjects(string dirPath, XMLNode *node);
+	void saveScripts(string dirPath, XMLNode *node);
+	void saveCostumes(string dirPath, XMLNode *node);
 public:
 	Room();
 	void load(string dirPath);
+	void save(string dirPath);
 	void prepare();
 	void parse(vector<Declaration *> &declarations);
 	void compile();

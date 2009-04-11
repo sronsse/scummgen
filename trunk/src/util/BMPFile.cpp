@@ -15,7 +15,7 @@ bool BMPFile::open(string fileName)
 	fstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
 	{
-		Log::getInstance().write(LOG_WARNING, "Couldn't open file !\n");
+		Log::write(LOG_WARNING, "Could not open file \"%s\" !\n", fileName.c_str());
 		return false;
 	}
 
@@ -36,7 +36,7 @@ bool BMPFile::open(string fileName)
 	if (_bpp > 8)
 	{
 		file.close();
-		Log::getInstance().write(LOG_WARNING, "Bits per pixel not supported !\n");
+		Log::write(LOG_WARNING, "Bits per pixel not supported !\n");
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool BMPFile::open(string fileName)
 	if (compression != BI_RGB)
 	{
 		file.close();
-		Log::getInstance().write(LOG_WARNING, "Compression format not supported !\n");
+		Log::write(LOG_WARNING, "Compression format not supported !\n");
 		return false;
 	}
 
@@ -93,4 +93,3 @@ bool BMPFile::open(string fileName)
 BMPFile::~BMPFile()
 {
 }
-

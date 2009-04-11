@@ -47,17 +47,17 @@ void Function::removeLabels()
 
 void Function::displayAssembly()
 {
-	Log::getInstance().write(LOG_INFO, "Function \"%s\" (id n°%u) assembly:\n", _name.c_str(), _id);
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Function \"%s\" (id n°%u) assembly:\n", _name.c_str(), _id);
+	Log::indent();
 	for (int i = 0; i < _instructions.size(); i++)
-		Log::getInstance().write(LOG_INFO, "%s\n", _instructions[i]->toString().c_str());
-	Log::getInstance().unIndent();
+		Log::write(LOG_INFO, "%s\n", _instructions[i]->toString().c_str());
+	Log::unIndent();
 }
 
 void Function::compile()
 {
-	Log::getInstance().write(LOG_INFO, "Compiling function \"%s\"...\n", _name.c_str());
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Compiling function \"%s\"...\n", _name.c_str());
+	Log::indent();
 
 	ContextType contextType;
 	switch (_type)
@@ -69,7 +69,7 @@ void Function::compile()
 			contextType = CONTEXT_THREAD;
 			break;
 		case FUNCTION_INLINED:
-			Log::getInstance().write(LOG_ERROR, "Can't compile inline functions !");
+			Log::write(LOG_ERROR, "Can't compile inline functions !");
 	}
 
 	Context context(contextType, &_arguments, NULL, -1, -1, 0);
@@ -98,7 +98,7 @@ void Function::compile()
 	for (int i = 0; i < _instructions.size(); i++)
 		_instructions[i]->assemble(_byteCode);
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
 Function::~Function()

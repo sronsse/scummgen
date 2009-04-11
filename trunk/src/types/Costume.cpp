@@ -5,45 +5,111 @@
 #include "Palette.hpp"
 
 const uint8_t Anim::N_DIRECTIONS = 4;
+const string Costume::XML_FILE_NAME = "costume.xml";
 
 Anim::Anim():
 _id(0),
 _name(""),
 _loop(false)
 {
+	_commands.resize(N_DIRECTIONS);
 }
 
-void Anim::load(XMLNode *node)
+void Anim::loadSubAnim(XMLNode *node, AnimDirection direction)
 {
-	Log::getInstance().write(LOG_INFO, "Anim\n");
-	Log::getInstance().indent();
+	string name;
+	switch (direction)
+	{
+		case ANIM_WEST:
+			name = "west";
+			break;
+		case ANIM_EAST:
+			name = "east";
+			break;
+		case ANIM_SOUTH:
+			name = "south";
+			break;
+		case ANIM_NORTH:
+			name = "north";
+	}
 
-	_name = node->getChild("name")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	_loop = node->getChild("loop")->getBooleanContent();
-	Log::getInstance().write(LOG_INFO, "loop: %s\n", _loop ? "true" : "false");
-
-	// Read the four sub animations
-	readSubAnim(node, "west");
-	readSubAnim(node, "east");
-	readSubAnim(node, "south");
-	readSubAnim(node, "north");
-
-	Log::getInstance().unIndent();
-}
-
-void Anim::readSubAnim(XMLNode *node, string name)
-{
-	vector<uint8_t> commands;
 	int i = 0;
 	XMLNode *child, *child2;
 	if ((child = node->getChild(name, 0)) != NULL)
 		while ((child2 = child->getChild("command", i++)) != NULL)
-			commands.push_back(child2->getIntegerContent());
+			_commands[direction].push_back(child2->getIntegerContent());
 	else
-		commands.push_back(0); // When no frame is set for a certain direction, we just set the first frame by default
-	_commands.push_back(commands);
+		_commands[direction].push_back(0); // When no command is present, we set the first frame by default
+}
+
+void Anim::saveSubAnim(XMLNode *node, AnimDirection direction)
+{
+	string name;
+	switch (direction)
+	{
+		case ANIM_WEST:
+			name = "west";
+			break;
+		case ANIM_EAST:
+			name = "east";
+			break;
+		case ANIM_SOUTH:
+			name = "south";
+			break;
+		case ANIM_NORTH:
+			name = "north";
+	}
+
+	if (!_commands[direction].empty())
+	{
+		XMLNode *child = new XMLNode(name);
+		node->addChild(child);
+		for (int i = 0; i < _commands[direction].size(); i++)
+		{
+			XMLNode *child2 = new XMLNode("command", _commands[direction][i]);
+			child->addChild(child2);
+		}
+	}
+}
+
+void Anim::load(XMLNode *node)
+{
+	Log::write(LOG_INFO, "Anim\n");
+	Log::indent();
+
+	_name = node->getChild("name")->getStringContent();
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	_loop = node->getChild("loop")->getBooleanContent();
+	Log::write(LOG_INFO, "loop: %s\n", _loop ? "true" : "false");
+
+	// Load the four sub animations
+	loadSubAnim(node, ANIM_WEST);
+	loadSubAnim(node, ANIM_EAST);
+	loadSubAnim(node, ANIM_SOUTH);
+	loadSubAnim(node, ANIM_NORTH);
+
+	Log::unIndent();
+}
+
+void Anim::save(XMLNode *node)
+{
+	Log::write(LOG_INFO, "Anim\n");
+	Log::indent();
+
+	node->addChild(new XMLNode("name", _name));
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	node->addChild(new XMLNode("loop", _loop));
+	Log::write(LOG_INFO, "loop: %s\n", _loop ? "true" : "false");
+
+	// Save the four sub animations
+	saveSubAnim(node, ANIM_WEST);
+	saveSubAnim(node, ANIM_EAST);
+	saveSubAnim(node, ANIM_SOUTH);
+	saveSubAnim(node, ANIM_NORTH);
+
+	Log::unIndent();
 }
 
 Anim::~Anim()
@@ -63,34 +129,74 @@ _yOffset(0)
 
 void Frame::load(XMLNode *node, string dirPath)
 {
-	Log::getInstance().write(LOG_INFO, "Frame\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Frame\n");
+	Log::indent();
 
 	_bitmapPath = dirPath + node->getChild("bitmapName")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
+	Log::write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
 
 	_x = node->getChild("x")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "x: %u\n", _x);
+	Log::write(LOG_INFO, "x: %u\n", _x);
 
 	_y = node->getChild("y")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "y: %u\n", _y);
+	Log::write(LOG_INFO, "y: %u\n", _y);
 
 	_width = node->getChild("width")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
+	Log::write(LOG_INFO, "width: %u\n", _width);
 
 	_height = node->getChild("height")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
+	Log::write(LOG_INFO, "height: %u\n", _height);
 
 	_xOffset = node->getChild("xOffset")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "xOffset: %d\n", _xOffset);
+	Log::write(LOG_INFO, "xOffset: %d\n", _xOffset);
 
 	_yOffset = node->getChild("yOffset")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "yOffset: %d\n", _yOffset);
+	Log::write(LOG_INFO, "yOffset: %d\n", _yOffset);
 
+	Log::unIndent();
+}
+
+void Frame::save(XMLNode *node, string dirPath)
+{
+	Log::write(LOG_INFO, "Frame\n");
+	Log::indent();
+
+	string bitmapName = _bitmapPath.substr(_bitmapPath.find_last_of('/') + 1);
+	node->addChild(new XMLNode("bitmapName", bitmapName));
+	string newBitmapPath = dirPath + bitmapName;
+	if (_bitmapPath != newBitmapPath)
+	{
+		if (!IO::copyFile(_bitmapPath, newBitmapPath))
+			Log::write(LOG_ERROR, "Could not copy file \"%s\" to \"%s\" !\n", _bitmapPath.c_str(), newBitmapPath.c_str());
+		_bitmapPath = newBitmapPath;
+	}
+	Log::write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
+
+	node->addChild(new XMLNode("x", _x));
+	Log::write(LOG_INFO, "x: %u\n", _x);
+
+	node->addChild(new XMLNode("y", _y));
+	Log::write(LOG_INFO, "y: %u\n", _y);
+
+	node->addChild(new XMLNode("width", _width));
+	Log::write(LOG_INFO, "width: %u\n", _width);
+
+	node->addChild(new XMLNode("height", _height));
+	Log::write(LOG_INFO, "height: %u\n", _height);
+
+	node->addChild(new XMLNode("xOffset", _xOffset));
+	Log::write(LOG_INFO, "xOffset: %d\n", _xOffset);
+
+	node->addChild(new XMLNode("yOffset", _yOffset));
+	Log::write(LOG_INFO, "yOffset: %d\n", _yOffset);
+
+	Log::unIndent();
+}
+
+void Frame::prepare()
+{
 	if (_width == 0 || _height == 0)
-		Log::getInstance().write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
-
-	Log::getInstance().unIndent();
+		Log::write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
 }
 
 Frame::~Frame()
@@ -107,23 +213,23 @@ _paletteBaseIndex(0)
 {
 }
 
-void Costume::load(string dirPath, Palette *palette, bool global)
+void Costume::load(string dirPath)
 {
-	Log::getInstance().write(LOG_INFO, "Costume\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Costume\n");
+	Log::indent();
 
 	XMLFile xmlFile;
-	xmlFile.open(dirPath + "costume.xml");
+	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
 	_name = rootNode->getChild("name")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_description = rootNode->getChild("description")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
-	Log::getInstance().write(LOG_INFO, "mirror: %d\n", _mirror);
+	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
 
 	int i = 0;
 	XMLNode *child;
@@ -142,11 +248,69 @@ void Costume::load(string dirPath, Palette *palette, bool global)
 		_frames.push_back(frame);
 	}
 
-	if (_anims.empty())
-		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any animation !\n");
-	if (_frames.empty())
-		Log::getInstance().write(LOG_ERROR, "Costume doesn't have any frame !\n");
+	Log::unIndent();
+}
 
+void Costume::save(string dirPath)
+{
+	Log::write(LOG_INFO, "Costume\n");
+	Log::indent();
+
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	XMLFile xmlFile;
+	XMLNode *rootNode = new XMLNode("costume");
+	xmlFile.setRootNode(rootNode);
+
+	rootNode->addChild(new XMLNode("name", _name));
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	rootNode->addChild(new XMLNode("description", _description));
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	rootNode->addChild(new XMLNode("mirror", _mirror));
+	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
+
+	for (int i = 0; i < _anims.size(); i++)
+	{
+		XMLNode *child = new XMLNode("anim");
+		rootNode->addChild(child);
+		_anims[i]->save(child);
+	}
+
+	for (int i = 0; i < _frames.size(); i++)
+	{
+		XMLNode *child = new XMLNode("frame");
+		rootNode->addChild(child);
+		_frames[i]->save(child, dirPath);
+	}
+
+	if (!xmlFile.save(dirPath + XML_FILE_NAME))
+		Log::write(LOG_ERROR, "Couldn't save costume to the specified directory !\n");
+
+	Log::unIndent();
+}
+
+void Costume::prepare(Palette *palette, bool global)
+{
+	if (_anims.empty())
+		Log::write(LOG_ERROR, "Costume doesn't have any animation !\n");
+	if (_frames.empty())
+		Log::write(LOG_ERROR, "Costume doesn't have any frame !\n");
+
+	// Prepare frames
+	for (int i = 0; i < _frames.size(); i++)
+		_frames[i]->prepare();
+
+	// Set animation IDs
+	for (int i = 0; i < _anims.size(); i++)
+		_anims[i]->setID(i);
+
+	// Set palette base index
+	_paletteBaseIndex = palette->add(_frames[0]->getBitmapPath(), !global);
+
+	// Set dimensions
 	_width = 0;
 	_height = 0;
 	for (int i = 0; i < _frames.size(); i++)
@@ -156,12 +320,6 @@ void Costume::load(string dirPath, Palette *palette, bool global)
 		if (_height < _frames[i]->getHeight())
 			_height = _frames[i]->getHeight();
 	}
-	Log::getInstance().write(LOG_INFO, "width: %d\n", _width);
-	Log::getInstance().write(LOG_INFO, "height: %d\n", _height);
-
-	_paletteBaseIndex = palette->add(_frames[0]->getBitmapPath(), !global);
-
-	Log::getInstance().unIndent();
 }
 
 Costume::~Costume()

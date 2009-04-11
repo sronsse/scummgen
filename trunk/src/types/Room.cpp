@@ -11,6 +11,8 @@
 #include "Map.hpp"
 #include "Script.hpp"
 #include "Costume.hpp"
+
+const string Room::XML_FILE_NAME = "room.xml";
 const uint8_t Room::MIN_LOCAL_SCRIPT_ID = 200;
 
 Room::Room():
@@ -24,26 +26,116 @@ _exitFunction(NULL)
 {	
 }
 
+void Room::loadObjects(string dirPath, XMLNode *node)
+{
+	dirPath += "objects/";
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("object", i++)) != NULL)
+	{
+		Object *object = new Object();
+		object->load(dirPath + child->getStringContent() + '/');
+		_objects.push_back(object);
+	}
+}
+
+void Room::loadScripts(string dirPath, XMLNode *node)
+{
+	dirPath += "scripts/";
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("script", i++)) != NULL)
+	{
+		Script *script = new Script();
+		script->load(dirPath + child->getStringContent() + '/');
+		_scripts.push_back(script);
+	}
+}
+
+void Room::loadCostumes(string dirPath, XMLNode *node)
+{
+	dirPath += "costumes/";
+
+	int i = 0;
+	XMLNode *child;
+	while ((child = node->getChild("costume", i++)) != NULL)
+	{
+		Costume *costume = new Costume();
+		costume->load(dirPath + child->getStringContent() + '/');
+		_costumes.push_back(costume);
+	}
+}
+
+void Room::saveObjects(string dirPath, XMLNode *node)
+{
+	if (_objects.empty())
+		return;
+
+	dirPath += "objects/";
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	for (int i = 0; i < _objects.size(); i++)
+	{
+		_objects[i]->save(dirPath + _objects[i]->getName() + '/');
+		node->addChild(new XMLNode("object", _objects[i]->getName()));
+	}
+}
+
+void Room::saveScripts(string dirPath, XMLNode *node)
+{
+	if (_scripts.empty())
+		return;
+
+	dirPath += "scripts/";
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	for (int i = 0; i < _scripts.size(); i++)
+	{
+		_scripts[i]->save(dirPath + _scripts[i]->getName() + '/');
+		node->addChild(new XMLNode("script", _scripts[i]->getName()));
+	}
+}
+
+void Room::saveCostumes(string dirPath, XMLNode *node)
+{
+	if (_costumes.empty())
+		return;
+
+	dirPath += "costumes/";
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	for (int i = 0; i < _costumes.size(); i++)
+	{
+		_costumes[i]->save(dirPath + _costumes[i]->getName() + '/');
+		node->addChild(new XMLNode("costume", _costumes[i]->getName()));
+	}
+}
+
 void Room::load(string dirPath)
 {
-	Log::getInstance().write(LOG_INFO, "Room\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Room\n");
+	Log::indent();
 
 	XMLFile xmlFile;
-	xmlFile.open(dirPath + "room.xml");
+	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
 	_name = rootNode->getChild("name")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_description = rootNode->getChild("description")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_palette = new Palette();
 	_palette->load(dirPath);
 
 	_background = new Image();
-	_background->load(dirPath + rootNode->getChild("background")->getStringContent() + "/", _palette, false);
+	_background->load(dirPath + rootNode->getChild("background")->getStringContent() + '/');
 
 	_map = new Map;
 	_map->load(dirPath);
@@ -52,60 +144,62 @@ void Room::load(string dirPath)
 	loadScripts(dirPath, rootNode);
 	loadCostumes(dirPath, rootNode);
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
-void Room::loadObjects(string dirPath, XMLNode *node)
+void Room::save(string dirPath)
 {
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("object", i++)) != NULL)
-	{
-		Object *object = new Object();
-		object->load(dirPath + child->getStringContent() + "/", _palette, false);
-		_objects.push_back(object);
-	}
-}
+	Log::write(LOG_INFO, "Room\n");
+	Log::indent();
 
-void Room::loadScripts(string dirPath, XMLNode *node)
-{
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("script", i++)) != NULL)
-	{
-		Script *script = new Script();
-		script->load(dirPath + child->getStringContent() + "/");
-		_scripts.push_back(script);
-	}
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
 
-	if (_scripts.empty())
-		Log::getInstance().write(LOG_WARNING, "Couldn't find any local script !\n");
-}
+	XMLFile xmlFile;
+	XMLNode *rootNode = new XMLNode("room");
+	xmlFile.setRootNode(rootNode);
 
-void Room::loadCostumes(string dirPath, XMLNode *node)
-{
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("costume", i++)) != NULL)
-	{
-		Costume *costume = new Costume();
-		costume->load(dirPath + child->getStringContent() + "/", _palette, false);
-		_costumes.push_back(costume);
-	}
+	rootNode->addChild(new XMLNode("name", _name));
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	rootNode->addChild(new XMLNode("description", _description));
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	_palette->save(dirPath);
+
+	_background->save(dirPath + _background->getName() + '/');
+	rootNode->addChild(new XMLNode("background", _background->getName()));
+
+	_map->save(dirPath);
+
+	saveObjects(dirPath, rootNode);
+	saveScripts(dirPath, rootNode);
+	saveCostumes(dirPath, rootNode);
+
+	if (!xmlFile.save(dirPath + XML_FILE_NAME))
+		Log::write(LOG_ERROR, "Couldn't save room to the specified directory !\n");
+
+	Log::unIndent();
 }
 
 void Room::prepare()
 {
-	// Prepare resources
+	// Prepare palette
 	_palette->prepare();
-	_map->prepare();
-	for (int i = 0; i < _objects.size(); i++)
-		_objects[i]->prepare();
 
-	// Set resource IDs
+	// Prepare background
+	_background->prepare(_palette, false);
+
+	// Prepare map
+	_map->prepare();
+
+	// Prepare objects
+	for (int i = 0; i < _objects.size(); i++)
+		_objects[i]->prepare(_palette, false);
+
+	// Prepare costumes
 	for (int i = 0; i < _costumes.size(); i++)
-		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
-			_costumes[i]->getAnim(j)->setID(j);
+		_costumes[i]->prepare(_palette, false);
 
 	// Clear declarations and functions
 	for (int i = 0; i < _declarations.size(); i++)
@@ -128,8 +222,8 @@ void Room::prepare()
 
 void Room::parse(vector<Declaration *> &declarations)
 {
-	Log::getInstance().write(LOG_INFO, "Parsing room \"%s\"...\n", _name.c_str());
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Parsing room \"%s\"...\n", _name.c_str());
+	Log::indent();
 
 	bool foundEntry = false;
 	bool foundExit = false;
@@ -144,20 +238,20 @@ void Room::parse(vector<Declaration *> &declarations)
 		// Check if local variables have fixed addresses
 		for (int j = 0; j < declarations.size(); j++)
 			if (declarations[i]->hasFixedAddress())
-				Log::getInstance().write(LOG_ERROR, "Local variables can't have fixed addresses !\n");
+				Log::write(LOG_ERROR, "Local variables can't have fixed addresses !\n");
 
 		for (int j = 0; j < functions.size(); j++)
 			if (functions[j]->getName() == "entry")
 			{
 				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::getInstance().write(LOG_ERROR, "Function \"entry\" can't be inlined !\n");
+					Log::write(LOG_ERROR, "Function \"entry\" can't be inlined !\n");
 				_entryFunction = functions[j];
 				foundEntry = true;
 			}
 			else if (functions[j]->getName() == "exit")
 			{
 				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::getInstance().write(LOG_ERROR, "Function \"exit\" can't be inlined !\n");
+					Log::write(LOG_ERROR, "Function \"exit\" can't be inlined !\n");
 				_exitFunction = functions[j];
 				foundExit = true;
 			}
@@ -168,8 +262,8 @@ void Room::parse(vector<Declaration *> &declarations)
 					if (functions[j]->getName() == _objects[k]->getName() + "_verb")
 					{
 						if (functions[j]->getType() == FUNCTION_INLINED)
-							Log::getInstance().write(LOG_ERROR, "Function \"%s\" can't be inlined !\n", functions[j]->getName().c_str());
-						Log::getInstance().write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[k]->getName().c_str());
+							Log::write(LOG_ERROR, "Function \"%s\" can't be inlined !\n", functions[j]->getName().c_str());
+						Log::write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[k]->getName().c_str());
 						_objects[k]->setFunction(functions[j]);
 						foundObject = true;
 						break;
@@ -188,12 +282,12 @@ void Room::parse(vector<Declaration *> &declarations)
 	// If no entry or exit function has been specified, we create empty ones
 	if (!foundEntry)
 	{
-		Log::getInstance().write(LOG_WARNING, "Couldn't find the entry function !\n");
+		Log::write(LOG_WARNING, "Couldn't find the entry function !\n");
 		_entryFunction = new Function(FUNCTION_NORMAL, "entry", new BlockStatement());
 	}
 	if (!foundExit)
 	{
-		Log::getInstance().write(LOG_WARNING, "Couldn't find the exit function !\n");
+		Log::write(LOG_WARNING, "Couldn't find the exit function !\n");
 		_exitFunction = new Function(FUNCTION_NORMAL, "exit", new BlockStatement());
 	}
 
@@ -222,13 +316,13 @@ void Room::parse(vector<Declaration *> &declarations)
 	for (int i = 0; i < _map->getNumberOfBoxes(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _map->getBox(i)->getName(), _map->getBox(i)->getID()));
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
 void Room::compile()
 {
-	Log::getInstance().write(LOG_INFO, "Compiling room \"%s\"...\n", _name.c_str());
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Compiling room \"%s\"...\n", _name.c_str());
+	Log::indent();
 
 	Context context(CONTEXT_ROOM, &_declarations, &_functions, -1, -1, -1);
 	Context::pushContext(&context);
@@ -248,7 +342,7 @@ void Room::compile()
 
 	Context::popContext();
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
 Room::~Room()

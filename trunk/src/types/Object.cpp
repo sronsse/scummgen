@@ -8,7 +8,10 @@
 #include "Game.hpp"
 #include "Image.hpp"
 
+const string Object::XML_FILE_NAME = "object.xml";
+
 Object::Object():
+_id(0),
 _name(""),
 _displayName(""),
 _imageX(0),
@@ -26,33 +29,29 @@ _function(NULL)
 {
 }
 
-void Object::load(string dirPath, Palette *palette, bool global)
+void Object::load(string dirPath)
 {
+	Log::write(LOG_INFO, "Object\n");
+	Log::indent();
+
 	XMLFile xmlFile;
-	xmlFile.open(dirPath + "object.xml");
+	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	Log::getInstance().write(LOG_INFO, "Object\n");
-	Log::getInstance().indent();
-
-	static uint16_t currentID = Game::N_DEFAULT_ACTORS + 1;
-	_id = currentID++;
-	Log::getInstance().write(LOG_INFO, "id: %u\n", _id);
-
 	_name = rootNode->getChild("name")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_description = rootNode->getChild("description")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_displayName = rootNode->getChild("displayName")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "displayName: %s\n", _displayName.c_str());
+	Log::write(LOG_INFO, "displayName: %s\n", _displayName.c_str());
 
 	_imageX = rootNode->getChild("imageX")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "imageX: %u\n", _imageX);
+	Log::write(LOG_INFO, "imageX: %u\n", _imageX);
 
 	_imageY = rootNode->getChild("imageY")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "imageY: %u\n", _imageY);
+	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
 
 	int i = 0;
 	XMLNode *child;
@@ -65,50 +64,132 @@ void Object::load(string dirPath, Palette *palette, bool global)
 	
 	for (i = 0; i < _hotspotXs.size(); i++)
 	{
-		Log::getInstance().write(LOG_INFO, "hotspotX: %d\n", _hotspotXs[i]);
-		Log::getInstance().write(LOG_INFO, "hotspotY: %d\n", _hotspotYs[i]);
+		Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotXs[i]);
+		Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotYs[i]);
 	}
 
 	_x = rootNode->getChild("x")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "x: %u\n", _x);
+	Log::write(LOG_INFO, "x: %u\n", _x);
 
 	_y = rootNode->getChild("y")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "y: %u\n", _y);
+	Log::write(LOG_INFO, "y: %u\n", _y);
 
 	_width = rootNode->getChild("width")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "width: %u\n", _width);
+	Log::write(LOG_INFO, "width: %u\n", _width);
 
 	_height = rootNode->getChild("height")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "height: %u\n", _height);
+	Log::write(LOG_INFO, "height: %u\n", _height);
 
 	_flags = rootNode->getChild("flags")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "flags: %u\n", _flags);
+	Log::write(LOG_INFO, "flags: %u\n", _flags);
 
 	_parent = rootNode->getChild("parent")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "parent: %u\n", _parent);
+	Log::write(LOG_INFO, "parent: %u\n", _parent);
 
 	_owner = rootNode->getChild("owner")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "owner: %u\n", _owner);
+	Log::write(LOG_INFO, "owner: %u\n", _owner);
 
 	_actorDir = rootNode->getChild("actorDir")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "actorDir: %u\n", _actorDir);
+	Log::write(LOG_INFO, "actorDir: %u\n", _actorDir);
 
 	_classData = rootNode->getChild("classData")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "classData: %x\n", _classData);
+	Log::write(LOG_INFO, "classData: %x\n", _classData);
 
 	i = 0;
 	while ((child = rootNode->getChild("image", i++)) != NULL)
 	{
 		Image *image = new Image();
-		image->load(dirPath + child->getStringContent() + "/", palette, global);
+		image->load(dirPath + child->getStringContent() + "/");
 		_images.push_back(image);
 	}
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
 }
 
-void Object::prepare()
+void Object::save(string dirPath)
 {
+	Log::write(LOG_INFO, "Object\n");
+	Log::indent();
+
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	XMLFile xmlFile;
+	XMLNode *rootNode = new XMLNode("object");
+	xmlFile.setRootNode(rootNode);
+
+	rootNode->addChild(new XMLNode("name", _name));
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	rootNode->addChild(new XMLNode("description", _description));
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	rootNode->addChild(new XMLNode("displayName", _displayName));
+	Log::write(LOG_INFO, "displayName: %s\n", _displayName.c_str());
+
+	rootNode->addChild(new XMLNode("imageX", _imageX));
+	Log::write(LOG_INFO, "imageX: %u\n", _imageX);
+
+	rootNode->addChild(new XMLNode("imageY", _imageY));
+	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
+
+	for (int i = 0; i < _hotspotXs.size(); i++)
+		rootNode->addChild(new XMLNode("hotspotX", _hotspotXs[i]));
+
+	for (int i = 0; i < _hotspotYs.size(); i++)
+		rootNode->addChild(new XMLNode("hotspotY", _hotspotYs[i]));
+	
+	for (int i = 0; i < _hotspotXs.size(); i++)
+	{
+		Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotXs[i]);
+		Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotYs[i]);
+	}
+
+	rootNode->addChild(new XMLNode("x", _x));
+	Log::write(LOG_INFO, "x: %u\n", _x);
+
+	rootNode->addChild(new XMLNode("y", _y));
+	Log::write(LOG_INFO, "y: %u\n", _y);
+
+	rootNode->addChild(new XMLNode("width", _width));
+	Log::write(LOG_INFO, "width: %u\n", _width);
+
+	rootNode->addChild(new XMLNode("height", _height));
+	Log::write(LOG_INFO, "height: %u\n", _height);
+
+	rootNode->addChild(new XMLNode("flags", _flags));
+	Log::write(LOG_INFO, "flags: %u\n", _flags);
+
+	rootNode->addChild(new XMLNode("parent", _parent));
+	Log::write(LOG_INFO, "parent: %u\n", _parent);
+
+	rootNode->addChild(new XMLNode("owner", _owner));
+	Log::write(LOG_INFO, "owner: %u\n", _owner);
+
+	rootNode->addChild(new XMLNode("actorDir", _actorDir));
+	Log::write(LOG_INFO, "actorDir: %u\n", _actorDir);
+
+	rootNode->addChild(new XMLNode("classData", (int)_classData));
+	Log::write(LOG_INFO, "classData: %x\n", _classData);
+
+	for (int i = 0; i < _images.size(); i++)
+	{
+		_images[i]->save(dirPath + _images[i]->getName() + '/');
+		rootNode->addChild(new XMLNode("image", _images[i]->getName()));
+	}
+
+	if (!xmlFile.save(dirPath + XML_FILE_NAME))
+		Log::write(LOG_ERROR, "Couldn't save object to the specified directory !\n");
+
+	Log::unIndent();
+}
+
+void Object::prepare(Palette *palette, bool global)
+{
+	// Prepare first image (for palette update)
+	if (!_images.empty())
+		_images[0]->prepare(palette, global);
+
 	// Delete function if necessary
 	if (_function != NULL)
 	{
@@ -121,7 +202,7 @@ void Object::compile()
 {
 	// Check the first function statement is a verb statement and compile it
 	if (typeid(*_function->getBlockStatement()->getStatement(0)) != typeid(VerbStatement))
-		Log::getInstance().write(LOG_ERROR, "Object \"%s\" should start with a verb statement !\n", _name.c_str());
+		Log::write(LOG_ERROR, "Object \"%s\" should start with a verb statement !\n", _name.c_str());
 	_function->compile();
 }
 

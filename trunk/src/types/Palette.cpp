@@ -1,8 +1,12 @@
 #include "Palette.hpp"
+#include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-// Default palette colors (names obtained from http://chir.ag/projects/name-that-color/)
+const string Palette::XML_FILE_NAME = "palette.xml";
+const uint8_t Palette::N_COMMON_COLORS = 16;
+
+// Common palette colors (names obtained from http://chir.ag/projects/name-that-color/)
 const Color Palette::COLOR_BLACK = { 0, 0, 0 };
 const Color Palette::COLOR_DARK_BLUE = { 0, 0, 171 };
 const Color Palette::COLOR_JAPANESE_LAUREL = { 0, 171, 0 };
@@ -24,6 +28,7 @@ const uint16_t Palette::MAX_COLORS = 256;
 
 Cycle::Cycle():
 _id(0),
+_name(),
 _start(0),
 _end(0),
 _delay(0),
@@ -32,25 +37,48 @@ _forward(true)
 
 void Cycle::load(XMLNode *node)
 {
-	Log::getInstance().write(LOG_INFO, "Cycle\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Cycle\n");
+	Log::indent();
 
 	_name = node->getChild("name")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "name: %s\n", _name.c_str());
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_start = node->getChild("start")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "start: %u\n", _start);
+	Log::write(LOG_INFO, "start: %u\n", _start);
 
 	_end = node->getChild("end")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "end: %u\n", _end);
+	Log::write(LOG_INFO, "end: %u\n", _end);
 
 	_delay = node->getChild("delay")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "delay: %u\n", _delay);
+	Log::write(LOG_INFO, "delay: %u\n", _delay);
 
 	_forward = node->getChild("forward")->getBooleanContent();
-	Log::getInstance().write(LOG_INFO, "forward: %s\n", _forward ? "true" : "false");
+	Log::write(LOG_INFO, "forward: %s\n", _forward ? "true" : "false");
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
+}
+
+void Cycle::save(XMLNode *node)
+{
+	Log::write(LOG_INFO, "Cycle\n");
+	Log::indent();
+
+	node->addChild(new XMLNode("name", _name));
+	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	node->addChild(new XMLNode("start", _start));
+	Log::write(LOG_INFO, "start: %u\n", _start);
+
+	node->addChild(new XMLNode("end", _end));
+	Log::write(LOG_INFO, "end: %u\n", _end);
+
+	node->addChild(new XMLNode("delay", _delay));
+	Log::write(LOG_INFO, "delay: %u\n", _delay);
+
+	node->addChild(new XMLNode("forward", _forward));
+	Log::write(LOG_INFO, "forward: %s\n", _forward ? "true" : "false");
+
+	Log::unIndent();
 }
 
 Cycle::~Cycle()
@@ -58,7 +86,9 @@ Cycle::~Cycle()
 }
 
 Palette::Palette():
-_transparentIndex(0)
+_transparentIndex(0),
+_startCursor(0),
+_endCursor(0)
 {
 	// Set palette size and default colors
 	_colors.push_back(COLOR_BLACK);
@@ -78,24 +108,22 @@ _transparentIndex(0)
 	_colors.push_back(COLOR_GORSE);
 	_colors.push_back(COLOR_WHITE);
 	_colors.resize(MAX_COLORS);
-	_startCursor = 16;
-	_endCursor = MAX_COLORS;
 }
 
 void Palette::load(string dirPath)
 {
-	Log::getInstance().write(LOG_INFO, "Palette\n");
-	Log::getInstance().indent();
+	Log::write(LOG_INFO, "Palette\n");
+	Log::indent();
 
 	XMLFile xmlFile;
-	xmlFile.open(dirPath + "palette.xml");
+	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
 	_description = rootNode->getChild("description")->getStringContent();
-	Log::getInstance().write(LOG_INFO, "description: %s\n", _description.c_str());
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_transparentIndex = rootNode->getChild("transparentIndex")->getIntegerContent();
-	Log::getInstance().write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
+	Log::write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
 
 	int i = 0;
 	XMLNode *child;
@@ -106,7 +134,38 @@ void Palette::load(string dirPath)
 		_cycles.push_back(cycle);
 	}
 
-	Log::getInstance().unIndent();
+	Log::unIndent();
+}
+
+void Palette::save(string dirPath)
+{
+	Log::write(LOG_INFO, "Palette\n");
+	Log::indent();
+
+	if (!IO::createDirectory(dirPath))
+		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+
+	XMLFile xmlFile;
+	XMLNode *rootNode = new XMLNode("palette");
+	xmlFile.setRootNode(rootNode);
+
+	rootNode->addChild(new XMLNode("description", _description));
+	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
+
+	rootNode->addChild(new XMLNode("transparentIndex", _transparentIndex));
+	Log::write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
+
+	for (int i = 0; i < _cycles.size(); i++)
+	{
+		XMLNode *child = new XMLNode("cycle");
+		rootNode->addChild(child);
+		_cycles[i]->save(child);
+	}
+
+	if (!xmlFile.save(dirPath + XML_FILE_NAME))
+		Log::write(LOG_ERROR, "Couldn't save palette to the specified directory !\n");
+
+	Log::unIndent();
 }
 
 void Palette::prepare()
@@ -114,6 +173,10 @@ void Palette::prepare()
 	// Set cycles IDs
 	for (int i = 0; i < _cycles.size(); i++)
 		_cycles[i]->setID(i + 1);
+
+	// Set cursors
+	_startCursor = N_COMMON_COLORS;
+	_endCursor = MAX_COLORS;
 }
 
 uint8_t Palette::add(string bitmapPath, bool fromStart)
@@ -127,7 +190,7 @@ uint8_t Palette::add(string bitmapPath, bool fromStart)
 		{
 			_colors[_startCursor++] = bmpFile.getColor(i);
 			if (_startCursor == _endCursor)
-				Log::getInstance().write(LOG_ERROR, "Palette contains too many colors !\n");
+				Log::write(LOG_ERROR, "Palette contains too many colors !\n");
 		}
 		return _startCursor - bmpFile.getNumberOfColors();
 	}
@@ -137,7 +200,7 @@ uint8_t Palette::add(string bitmapPath, bool fromStart)
 		{
 			_colors[--_endCursor] = bmpFile.getColor(i);
 			if (_startCursor == _endCursor)
-				Log::getInstance().write(LOG_ERROR, "Palette contains too many colors !\n");
+				Log::write(LOG_ERROR, "Palette contains too many colors !\n");
 		}
 		return _endCursor;
 	}

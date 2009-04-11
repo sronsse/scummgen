@@ -673,6 +673,6 @@ void yyerror(vector<Declaration *> &declarations, vector<Function *> &functions,
 		for (int j = 0; j < statementListCollector[i].size(); j++)
 			delete statementListCollector[i][j];
 
-	Log::getInstance().write(LOG_INFO, "Line %u: %s\n", yylineno, s.c_str());
+	Log::write(LOG_INFO, "Line %u: %s\n", yylineno, s.c_str());
 }
 

@@ -27,6 +27,7 @@ private:
 public:
 	Array();
 	void load(XMLNode *node);
+	void save(XMLNode *node);
 	uint16_t getVarNumber() { return _varNumber; }
 	uint16_t getDimA() { return _dimA; }
 	uint16_t getDimB() { return _dimB; }
@@ -37,6 +38,7 @@ public:
 class Game
 {
 private:
+	static const string XML_FILE_NAME;
 	static const char *INDEX_FILE_EXTENSION;
 	static const char *RESOURCE_FILE_EXTENSION;
 	static const char *VOICE_FILE_NAME;
@@ -62,6 +64,13 @@ private:
 	void loadScripts(string dirPath, XMLNode *node);
 	void loadCharsets(string dirPath, XMLNode *node);
 	void loadVoices(string dirPath, XMLNode *node);
+	void saveRooms(string dirPath, XMLNode *node);
+	void saveObjects(string dirPath, XMLNode *node);
+	void saveMidis(string dirPath, XMLNode *node);
+	void saveCostumes(string dirPath, XMLNode *node);
+	void saveScripts(string dirPath, XMLNode *node);
+	void saveCharsets(string dirPath, XMLNode *node);
+	void saveVoices(string dirPath, XMLNode *node);
 	void prepare();
 	void parse();
 	void compile();
@@ -73,6 +82,7 @@ public:
 
 	Game();
 	void load(string dirPath);
+	void save(string dirPath);
 	void build(string outputDirPath);
 	string getName() { return _name; }
 	string getDescription() { return _description; }

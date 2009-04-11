@@ -13,7 +13,7 @@ bool MIDFile::open(string fileName)
 	fstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
 	{
-		Log::getInstance().write(LOG_WARNING, "Couldn't open file !\n");
+		Log::write(LOG_WARNING, "Could not open file \"%s\" !\n", fileName.c_str());
 		return false;
 	}
 

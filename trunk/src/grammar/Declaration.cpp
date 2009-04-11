@@ -7,7 +7,7 @@ Declaration::Declaration(DeclarationType type, string name)
 	_fixedAddress = false;
 }
 
-Declaration::Declaration(DeclarationType type, string name, uint16_t value)
+Declaration::Declaration(DeclarationType type, string name, uint32_t value)
 {
 	_type = type;
 	_name = name;
@@ -18,4 +18,3 @@ Declaration::Declaration(DeclarationType type, string name, uint16_t value)
 Declaration::~Declaration()
 {
 }
-

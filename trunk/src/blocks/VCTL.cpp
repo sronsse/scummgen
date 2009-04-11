@@ -28,4 +28,3 @@ void VCTL::write(fstream &f)
 VCTL::~VCTL()
 {
 }
-

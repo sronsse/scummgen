@@ -15,24 +15,23 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	Log::getInstance().setActive(true);
+	Log::reset();
 
-	Game game;
-
-	// First, we load our game data structure using the game directory as an input,
-	// taking care of any exception which could occur
-	string dirPath = argv[1];
+	// Load and build the game directory passed as an argument
 	try
 	{
-		game.load(dirPath);
+		Game game;
+		game.load(argv[1]);
 		game.build("");
 	}
 	catch (int e)
 	{
 		return e;
+		Log::close();
 	}
 
+	Log::close();
 	cout << "Game generated successfully !\n";
+
 	return 0;
 }
-

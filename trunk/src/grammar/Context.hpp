@@ -43,12 +43,12 @@ private:
 	int32_t _continueLabel;
 	int32_t _breakLabel;
 	int32_t _returnLabel;
-	map<string, uint16_t> _constantSymbols;
-	map<string, uint16_t> _variableSymbols;
-	map<string, uint16_t> _functionSymbols;
+	map<string, uint32_t> _constantSymbols;
+	map<string, uint32_t> _variableSymbols;
+	map<string, uint32_t> _functionSymbols;
 
 	static bool symbolExists(string name);
-	static bool isAddressUsed(uint16_t address);
+	static bool isAddressUsed(uint32_t address);
 
 	void setConstantSymbols();
 	void setVariableSymbols(bool fixedAddresses);
@@ -62,7 +62,7 @@ public:
 
 	static void pushContext(Context *context);
 	static void popContext();
-	static bool resolveSymbol(string symbol, uint16_t &value, SymbolType &type);
+	static bool resolveSymbol(string symbol, uint32_t &value, SymbolType &type);
 	static Function* getFunction(string functionName);
 	static int32_t getContinueLabel();
 	static int32_t getBreakLabel();

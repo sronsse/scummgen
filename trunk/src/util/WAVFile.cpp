@@ -13,7 +13,7 @@ bool WAVFile::open(string fileName)
 	fstream file(fileName.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
 	{
-		Log::getInstance().write(LOG_WARNING, "Couldn't open file !\n");
+		Log::write(LOG_WARNING, "Could not open file \"%s\" !\n", fileName.c_str());
 		return false;
 	}
 
@@ -28,7 +28,7 @@ bool WAVFile::open(string fileName)
 	if (audioFormat != 1)
 	{
 		file.close();
-		Log::getInstance().write(LOG_WARNING, "Audio format not supported !\n");
+		Log::write(LOG_WARNING, "Audio format not supported !\n");
 		return false;
 	}
 
@@ -42,7 +42,7 @@ bool WAVFile::open(string fileName)
 	if (bitsPerSample != 8)
 	{
 		file.close();
-		Log::getInstance().write(LOG_WARNING, "Bits per sample not supported !\n");
+		Log::write(LOG_WARNING, "Bits per sample not supported !\n");
 		return false;
 	}
 
