@@ -288,8 +288,15 @@ void StringExpression::assign(vector<Instruction *> &instructions, uint32_t addr
 	instructions.push_back(new Instruction("pushByte"));
 	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 
-	// Add arrayOps assignString instruction
+	// Set the address contents to 0 to avoid the arrayOps assignString
+	// from nuking or writing to a non-existing array
 	oss << address;
+	instructions.push_back(new Instruction("pushByte"));
+	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
+	instructions.push_back(new Instruction("writeWordVar"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+
+	// Add arrayOps assignString instruction
 	instructions.push_back(new Instruction("arrayOps"));
 	instructions.push_back(new Instruction("assignString"));
 	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
@@ -331,7 +338,7 @@ void ListExpression::assign(vector<Instruction *> &instructions, uint32_t addres
 	oss << address;
 
 	// Set the address contents to 0 to avoid the arrayOps assignIntList
-	// from writing to a non-existing array
+	// from nuking and writing to a non-existing array
 	instructions.push_back(new Instruction("pushByte"));
 	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
 	instructions.push_back(new Instruction("writeWordVar"));
