@@ -76,33 +76,37 @@ void Context::popContext()
 
 bool Context::resolveSymbol(string symbol, uint32_t &value, SymbolType &type)
 {
-	for (int i = _instances.size() - 1; i >= 0; i--)
-	{
-		// Check all the different symbol types
-		if (_instances[i]->_constantSymbols.find(symbol) != _instances[i]->_constantSymbols.end())
-		{
-			value = _instances[i]->_constantSymbols[symbol];
-			type = SYMBOL_CONSTANT;
-			return true;
-		}
-		if (_instances[i]->_variableSymbols.find(symbol) != _instances[i]->_variableSymbols.end())
-		{
-			value = _instances[i]->_variableSymbols[symbol];
-			type = SYMBOL_VARIABLE;
-			return true;
-		}
-		if (_instances[i]->_functionSymbols.find(symbol) != _instances[i]->_functionSymbols.end())
-		{
-			value = _instances[i]->_functionSymbols[symbol];
-			type = SYMBOL_FUNCTION;
-			return true;
-		}
+	bool reachedInlinedContext = false;
 
-		// When reaching an inlined function context here,
-		// it means the symbol doesn't exist in the current context
-		if (_instances[i]->_type == CONTEXT_INLINED)
-			return false;
-	}
+	for (int i = _instances.size() - 1; i >= 0; i--)
+		if (!reachedInlinedContext || _instances[i]->_type == CONTEXT_GAME || _instances[i]->_type == CONTEXT_ROOM)
+		{
+			// Check all the different symbol types
+			if (_instances[i]->_constantSymbols.find(symbol) != _instances[i]->_constantSymbols.end())
+			{
+				value = _instances[i]->_constantSymbols[symbol];
+				type = SYMBOL_CONSTANT;
+				return true;
+			}
+			if (_instances[i]->_variableSymbols.find(symbol) != _instances[i]->_variableSymbols.end())
+			{
+				value = _instances[i]->_variableSymbols[symbol];
+				type = SYMBOL_VARIABLE;
+				return true;
+			}
+			if (_instances[i]->_functionSymbols.find(symbol) != _instances[i]->_functionSymbols.end())
+			{
+				value = _instances[i]->_functionSymbols[symbol];
+				type = SYMBOL_FUNCTION;
+				return true;
+			}
+
+			// When reaching an inlined function context here,
+			// it means that if the symbol can be resolved, it
+			// has to be global (room or game context).
+			if (_instances[i]->_type == CONTEXT_INLINED)
+				reachedInlinedContext = true;
+		}
 	return false;
 }
 
@@ -163,20 +167,24 @@ FunctionType Context::getFunctionType()
 
 bool Context::symbolExists(string name)
 {
-	for (int i = _instances.size() - 1; i >= 0; i--)
-	{
-		if (_instances[i]->_constantSymbols.find(name) != _instances[i]->_constantSymbols.end())
-			return true;
-		if (_instances[i]->_variableSymbols.find(name) != _instances[i]->_variableSymbols.end())
-			return true;
-		if (_instances[i]->_functionSymbols.find(name) != _instances[i]->_functionSymbols.end())
-			return true;
+	bool reachedInlinedContext = false;
 
-		// When reaching an inlined function context here,
-		// it means the symbol doesn't exist in the current context
-		if (_instances[i]->_type == CONTEXT_INLINED)
-			return false;
-	}
+	for (int i = _instances.size() - 1; i >= 0; i--)
+	if (!reachedInlinedContext || _instances[i]->_type == CONTEXT_GAME || _instances[i]->_type == CONTEXT_ROOM)
+		{
+			if (_instances[i]->_constantSymbols.find(name) != _instances[i]->_constantSymbols.end())
+				return true;
+			if (_instances[i]->_variableSymbols.find(name) != _instances[i]->_variableSymbols.end())
+				return true;
+			if (_instances[i]->_functionSymbols.find(name) != _instances[i]->_functionSymbols.end())
+				return true;
+
+			// When reaching an inlined function context here,
+			// it means that if the symbol exists, it has to
+			// be global (room or game context).
+			if (_instances[i]->_type == CONTEXT_INLINED)
+				reachedInlinedContext = true;
+		}
 	return false;
 }
 
