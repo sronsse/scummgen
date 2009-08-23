@@ -56,7 +56,6 @@ int parseString();
 [-+()<>=*/;{},!&|@:\[\]]		return *yytext;
 [0-9]+							{ yylval.number = atoi(yytext); return T_NUMBER; }
 "0x"[a-fA-F0-9]+				{ yylval.number = strtol(yytext, NULL, 16); return T_NUMBER; }
-\'.\'							{ yylval.number = (int)yytext[1]; return T_NUMBER; }
 [a-zA-Z_]+[a-zA-Z0-9_]*			{ strncpy(yylval.string, yytext, STRING_LENGTH); yylval.string[STRING_LENGTH - 1] = 0; return T_IDENTIFIER; }
 [ \n\t]|.						;
 
