@@ -616,7 +616,11 @@ void CallExpression::compile(vector<Instruction *> &instructions)
 		for (int i = 0; i < function->getBlockStatement()->getNumberOfDeclarations(); i++)
 		{
 			Declaration *declaration = function->getBlockStatement()->getDeclaration(i);
-			declarations.push_back(new Declaration(declaration->getType(), declaration->getName()));
+			// Variable and constant declaration have to be treated separately
+			if (declaration->getType() == DECLARATION_VAR)
+				declarations.push_back(new Declaration(declaration->getType(), declaration->getName()));
+			else
+				declarations.push_back(new Declaration(declaration->getType(), declaration->getName(), declaration->getValue()));
 		}
 		declarations.push_back(new Declaration(DECLARATION_VAR, "returnValue"));
 
