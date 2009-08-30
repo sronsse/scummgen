@@ -413,14 +413,6 @@ void Game::prepare()
 	uint16_t midiID = 1;
 	uint16_t costumeID = 1;
 	uint16_t charsetID = 1;
-	for (int i = 0; i < _rooms.size(); i++)
-	{
-		_rooms[i]->setID(roomID++);
-		for (int j = 0; j < _rooms[i]->getNumberOfObjects(); j++)
-			_rooms[i]->getObject(j)->setID(objectID++);
-		for (int j = 0; j < _rooms[i]->getNumberOfCostumes(); j++)
-			_rooms[i]->getCostume(j)->setID(costumeID++);
-	}
 	for (int i = 0; i < _objects.size(); i++)
 		_objects[i]->setID(objectID++);
 	for (int i = 0; i < _midis.size(); i++)
@@ -455,6 +447,14 @@ void Game::prepare()
 			voiceID += sizeof(uint8_t); // VOC TERMINATOR_BLOCK_ID
 			_voices[i]->setID(voiceID);
 		}
+	}
+	for (int i = 0; i < _rooms.size(); i++)
+	{
+		_rooms[i]->setID(roomID++);
+		for (int j = 0; j < _rooms[i]->getNumberOfObjects(); j++)
+			_rooms[i]->getObject(j)->setID(objectID++);
+		for (int j = 0; j < _rooms[i]->getNumberOfCostumes(); j++)
+			_rooms[i]->getCostume(j)->setID(costumeID++);
 	}
 
 	// Clear declarations and functions
