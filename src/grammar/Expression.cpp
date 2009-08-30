@@ -172,12 +172,21 @@ string StringExpression::convertString(string s)
 char StringExpression::parseEscapeCharacter(string s, int &pos)
 {
 	char c;
+	istringstream iss;
+	uint32_t value;
 
 	// Get escape character
 	switch (s[pos++])
 	{
 		case '%':
 			c = '%';
+			break;
+		case 'x':
+			iss.str(s.substr(pos, 2));
+			if (!(iss >> hex >> value))
+				Log::write(LOG_ERROR, "Error decoding hexadecimal number in string \"%s\" !\n", s.c_str());
+			c = (char)value;
+			pos += 2;
 			break;
 		default:
 			Log::write(LOG_ERROR, "Unknown escape character in string \"%s\" !\n", s.c_str());
@@ -217,7 +226,7 @@ string StringExpression::parseSpecialCode(string s, int &pos)
 	}
 	convertedString += specialCode;
 
-	// Parse, resolve and add symbol to the string
+	// Parse, resolves[pos] + s[pos + 1] and add symbol to the string
 	string symbol = parseSymbol(s, pos);
 	istringstream iss(symbol);
 	uint32_t value;
