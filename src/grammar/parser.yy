@@ -57,6 +57,7 @@ vector<string> assemblyTokens;
 
 // Priority of operators
 %left '='
+%left T_INC T_DEC
 %left T_LAND T_LOR
 %left T_GE T_LE T_EQ T_NE '>' '<'
 %left '+' '-'
@@ -64,7 +65,6 @@ vector<string> assemblyTokens;
 %left '*' '/'
 %nonassoc T_UMINUS
 %nonassoc T_NOT
-%nonassoc T_INC T_DEC
 %nonassoc T_UNI_INC T_UNI_DEC
 
 // Inputs to yyparse
