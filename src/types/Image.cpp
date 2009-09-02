@@ -89,9 +89,9 @@ void Image::save(string dirPath)
 	Log::unIndent();
 }
 
-void Image::prepare(Palette *palette, bool global)
+void Image::setPalette(Palette *palette, bool global)
 {
-	// Set palette base index
+	// Fill palette passed as a parameter
 	_paletteBaseIndex = palette->add(_bitmapPath, !global);
 }
 

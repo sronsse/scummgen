@@ -187,19 +187,25 @@ void Room::prepare()
 	// Prepare palette
 	_palette->prepare();
 
-	// Prepare background
-	_background->prepare(_palette, false);
+	// Set background palette
+	_background->setPalette(_palette, false);
 
 	// Prepare map
 	_map->prepare();
 
-	// Prepare objects
+	// Prepare objects and fill the room palette accordingly
 	for (int i = 0; i < _objects.size(); i++)
-		_objects[i]->prepare(_palette, false);
+	{
+		_objects[i]->prepare();
+		_objects[i]->setPalette(_palette, false);
+	}
 
-	// Prepare costumes
+	// Prepare costumes and fill the room palette accordingly
 	for (int i = 0; i < _costumes.size(); i++)
-		_costumes[i]->prepare(_palette, false);
+	{
+		_costumes[i]->prepare();
+		_costumes[i]->setPalette(_palette, false);
+	}
 
 	// Clear declarations and functions
 	for (int i = 0; i < _declarations.size(); i++)

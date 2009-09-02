@@ -85,7 +85,8 @@ public:
 	Costume();
 	void load(string dirPath);
 	void save(string dirPath);
-	void prepare(Palette *palette, bool global);
+	void prepare();
+	void setPalette(Palette *palette, bool global);
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }

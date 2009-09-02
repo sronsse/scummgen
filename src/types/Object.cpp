@@ -184,18 +184,21 @@ void Object::save(string dirPath)
 	Log::unIndent();
 }
 
-void Object::prepare(Palette *palette, bool global)
+void Object::prepare()
 {
-	// Prepare first image (for palette update)
-	if (!_images.empty())
-		_images[0]->prepare(palette, global);
-
 	// Delete function if necessary
 	if (_function != NULL)
 	{
 		delete _function;
 		_function = NULL;
 	}
+}
+
+void Object::setPalette(Palette *palette, bool global)
+{
+	// Fill palette given as a parameter
+	if (!_images.empty())
+		_images[0]->setPalette(palette, global);
 }
 
 void Object::compile()
