@@ -4,22 +4,26 @@
 #include "types/Image.hpp"
 
 const uint8_t SMAP::STRIP_WIDTH = 8;
-const uint8_t SMAP::CID_NO_COMPRESSION = 0x01;
+const uint8_t SMAP::CID_NO_COMPRESSION_OPAQUE = 1;
+const uint8_t SMAP::CID_NO_COMPRESSION_TRANSPARENT = 149;
 
 SMAP::SMAP(Image *image)
 {
+	// Set compression ID
+	uint8_t cid = image->isTransparent() ? CID_NO_COMPRESSION_TRANSPARENT : CID_NO_COMPRESSION_OPAQUE;
+
 	BMPFile bmpFile;
 	bmpFile.open(image->getBitmapPath());
 	for (int i = 0; i < bmpFile.getWidth() / STRIP_WIDTH; i++)
 	{
 		vector<uint8_t> strip;
-		strip.push_back(CID_NO_COMPRESSION);
+		strip.push_back(cid);
 		for (int j = 0; j < bmpFile.getHeight(); j++)
 			for (int k = 0; k < STRIP_WIDTH; k++)
 			{
-				uint8_t pixel = 0;
-				if (bmpFile.getPixel(i * STRIP_WIDTH + k, j) != 0)
-					pixel = bmpFile.getPixel(i * STRIP_WIDTH + k, j) + image->getPaletteBaseIndex();
+				uint8_t pixel = bmpFile.getPixel(i * STRIP_WIDTH + k, j);
+				if (pixel > 0)
+					pixel += image->getPaletteBaseIndex();
 				strip.push_back(pixel);
 			}
 		_strips.push_back(strip);

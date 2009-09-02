@@ -14,6 +14,7 @@ private:
 
 	string _name;
 	string _description;
+	bool _transparent;
 	string _bitmapPath;
 	vector<string> _zPlanePaths;
 	uint8_t _paletteBaseIndex;
@@ -23,7 +24,8 @@ public:
 	void save(string dirPath);
 	void prepare(Palette *palette, bool global);
 	string getName() { return _name; }
-	string getDescription() { return _description; }	
+	string getDescription() { return _description; }
+	bool isTransparent() { return _transparent; }
 	string getBitmapPath() { return _bitmapPath; }
 	uint16_t getNumberOfZPlanePaths() { return _zPlanePaths.size(); }
 	string getZPlanePath(uint16_t index) { return _zPlanePaths[index]; }
