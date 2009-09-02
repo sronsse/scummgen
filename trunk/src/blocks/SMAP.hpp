@@ -12,7 +12,8 @@ class SMAP
 {
 private:
 	static const uint8_t STRIP_WIDTH;
-	static const uint8_t CID_NO_COMPRESSION;
+	static const uint8_t CID_NO_COMPRESSION_OPAQUE;
+	static const uint8_t CID_NO_COMPRESSION_TRANSPARENT;
 
 	uint16_t _height;
 	vector<vector<uint8_t> > _strips;

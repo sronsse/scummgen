@@ -27,6 +27,9 @@ void Image::load(string dirPath)
 	_description = rootNode->getChild("description")->getStringContent();
 	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
+	_transparent = rootNode->getChild("transparent")->getBooleanContent();
+	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
+
 	_bitmapPath = dirPath + rootNode->getChild("bitmapName")->getStringContent();
 	Log::write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
 
