@@ -292,7 +292,7 @@ void Costume::save(string dirPath)
 	Log::unIndent();
 }
 
-void Costume::prepare(Palette *palette, bool global)
+void Costume::prepare()
 {
 	if (_anims.empty())
 		Log::write(LOG_ERROR, "Costume doesn't have any animation !\n");
@@ -307,9 +307,6 @@ void Costume::prepare(Palette *palette, bool global)
 	for (int i = 0; i < _anims.size(); i++)
 		_anims[i]->setID(i);
 
-	// Set palette base index
-	_paletteBaseIndex = palette->add(_frames[0]->getBitmapPath(), !global);
-
 	// Set dimensions
 	_width = 0;
 	_height = 0;
@@ -320,6 +317,17 @@ void Costume::prepare(Palette *palette, bool global)
 		if (_height < _frames[i]->getHeight())
 			_height = _frames[i]->getHeight();
 	}
+}
+
+void Costume::setPalette(Palette *palette, bool global)
+{
+	if (_anims.empty())
+		Log::write(LOG_ERROR, "Costume doesn't have any animation !\n");
+	if (_frames.empty())
+		Log::write(LOG_ERROR, "Costume doesn't have any frame !\n");
+
+	// Fill palette passed as a parameter
+	_paletteBaseIndex = palette->add(_frames[0]->getBitmapPath(), !global);
 }
 
 Costume::~Costume()

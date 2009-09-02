@@ -399,13 +399,21 @@ void Game::prepare()
 	for (int i = 0; i < _rooms.size(); i++)
 		_rooms[i]->prepare();
 
-	// Prepare objects
+	// Prepare objects and fill the room palettes accordingly
 	for (int i = 0; i < _objects.size(); i++)
-		_objects[i]->prepare(_rooms[0]->getPalette(), true);
+	{
+		_objects[i]->prepare();
+		for (int j = 0; j < _rooms.size(); j++)
+			_objects[i]->setPalette(_rooms[j]->getPalette(), true);
+	}
 
-	// Prepare costumes
+	// Prepare costumes and fill the room palettes accordingly
 	for (int i = 0; i < _costumes.size(); i++)
-		_costumes[i]->prepare(_rooms[0]->getPalette(), true);
+	{
+		_costumes[i]->prepare();
+		for (int j = 0; j < _rooms.size(); j++)
+			_costumes[i]->setPalette(_rooms[j]->getPalette(), true);
+	}
 
 	// Set resource IDs
 	uint8_t roomID = 1;

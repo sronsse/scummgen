@@ -38,7 +38,8 @@ public:
 	Object();
 	void load(string dirName);
 	void save(string dirName);
-	void prepare(Palette *palette, bool global);
+	void prepare();
+	void setPalette(Palette *palette, bool global);
 	void compile();
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }

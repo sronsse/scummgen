@@ -22,7 +22,7 @@ public:
 	Image();
 	void load(string dirPath);
 	void save(string dirPath);
-	void prepare(Palette *palette, bool global);
+	void setPalette(Palette *palette, bool global);
 	string getName() { return _name; }
 	string getDescription() { return _description; }
 	bool isTransparent() { return _transparent; }
