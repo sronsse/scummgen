@@ -225,9 +225,6 @@ void Costume::load(string dirPath)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_description = rootNode->getChild("description")->getStringContent();
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
-
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
 
@@ -265,9 +262,6 @@ void Costume::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	rootNode->addChild(new XMLNode("description", _description));
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	rootNode->addChild(new XMLNode("mirror", _mirror));
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);

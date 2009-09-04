@@ -13,7 +13,6 @@ private:
 	static const string XML_FILE_NAME;
 
 	string _name;
-	string _description;
 	bool _transparent;
 	string _bitmapPath;
 	vector<string> _zPlanePaths;
@@ -24,7 +23,6 @@ public:
 	void save(string dirPath);
 	void setPalette(Palette *palette, bool global);
 	string getName() { return _name; }
-	string getDescription() { return _description; }
 	bool isTransparent() { return _transparent; }
 	string getBitmapPath() { return _bitmapPath; }
 	uint16_t getNumberOfZPlanePaths() { return _zPlanePaths.size(); }

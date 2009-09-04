@@ -14,7 +14,6 @@ extern int yylex();
 extern int yylineno;
 
 Script::Script():
-_description(""),
 _scriptPath("")
 {
 }
@@ -30,9 +29,6 @@ void Script::load(string dirPath)
 
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	_description = rootNode->getChild("description")->getStringContent();
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	_scriptPath = dirPath + rootNode->getChild("scriptName")->getStringContent();
 	Log::write(LOG_INFO, "scriptPath: %s\n", _scriptPath.c_str());
@@ -54,9 +50,6 @@ void Script::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	rootNode->addChild(new XMLNode("description", _description));
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	string scriptName = _scriptPath.substr(_scriptPath.find_last_of('/') + 1);
 	rootNode->addChild(new XMLNode("scriptName", scriptName));

@@ -54,7 +54,6 @@ private:
 	static const Color COLOR_GORSE;
 	static const Color COLOR_WHITE;
 
-	string _description;
 	vector<Color> _colors;
 	vector<Cycle *> _cycles;
 	uint8_t _transparentIndex;
@@ -67,7 +66,6 @@ public:
 	void load(string dirName);
 	void save(string dirName);
 	void prepare();
-	string getDescription() { return _description; }
 	Color getColor(uint8_t index) { return _colors[index]; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }

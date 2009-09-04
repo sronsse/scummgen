@@ -120,7 +120,6 @@ class Map
 private:
 	static const string XML_FILE_NAME;
 
-	string _description;
 	vector<Box *> _boxes;
 	vector<Scale *> _scales;
 	Matrix *_matrix;
@@ -131,7 +130,6 @@ public:
 	void load(string dirName);
 	void save(string dirName);
 	void prepare();
-	string getDescription() { return _description; }
 	uint8_t getNumberOfBoxes() { return _boxes.size(); }
 	Box *getBox(uint8_t index) { return _boxes[index]; }
 	uint8_t getNumberOfScales() { return _scales.size(); }
