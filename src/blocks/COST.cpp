@@ -121,13 +121,8 @@ void COST::calculateAnimStarts(Costume *costume)
 
 void COST::calculateAnimNoLoopAndEndOffsets(Costume *costume)
 {
-	bool animLooped = !costume->getAnim(0)->isLoop();
-	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_WEST) - 1));
-	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_EAST) - 1));
-	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_SOUTH) - 1));
-	_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(0)->getNumberOfCommands(ANIM_NORTH) - 1));
-
-	for (int i = 1; i < costume->getNumberOfAnims(); i++)
+	bool animLooped;
+	for (int i = 0; i < costume->getNumberOfAnims(); i++)
 	{
 		animLooped = costume->getAnim(i)->isLoop();
 		_animNoLoopAndEndOffsets.push_back((!animLooped << 7) | (costume->getAnim(i)->getNumberOfCommands(ANIM_WEST) - 1));

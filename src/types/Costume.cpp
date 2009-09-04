@@ -60,7 +60,9 @@ void Anim::saveSubAnim(XMLNode *node, AnimDirection direction)
 			name = "north";
 	}
 
-	if (!_commands[direction].empty())
+	// Write commands only if there are multiple entries, or a single entry which is different than 0
+	// as we're always reading this by default when no command is present in the XML file
+	if (_commands[direction].size() > 1 || _commands[direction][0] != 0)
 	{
 		XMLNode *child = new XMLNode(name);
 		node->addChild(child);
