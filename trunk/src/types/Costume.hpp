@@ -74,7 +74,6 @@ private:
 
 	uint16_t _id;
 	string _name;
-	string _description;
 	uint16_t _width;
 	uint16_t _height;
 	bool _mirror;
@@ -90,7 +89,6 @@ public:
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }
-	string getDescription() { return _description; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
 	bool isMirror() { return _mirror; }

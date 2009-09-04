@@ -25,9 +25,6 @@ void Midi::load(string dirPath)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_description = rootNode->getChild("description")->getStringContent();
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
-
 	_midiPath = dirPath + rootNode->getChild("midiName")->getStringContent();
 	Log::write(LOG_INFO, "midiPath: %s\n", _midiPath.c_str());
 
@@ -48,9 +45,6 @@ void Midi::save(string dirPath)
 	
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	rootNode->addChild(new XMLNode("description", _description));
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	string midiName = _midiPath.substr(_midiPath.find_last_of('/') + 1);
 	rootNode->addChild(new XMLNode("midiName", midiName));

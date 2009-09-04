@@ -316,9 +316,6 @@ void Map::load(string dirPath)
 	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_description = rootNode->getChild("description")->getStringContent();
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
-
 	int i = 0;
 	XMLNode *child;
 	while ((child = rootNode->getChild("box", i++)) != NULL)
@@ -352,9 +349,6 @@ void Map::save(string dirPath)
 	XMLFile xmlFile;
 	XMLNode *rootNode = new XMLNode("map");
 	xmlFile.setRootNode(rootNode);
-
-	rootNode->addChild(new XMLNode("description", _description));
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	for (int i = 0; i < _boxes.size(); i++)
 	{

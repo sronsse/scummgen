@@ -12,7 +12,6 @@ private:
 
 	uint16_t _id;
 	string _name;
-	string _description;
 	string _midiPath;
 public:
 	Midi();
@@ -21,7 +20,6 @@ public:
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }
-	string getDescription() { return _description; }
 	string getMidiPath() { return _midiPath; }
 	~Midi();
 };

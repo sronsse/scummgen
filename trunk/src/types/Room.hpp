@@ -24,7 +24,6 @@ private:
 
 	uint8_t _id;
 	string _name;
-	string _description;
 	Palette *_palette;
 	Image *_background;
 	Map *_map;
@@ -52,7 +51,6 @@ public:
 	uint8_t getID() { return _id; }
 	void setID(uint8_t id) { _id = id; }
 	string getName() { return _name; }
-	string getDescription() { return _description; }
 	Palette *getPalette() { return _palette; }
 	Image *getBackground() { return _background; }	
 	Map *getMap() { return _map; }

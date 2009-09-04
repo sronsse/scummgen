@@ -13,7 +13,6 @@ private:
 
 	uint32_t _id;
 	string _name;
-	string _description;
 	string _wavePath;
 	vector<uint16_t> _syncTimes;
 public:
@@ -23,7 +22,6 @@ public:
 	uint32_t getID() { return _id; }
 	void setID(uint32_t id) { _id = id; }
 	string getName() { return _name; }
-	string getDescription() { return _description; }
 	string getWavePath() { return _wavePath; }	
 	uint8_t getNumberOfSyncTimes() { return _syncTimes.size(); }
 	uint16_t getSyncTime(uint8_t index) { return _syncTimes[index]; }

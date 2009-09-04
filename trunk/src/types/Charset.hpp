@@ -38,7 +38,6 @@ private:
 
 	uint16_t _id;
 	string _name;
-	string _description;
 	string _bitmapPath;
 	uint8_t _fontHeight;
 	vector<Char *>_chars;
@@ -49,7 +48,6 @@ public:
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }
-	string getDescription() { return _description; }
 	string getBitmapPath() { return _bitmapPath; }
 	uint8_t getFontHeight() { return _fontHeight; }
 	uint16_t getNumberOfChars() { return _chars.size(); }

@@ -119,9 +119,6 @@ void Palette::load(string dirPath)
 	xmlFile.open(dirPath + XML_FILE_NAME);
 	XMLNode *rootNode = xmlFile.getRootNode();
 
-	_description = rootNode->getChild("description")->getStringContent();
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
-
 	_transparentIndex = rootNode->getChild("transparentIndex")->getIntegerContent();
 	Log::write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
 
@@ -148,9 +145,6 @@ void Palette::save(string dirPath)
 	XMLFile xmlFile;
 	XMLNode *rootNode = new XMLNode("palette");
 	xmlFile.setRootNode(rootNode);
-
-	rootNode->addChild(new XMLNode("description", _description));
-	Log::write(LOG_INFO, "description: %s\n", _description.c_str());
 
 	rootNode->addChild(new XMLNode("transparentIndex", _transparentIndex));
 	Log::write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
