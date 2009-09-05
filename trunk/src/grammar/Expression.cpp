@@ -226,7 +226,7 @@ string StringExpression::parseSpecialCode(string s, int &pos)
 	}
 	convertedString += specialCode;
 
-	// Parse, resolves[pos] + s[pos + 1] and add symbol to the string
+	// Parse, resolve, and add symbol to the string
 	string symbol = parseSymbol(s, pos);
 	istringstream iss(symbol);
 	uint32_t value;
