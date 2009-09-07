@@ -52,8 +52,8 @@ uint32_t ZPxx::getSize()
 
 void ZPxx::write(fstream &f)
 {
-	char identifier[4];
-	sprintf(identifier, "ZP%02u", _index);
+	char identifier[5];
+	snprintf(identifier, 5, "ZP%02u", _index);
 	IO::writeString(f, identifier);
 	IO::writeU32BE(f, getSize());
 	for (int i = 0; i < _offsets.size(); i++)
