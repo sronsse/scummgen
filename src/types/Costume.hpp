@@ -52,18 +52,20 @@ private:
 	uint16_t _height;
 	int16_t _xOffset;
 	int16_t _yOffset;
+	vector<vector<uint8_t> > _pixels;
 public:
 	Frame();
 	void load(XMLNode *node, string dirPath);
 	void save(XMLNode *node, string dirPath);
 	void prepare();
-	string getBitmapPath() { return _bitmapPath; }
+	void setPalette(Palette *palette, bool transparent, bool optimizable, bool global, vector<uint8_t> &redirectionPalette);
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
 	int16_t getXOffset() { return _xOffset; }
 	int16_t getYOffset() { return _yOffset; }
+	uint32_t getPixel(uint32_t x, uint32_t y) { return _pixels[x][y]; }
 	~Frame();
 };
 
@@ -74,12 +76,14 @@ private:
 
 	uint16_t _id;
 	string _name;
+	bool _transparent;
+	bool _optimizable;
 	uint16_t _width;
 	uint16_t _height;
 	bool _mirror;
 	vector<Anim *> _anims;
 	vector<Frame *> _frames;
-	uint8_t _paletteBaseIndex;
+	vector<uint8_t> _redirectionPalette;
 public:
 	Costume();
 	void load(string dirPath);
@@ -96,7 +100,8 @@ public:
 	Anim *getAnim(uint32_t index) { return _anims[index]; }
 	uint8_t getNumberOfFrames() { return _frames.size(); }
 	Frame *getFrame(uint8_t index) { return _frames[index]; }
-	uint8_t getPaletteBaseIndex() { return _paletteBaseIndex; }
+	uint8_t getNumberOfColors() { return _redirectionPalette.size(); }
+	uint8_t getColor(uint8_t index) { return _redirectionPalette[index]; }
 	~Costume();
 };
 

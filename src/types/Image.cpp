@@ -7,8 +7,12 @@
 const string Image::XML_FILE_NAME = "image.xml";
 
 Image::Image():
+_name(""),
+_transparent(false),
+_optimizable(false),
 _bitmapPath(""),
-_paletteBaseIndex(0)
+_width(0),
+_height(0)
 {
 }
 
@@ -27,6 +31,9 @@ void Image::load(string dirPath)
 	_transparent = rootNode->getChild("transparent")->getBooleanContent();
 	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
 
+	_optimizable = rootNode->getChild("optimizable")->getBooleanContent();
+	Log::write(LOG_INFO, "optimizable: %s\n", _optimizable ? "true" : "false");
+
 	_bitmapPath = dirPath + rootNode->getChild("bitmapName")->getStringContent();
 	Log::write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
 
@@ -34,6 +41,12 @@ void Image::load(string dirPath)
 	XMLNode *child;
 	while ((child = rootNode->getChild("zPlaneName", i++)) != NULL)
 		_zPlanePaths.push_back(dirPath + child->getStringContent());
+
+	// Get width and height from bitmap
+	BMPFile bmpFile;
+	bmpFile.open(_bitmapPath);
+	_width = bmpFile.getWidth();
+	_height = bmpFile.getHeight();
 
 	Log::unIndent();
 }
@@ -52,6 +65,12 @@ void Image::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	rootNode->addChild(new XMLNode("transparent", _transparent));
+	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
+
+	rootNode->addChild(new XMLNode("optimizable", _optimizable));
+	Log::write(LOG_INFO, "optimizable: %s\n", _optimizable ? "true" : "false");
 
 	string bitmapName = _bitmapPath.substr(_bitmapPath.find_last_of('/') + 1);
 	rootNode->addChild(new XMLNode("bitmapName", bitmapName));
@@ -85,8 +104,29 @@ void Image::save(string dirPath)
 
 void Image::setPalette(Palette *palette, bool global)
 {
-	// Fill palette passed as a parameter
-	_paletteBaseIndex = palette->add(_bitmapPath, !global);
+	// Open original bitmap
+	BMPFile bmpFile;
+	bmpFile.open(_bitmapPath);
+
+	// Get original palette from bitmap
+	vector<Color> colors;
+	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+		colors.push_back(bmpFile.getColor(i));
+
+	// Clear our pixel array
+	_pixels.clear();
+
+	// Get pixels from bitmap
+	for (int x = 0; x < _width; x++)
+	{
+		vector<uint8_t> pixelColumn;
+		for (int y = 0; y < _height; y++)
+			pixelColumn.push_back(bmpFile.getPixel(x, y));
+		_pixels.push_back(pixelColumn);
+	}
+
+	// Add colors to palette (and update pixels)
+	palette->add(&colors, _pixels, _transparent, _optimizable, !global);
 }
 
 Image::~Image()

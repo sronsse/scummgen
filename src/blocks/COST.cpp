@@ -17,24 +17,18 @@ const uint8_t COST::SHIFT_32 = 3;
 
 COST::COST(Costume *costume)
 {
-	BMPFile bmpFile;
-	bmpFile.open(costume->getFrame(0)->getBitmapPath());
-
 	_format = DEFAULT_FORMAT;
 	_format |= !costume->isMirror() << 7; // If the animations are not mirrored, format's bit 7 should be set
 
-	uint8_t nColors = bmpFile.getNumberOfColors() <= 16 ? 16 : 32;
+	uint8_t nColors = costume->getNumberOfColors() <= 16 ? 16 : 32;
 	if (nColors == 32) // If the number of colors is 32, format's bit 0 should be set
 		_format |= 0x01;
 
 	// Costume redirection palette
-	for (int i = 0; i < nColors; i++)
-	{
-		uint8_t index = 0;
-		if (costume->getPaletteBaseIndex() + i < Palette::MAX_COLORS)
-			index = costume->getPaletteBaseIndex() + i;
-		_palette.push_back(index);
-	}
+	for (int i = 0; i < costume->getNumberOfColors(); i++)
+		_palette.push_back(costume->getColor(i));
+	for (int i = costume->getNumberOfColors(); i < nColors; i++)
+		_palette.push_back(0);
 
 	calculateAnimCmdsOffset(costume);
 	calculateLimbOffsets(costume);
@@ -187,16 +181,14 @@ void COST::calculatePictOffsets(Costume *costume)
 void COST::getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataBytes)
 {
 	// Prepare data for RLE
-	BMPFile bmpFile;
-	bmpFile.open(frame->getBitmapPath());
 	vector<uint8_t> pixels;
 	vector<uint32_t> repCounts;
-	uint8_t lastPixel = bmpFile.getPixel(frame->getX(), frame->getY());
+	uint8_t lastPixel = frame->getPixel(0, 0);
 	uint32_t repCount = 0;
 	for (int i = 0; i < frame->getWidth(); i++)
 	{
 		for (int j = 0; j < frame->getHeight(); j++)
-			addPixel(bmpFile.getPixel(frame->getX() + i, frame->getY() + j), lastPixel, repCount, pixels, repCounts);
+			addPixel(frame->getPixel(i, j), lastPixel, repCount, pixels, repCounts);
 		for (int j = 0; j < costume->getHeight() - frame->getHeight(); j++)
 			addPixel(0, lastPixel, repCount, pixels, repCounts);
 	}
@@ -207,7 +199,7 @@ void COST::getDataBytes(Costume *costume, Frame *frame, vector<uint8_t> &dataByt
 	repCounts.push_back(repCount);
 
 	// Write data bytes using the RLE algorithm
-	writeRLEData(dataBytes, bmpFile.getNumberOfColors() <= 16 ? SHIFT_16 : SHIFT_32, &pixels, &repCounts);
+	writeRLEData(dataBytes, costume->getNumberOfColors() <= 16 ? SHIFT_16 : SHIFT_32, &pixels, &repCounts);
 }
 
 void COST::addPixel(uint8_t pixel, uint8_t &lastPixel, uint32_t &repCount, vector<uint8_t> &pixels, vector<uint32_t> &repCounts)

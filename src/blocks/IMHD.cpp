@@ -1,5 +1,4 @@
 #include "IMHD.hpp"
-#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Object.hpp"
 #include "types/Image.hpp"
@@ -20,10 +19,8 @@ IMHD::IMHD(Object *object)
 	}
 	else
 	{
-		BMPFile bmpFile;
-		bmpFile.open(object->getImage(0)->getBitmapPath());
-		_width = bmpFile.getWidth();
-		_height = bmpFile.getHeight();
+		_width = object->getImage(0)->getWidth();
+		_height = object->getImage(0)->getHeight();
 	}
 	for (int i = 0; i < object->getNumberOfHotspots(); i++)
 	{

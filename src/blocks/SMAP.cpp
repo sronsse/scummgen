@@ -1,5 +1,4 @@
 #include "SMAP.hpp"
-#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Image.hpp"
 
@@ -12,18 +11,14 @@ SMAP::SMAP(Image *image)
 	// Set compression ID
 	uint8_t cid = image->isTransparent() ? CID_NO_COMPRESSION_TRANSPARENT : CID_NO_COMPRESSION_OPAQUE;
 
-	BMPFile bmpFile;
-	bmpFile.open(image->getBitmapPath());
-	for (int i = 0; i < bmpFile.getWidth() / STRIP_WIDTH; i++)
+	for (int i = 0; i < image->getWidth() / STRIP_WIDTH; i++)
 	{
 		vector<uint8_t> strip;
 		strip.push_back(cid);
-		for (int j = 0; j < bmpFile.getHeight(); j++)
+		for (int j = 0; j < image->getHeight(); j++)
 			for (int k = 0; k < STRIP_WIDTH; k++)
 			{
-				uint8_t pixel = bmpFile.getPixel(i * STRIP_WIDTH + k, j);
-				if (pixel > 0)
-					pixel += image->getPaletteBaseIndex();
+				uint8_t pixel = image->getPixel(i * STRIP_WIDTH + k, j);
 				strip.push_back(pixel);
 			}
 		_strips.push_back(strip);

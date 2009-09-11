@@ -201,6 +201,52 @@ void Frame::prepare()
 		Log::write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
 }
 
+void Frame::setPalette(Palette *palette, bool transparent, bool optimizable, bool global, vector<uint8_t> &redirectionPalette)
+{
+	// Open original bitmap
+	BMPFile bmpFile;
+	bmpFile.open(_bitmapPath);
+
+	// Get original palette from bitmap
+	vector<Color> colors;
+	for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+		colors.push_back(bmpFile.getColor(i));
+
+	// Clear any existing pixels
+	_pixels.clear();
+
+	// Get pixels from bitmap
+	for (int x = 0; x < _width; x++)
+	{
+		vector<uint8_t> pixelColumn;
+		for (int y = 0; y < _height; y++)
+			pixelColumn.push_back(bmpFile.getPixel(_x + x, _y + y));
+		_pixels.push_back(pixelColumn);
+	}
+
+	// Add colors to palette (and update pixels)
+	palette->add(&colors, _pixels, transparent, optimizable, !global);
+
+	// Modify pixels and update redirection palette
+	for (int x = 0; x < _width; x++)
+		for (int y = 0; y < _height; y++)
+		{
+			bool found = false;
+			for (int i = 0; i < redirectionPalette.size(); i++)
+				if (_pixels[x][y] == redirectionPalette[i])
+				{
+					_pixels[x][y] = i;
+					found = true;
+					break;
+				}
+			if (!found)
+			{
+				redirectionPalette.push_back(_pixels[x][y]);
+				_pixels[x][y] = redirectionPalette.size() - 1;
+			}
+		}
+}
+
 Frame::~Frame()
 {
 }
@@ -208,10 +254,11 @@ Frame::~Frame()
 Costume::Costume():
 _id(0),
 _name(""),
+_transparent(false),
+_optimizable(false),
 _mirror(true),
 _width(0),
-_height(0),
-_paletteBaseIndex(0)
+_height(0)
 {
 }
 
@@ -226,6 +273,12 @@ void Costume::load(string dirPath)
 
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	_transparent = rootNode->getChild("transparent")->getBooleanContent();
+	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
+
+	_optimizable = rootNode->getChild("optimizable")->getBooleanContent();
+	Log::write(LOG_INFO, "optimizable: %s\n", _optimizable ? "true" : "false");
 
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
@@ -264,6 +317,12 @@ void Costume::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
+
+	rootNode->addChild(new XMLNode("transparent", _transparent));
+	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
+
+	rootNode->addChild(new XMLNode("optimizable", _optimizable));
+	Log::write(LOG_INFO, "optimizable: %s\n", _optimizable ? "true" : "false");
 
 	rootNode->addChild(new XMLNode("mirror", _mirror));
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
@@ -317,13 +376,12 @@ void Costume::prepare()
 
 void Costume::setPalette(Palette *palette, bool global)
 {
-	if (_anims.empty())
-		Log::write(LOG_ERROR, "Costume doesn't have any animation !\n");
-	if (_frames.empty())
-		Log::write(LOG_ERROR, "Costume doesn't have any frame !\n");
+	// Clear redirection palette and add an entry (for transparency)
+	_redirectionPalette.clear();
+	_redirectionPalette.push_back(0);
 
-	// Fill palette passed as a parameter
-	_paletteBaseIndex = palette->add(_frames[0]->getBitmapPath(), !global);
+	for (int i = 0; i < _frames.size(); i++)
+		_frames[i]->setPalette(palette, _transparent, _optimizable, global, _redirectionPalette);
 }
 
 Costume::~Costume()

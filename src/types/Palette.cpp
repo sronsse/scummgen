@@ -90,24 +90,6 @@ _transparentIndex(0),
 _startCursor(0),
 _endCursor(0)
 {
-	// Set palette size and default colors
-	_colors.push_back(COLOR_BLACK);
-	_colors.push_back(COLOR_DARK_BLUE);
-	_colors.push_back(COLOR_JAPANESE_LAUREL);
-	_colors.push_back(COLOR_PERSIAN_GREEN);
-	_colors.push_back(COLOR_BRIGHT_RED);
-	_colors.push_back(COLOR_FLIRT);
-	_colors.push_back(COLOR_CHELSEA_GEM);
-	_colors.push_back(COLOR_SILVER_CHALICE);
-	_colors.push_back(COLOR_SCORPION);
-	_colors.push_back(COLOR_DODGER_BLUE);
-	_colors.push_back(COLOR_SCREAMIN_GREEN);
-	_colors.push_back(COLOR_AQUAMARINE);
-	_colors.push_back(COLOR_PERSIMMON);
-	_colors.push_back(COLOR_PINK_FLAMINGO);
-	_colors.push_back(COLOR_GORSE);
-	_colors.push_back(COLOR_WHITE);
-	_colors.resize(MAX_COLORS);
 }
 
 void Palette::load(string dirPath)
@@ -171,32 +153,121 @@ void Palette::prepare()
 	// Set cursors
 	_startCursor = N_COMMON_COLORS;
 	_endCursor = MAX_COLORS;
+
+	// Set palette size and default colors
+	_colors.clear();
+	_colors.push_back(COLOR_BLACK);
+	_colors.push_back(COLOR_DARK_BLUE);
+	_colors.push_back(COLOR_JAPANESE_LAUREL);
+	_colors.push_back(COLOR_PERSIAN_GREEN);
+	_colors.push_back(COLOR_BRIGHT_RED);
+	_colors.push_back(COLOR_FLIRT);
+	_colors.push_back(COLOR_CHELSEA_GEM);
+	_colors.push_back(COLOR_SILVER_CHALICE);
+	_colors.push_back(COLOR_SCORPION);
+	_colors.push_back(COLOR_DODGER_BLUE);
+	_colors.push_back(COLOR_SCREAMIN_GREEN);
+	_colors.push_back(COLOR_AQUAMARINE);
+	_colors.push_back(COLOR_PERSIMMON);
+	_colors.push_back(COLOR_PINK_FLAMINGO);
+	_colors.push_back(COLOR_GORSE);
+	_colors.push_back(COLOR_WHITE);
+	_colors.resize(MAX_COLORS);
+
+	// Clear our optimization array
+	_optimizable.clear();
+	_optimizable.resize(MAX_COLORS);
 }
 
-uint8_t Palette::add(string bitmapPath, bool fromStart)
+void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, bool transparent, bool optimizable, bool fromStart)
 {
-	BMPFile bmpFile;
-	bmpFile.open(bitmapPath);
-
-	if (fromStart)
+	// If we don't need optimization, we just append colors to the palette
+	if (!optimizable)
 	{
-		for (int i = 0; i < bmpFile.getNumberOfColors(); i++)
+		for (int i = transparent ? 1 : 0; i < colors->size(); i++)
 		{
-			_colors[_startCursor++] = bmpFile.getColor(i);
 			if (_startCursor == _endCursor)
-				Log::write(LOG_ERROR, "Palette contains too many colors !\n");
+					Log::write(LOG_ERROR, "Palette contains too many colors !\n");
+
+			if (fromStart)
+			{
+				_colors[_startCursor] = (*colors)[i];
+				_optimizable[_startCursor] = false;
+				_startCursor++;
+			}
+			else
+			{
+				_endCursor--;
+				_colors[_endCursor] = (*colors)[colors->size() - 1 - i + (transparent ? 1 : 0)];
+				_optimizable[_endCursor] = false;
+				
+			}
 		}
-		return _startCursor - bmpFile.getNumberOfColors();
+
+		// Update pixels
+		uint8_t paletteIndex = fromStart ? _startCursor - colors->size() + (transparent ? 1 : 0) : _endCursor;
+		for (int x = 0; x < pixels.size(); x++)
+			for (int y = 0; y < pixels[x].size(); y++)
+				if (!transparent || pixels[x][y] != 0)
+					pixels[x][y] += paletteIndex - (transparent ? 1 : 0);
 	}
 	else
 	{
-		for (int i = bmpFile.getNumberOfColors() - 1; i >= 0; i--)
-		{
-			_colors[--_endCursor] = bmpFile.getColor(i);
-			if (_startCursor == _endCursor)
-				Log::write(LOG_ERROR, "Palette contains too many colors !\n");
-		}
-		return _endCursor;
+		Color c;
+		bool found;
+		for (int x = 0; x < pixels.size(); x++)
+			for (int y = 0; y < pixels[x].size(); y++)
+			{
+				// If pixel is equal to 0 and the image is transparent, the pixel
+				// should be kept as is and the palette should not be updated
+				if (transparent && pixels[x][y] == 0)
+					continue;
+
+				// See if the color already exists and update pixel if needed,
+				// otherwise append the color to the palette
+				c = (*colors)[pixels[x][y]];
+				found = false;
+				if (fromStart)
+				{
+					for (int i = N_COMMON_COLORS; i < _startCursor; i++)
+						if (_optimizable[i] && c.r == _colors[i].r && c.g == _colors[i].g && c.b == _colors[i].b)
+						{
+							pixels[x][y] = i;
+							found = true;
+							break;
+						}
+					if (!found)
+					{
+						if (_startCursor == _endCursor)
+							Log::write(LOG_ERROR, "Palette contains too many colors !\n");
+
+						_colors[_startCursor] = c;
+						pixels[x][y] = _startCursor;
+						_optimizable[_startCursor] = true;
+						_startCursor++;
+					}
+				}
+				else
+				{
+					for (int i = MAX_COLORS; i > _endCursor; i--)
+						if (c.r == _colors[i - 1].r && c.g == _colors[i - 1].g && c.b == _colors[i - 1].b)
+						{
+							pixels[x][y] = i - 1;
+							found = true;
+							break;
+						}
+					if (!found)
+					{
+						if (_endCursor == _startCursor)
+							Log::write(LOG_ERROR, "Palette contains too many colors !\n");
+
+						_endCursor--;
+						_colors[_endCursor] = c;
+						pixels[x][y] = _endCursor;
+						_optimizable[_endCursor] = true;
+					}
+				}
+			}
 	}
 }
 

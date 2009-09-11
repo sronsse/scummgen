@@ -59,6 +59,7 @@ private:
 	uint8_t _transparentIndex;
 	uint16_t _startCursor;
 	uint16_t _endCursor;
+	vector<bool> _optimizable;
 public:
 	static const uint16_t MAX_COLORS;
 
@@ -70,7 +71,7 @@ public:
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
 	uint8_t getTransparentIndex() { return _transparentIndex; }
-	uint8_t add(string bitmapPath, bool fromStart);
+	void add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, bool transparent, bool optimizable, bool fromStart);
 	~Palette();
 };
 

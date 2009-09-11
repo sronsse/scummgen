@@ -1,5 +1,4 @@
 #include "RMHD.hpp"
-#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "types/Game.hpp"
 #include "types/Room.hpp"
@@ -9,10 +8,8 @@ RMHD::RMHD(Game *game, uint8_t roomIndex)
 {
 	Room *room = game->getRoom(roomIndex);
 
-	BMPFile bmpFile;
-	bmpFile.open(room->getBackground()->getBitmapPath());
-	_width = bmpFile.getWidth();
-	_height = bmpFile.getHeight();
+	_width = room->getBackground()->getWidth();
+	_height = room->getBackground()->getHeight();
 	_nObjects = room->getNumberOfObjects();
 
 	// In case we're in the first room, we have to consider the global objects also

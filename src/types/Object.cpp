@@ -191,8 +191,8 @@ void Object::prepare()
 void Object::setPalette(Palette *palette, bool global)
 {
 	// Fill palette given as a parameter
-	if (!_images.empty())
-		_images[0]->setPalette(palette, global);
+	for (int i = 0; i < _images.size(); i++)
+		_images[i]->setPalette(palette, global);
 }
 
 void Object::compile()
