@@ -390,7 +390,7 @@ void Instruction::setOpcodes()
 	_opcodes["getActorAnimCounter"] = OC_GET_ACTOR_ANIM_COUNTER;
 	_opcodes["getActorCostume"] = OC_GET_ACTOR_COSTUME;
 	_opcodes["getActorElevation"] = OC_GET_ACTOR_ELEVATION;
-	_opcodes["getActorFromXy"] = OC_GET_ACTOR_FROM_XY;
+	_opcodes["getActorFromXY"] = OC_GET_ACTOR_FROM_XY;
 	_opcodes["getActorLayer"] = OC_GET_ACTOR_LAYER;
 	_opcodes["getActorMoving"] = OC_GET_ACTOR_MOVING;
 	_opcodes["getActorRoom"] = OC_GET_ACTOR_ROOM;
@@ -410,7 +410,7 @@ void Instruction::setOpcodes()
 	_opcodes["getRandomNumberRange"] = OC_GET_RANDOM_NUMBER_RANGE;
 	_opcodes["getState"] = OC_GET_STATE;
 	_opcodes["getVerbEntryPoint"] = OC_GET_VERB_ENTRY_POINT;
-	_opcodes["getVerbFromXy"] = OC_GET_VERB_FROM_XY;
+	_opcodes["getVerbFromXY"] = OC_GET_VERB_FROM_XY;
 	_opcodes["gt"] = OC_GT;
 	_opcodes["if"] = OC_IF;
 	_opcodes["ifClassOfIs"] = OC_IF_CLASS_OF_IS;
