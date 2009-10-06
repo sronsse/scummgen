@@ -302,17 +302,19 @@ void Room::parse(vector<Declaration *> &declarations)
 			_objects[i]->setFunction(f);
 		}
 
-	// Set local resources declarations
+	// Cycles declarations
 	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getCycle(i)->getName(), _palette->getCycle(i)->getID()));
-	for (int i = 0; i < _objects.size(); i++)
-		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+
+	// Costumes declarations
 	for (int i = 0; i < _costumes.size(); i++)
 	{
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
 		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
 			_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName() + "_" + _costumes[i]->getAnim(j)->getName(), _costumes[i]->getAnim(j)->getID()));
 	}
+
+	// Boxes declarations
 	for (int i = 0; i < _map->getNumberOfBoxes(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _map->getBox(i)->getName(), _map->getBox(i)->getID()));
 
