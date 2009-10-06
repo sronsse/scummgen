@@ -539,21 +539,36 @@ void Game::parse()
 			_objects[i]->setFunction(f);
 		}
 
-	// Set global resources declarations
+	// Room declarations
 	for (int i = 0; i < _rooms.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getName(), _rooms[i]->getID()));
+
+	// Global objects declarations
 	for (int i = 0; i < _objects.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _objects[i]->getName(), _objects[i]->getID()));
+	
+	// Local objects declarations (this is necessary for global inventory scripts which need local objects names)
+	for (int i = 0; i < _rooms.size(); i++)
+		for (int j = 0; j < _rooms[i]->getNumberOfObjects(); j++)
+			_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getObject(j)->getName(), _rooms[i]->getObject(j)->getID()));
+
+	// Midi declarations
 	for (int i = 0; i < _midis.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _midis[i]->getName(), _midis[i]->getID()));
+	
+	// Costume declarations
 	for (int i = 0; i < _costumes.size(); i++)
 	{
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName(), _costumes[i]->getID()));
 		for (int j = 0; j < _costumes[i]->getNumberOfAnims(); j++)
 			_declarations.push_back(new Declaration(DECLARATION_CONST, _costumes[i]->getName() + "_" + _costumes[i]->getAnim(j)->getName(), _costumes[i]->getAnim(j)->getID()));
 	}
+
+	// Charset declarations
 	for (int i = 0; i < _charsets.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _charsets[i]->getName(), _charsets[i]->getID()));
+
+	// Voice declarations
 	for (int i = 0; i < _voices.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _voices[i]->getName(), _voices[i]->getID()));
 
