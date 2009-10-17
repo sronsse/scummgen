@@ -37,7 +37,6 @@ int parseString();
 "else"          				return T_ELSE;
 "switch"						return T_SWITCH;
 "case"							return T_CASE;
-"verb"							return T_VERB;
 "default"						return T_DEFAULT;
 "for"	         				return T_FOR;
 "while"         				return T_WHILE;
