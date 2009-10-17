@@ -77,6 +77,36 @@ vector<string> assemblyTokens;
 
 %%
 
+actionStatement:
+	expression ':' statements
+	{
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		CaseStatement *caseStatement = new CaseStatement(expression);
+		for (int i = 0; i < statementListCollector.back().size(); i++)
+			caseStatement->addStatement(statementListCollector.back()[i]);
+		statementListCollector.pop_back();
+		statementCollector.push_back(caseStatement);
+	}
+	;
+
+actionStatements:
+	actionStatements actionStatement
+	{
+		CaseStatement *caseStatement = (CaseStatement *)statementCollector.back();
+		statementListCollector.back().push_back(caseStatement);
+		statementCollector.pop_back();
+	}
+	| actionStatement
+	{
+		vector<Statement *> v;
+		CaseStatement *caseStatement = (CaseStatement *)statementCollector.back();
+		v.push_back(caseStatement);
+		statementCollector.pop_back();
+		statementListCollector.push_back(v);
+	}
+	;
+
 arg:
 	T_VAR T_IDENTIFIER
 	{
@@ -587,7 +617,7 @@ statement:
 		statementListCollector.pop_back();
 		statementCollector.push_back(switchStatement);
 	}
-	| caseStatements
+	| actionStatements
 	{
 		VerbStatement *verbStatement = new VerbStatement();
 		for (int i = 0; i < statementListCollector.back().size(); i++)
