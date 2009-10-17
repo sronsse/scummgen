@@ -28,6 +28,8 @@ int parseString();
 \"								return parseString();
 "const"							return T_CONST;
 "var"							return T_VAR;
+"actor"							return T_ACTOR;
+"verb"							return T_VERB;
 "function"         				return T_FUNCTION;
 "inline"						return T_INLINE;
 "thread"         				return T_THREAD;

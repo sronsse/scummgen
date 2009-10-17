@@ -37,6 +37,8 @@ vector<string> assemblyTokens;
 %token <string> T_STRING
 %token T_CONST
 %token T_VAR
+%token T_ACTOR
+%token T_VERB
 %token T_FUNCTION
 %token T_INLINE
 %token T_THREAD
@@ -44,7 +46,6 @@ vector<string> assemblyTokens;
 %token T_ELSE
 %token T_SWITCH
 %token T_CASE
-%token T_VERB
 %token T_DEFAULT
 %token T_FOR
 %token T_WHILE
@@ -205,6 +206,16 @@ declaration:
 	| T_VAR T_IDENTIFIER ';'
 	{
 		Declaration *declaration = new Declaration(DECLARATION_VAR, $2);
+		declarationCollector.push_back(declaration);
+	}
+	| T_ACTOR T_IDENTIFIER ';'
+	{
+		Declaration *declaration = new Declaration(DECLARATION_ACTOR, $2);
+		declarationCollector.push_back(declaration);
+	}
+	| T_VERB T_IDENTIFIER ';'
+	{
+		Declaration *declaration = new Declaration(DECLARATION_VERB, $2);
 		declarationCollector.push_back(declaration);
 	}
 	;
@@ -576,7 +587,7 @@ statement:
 		statementListCollector.pop_back();
 		statementCollector.push_back(switchStatement);
 	}
-	| T_VERB '{' caseStatements '}'
+	| caseStatements
 	{
 		VerbStatement *verbStatement = new VerbStatement();
 		for (int i = 0; i < statementListCollector.back().size(); i++)
