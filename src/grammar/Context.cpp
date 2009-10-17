@@ -4,6 +4,8 @@
 #include "Declaration.hpp"
 
 vector<Context *> Context::_instances;
+uint32_t Context::_currentActor;
+uint32_t Context::_currentVerb;
 
 const uint16_t Context::LOCAL_VARIABLE_MASK = 0x4000;
 
@@ -50,6 +52,20 @@ void Context::pushContext(Context *context)
 	Log::write(LOG_INFO, "Pushing context (%s)...\n", contextType.c_str());
 	Log::indent();
 
+	// Reset actor and verb counters when parsing the complete game
+	if (context->_type == CONTEXT_GAME)
+	{
+		_currentActor = 1;
+		_currentVerb = 1;
+	}
+
+	// When we enter functions, we have to reset the label counter and the current instruction address
+	if (context->_type == CONTEXT_FUNCTION)
+	{
+		labelCounter = 0;
+		currentAddress = 0;
+	}
+
 	// Compute the different kinds of symbols
 	Log::write(LOG_INFO, "Computing symbols...\n");
 	Log::indent();
@@ -59,13 +75,6 @@ void Context::pushContext(Context *context)
 	context->setFunctionSymbols();
 	context->displaySymbols();
 	Log::unIndent();
-
-	// When we enter functions, we have to reset the label counter and the current instruction address
-	if (context->_type == CONTEXT_FUNCTION)
-	{
-		labelCounter = 0;
-		currentAddress = 0;
-	}
 }
 
 void Context::popContext()
@@ -213,6 +222,7 @@ void Context::setConstantSymbols()
 	if (_declarations == NULL)
 		return;
 
+	// We first add normal constants, then actors and verbs which are treated as constants also
 	for (int i = 0; i < _declarations->size(); i++)
 		if ((*_declarations)[i]->getType() == DECLARATION_CONST)
 		{
@@ -220,6 +230,22 @@ void Context::setConstantSymbols()
 			if (symbolExists(name))
 				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
 			_constantSymbols[name] = (*_declarations)[i]->getValue();
+		}
+		else if ((*_declarations)[i]->getType() == DECLARATION_ACTOR)
+		{
+			string name = (*_declarations)[i]->getName();
+			if (symbolExists(name))
+				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
+			_constantSymbols[name] = _currentActor++;
+			if (_currentActor > Game::N_DEFAULT_ACTORS)
+				Log::write(LOG_ERROR, "Too many actors declared !\n");
+		}
+		else if ((*_declarations)[i]->getType() == DECLARATION_VERB)
+		{
+			string name = (*_declarations)[i]->getName();
+			if (symbolExists(name))
+				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
+			_constantSymbols[name] = _currentVerb++;
 		}
 }
 

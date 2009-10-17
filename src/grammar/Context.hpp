@@ -36,6 +36,8 @@ class Context
 {
 private:
 	static vector<Context *> _instances;
+	static uint32_t _currentActor;
+	static uint32_t _currentVerb;
 
 	ContextType _type;
 	vector<Declaration *> *_declarations;

@@ -8,7 +8,9 @@ using namespace std;
 typedef enum
 {
 	DECLARATION_CONST,
-	DECLARATION_VAR
+	DECLARATION_VAR,
+	DECLARATION_ACTOR,
+	DECLARATION_VERB
 } DeclarationType;
 
 class Declaration
