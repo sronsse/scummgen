@@ -39,6 +39,7 @@ vector<string> assemblyTokens;
 %token T_VAR
 %token T_ACTOR
 %token T_VERB
+%token T_CLASS
 %token T_FUNCTION
 %token T_INLINE
 %token T_THREAD
@@ -246,6 +247,11 @@ declaration:
 	| T_VERB T_IDENTIFIER ';'
 	{
 		Declaration *declaration = new Declaration(DECLARATION_VERB, $2);
+		declarationCollector.push_back(declaration);
+	}
+	| T_CLASS T_IDENTIFIER ';'
+	{
+		Declaration *declaration = new Declaration(DECLARATION_CLASS, $2);
 		declarationCollector.push_back(declaration);
 	}
 	;

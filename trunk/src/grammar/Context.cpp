@@ -3,9 +3,15 @@
 #include "types/Game.hpp"
 #include "Declaration.hpp"
 
+const uint16_t Context::MIN_ACTOR = 1;
+const uint16_t Context::MIN_VERB = 1;
+const uint16_t Context::MIN_CLASS = 1;
+const uint16_t Context::MAX_CLASSES = 20;
+
 vector<Context *> Context::_instances;
-uint32_t Context::_currentActor;
-uint32_t Context::_currentVerb;
+uint16_t Context::_currentActor;
+uint16_t Context::_currentVerb;
+uint16_t Context::_currentClass;
 
 const uint16_t Context::LOCAL_VARIABLE_MASK = 0x4000;
 
@@ -55,8 +61,9 @@ void Context::pushContext(Context *context)
 	// Reset actor and verb counters when parsing the complete game
 	if (context->_type == CONTEXT_GAME)
 	{
-		_currentActor = 1;
-		_currentVerb = 1;
+		_currentActor =  MIN_ACTOR;
+		_currentVerb =  MIN_VERB;
+		_currentClass = MIN_CLASS;
 	}
 
 	// When we enter functions, we have to reset the label counter and the current instruction address
@@ -246,6 +253,15 @@ void Context::setConstantSymbols()
 			if (symbolExists(name))
 				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
 			_constantSymbols[name] = _currentVerb++;
+		}
+		else if ((*_declarations)[i]->getType() == DECLARATION_CLASS)
+		{
+			if (_currentClass > MAX_CLASSES)
+				Log::write(LOG_ERROR, "Too many classes declared !\n");
+			string name = (*_declarations)[i]->getName();
+			if (symbolExists(name))
+				Log::write(LOG_ERROR, "Symbol \"%s\" already declared !\n", name.c_str());
+			_constantSymbols[name] = _currentClass++;
 		}
 }
 
