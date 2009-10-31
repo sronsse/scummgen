@@ -30,6 +30,7 @@ int parseString();
 "var"							return T_VAR;
 "actor"							return T_ACTOR;
 "verb"							return T_VERB;
+"class"							return T_CLASS;
 "function"         				return T_FUNCTION;
 "inline"						return T_INLINE;
 "thread"         				return T_THREAD;

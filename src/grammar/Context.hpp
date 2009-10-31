@@ -35,9 +35,15 @@ typedef enum
 class Context
 {
 private:
+	static const uint16_t MIN_ACTOR;
+	static const uint16_t MIN_VERB;
+	static const uint16_t MIN_CLASS;
+	static const uint16_t MAX_CLASSES;
+
 	static vector<Context *> _instances;
-	static uint32_t _currentActor;
-	static uint32_t _currentVerb;
+	static uint16_t _currentActor;
+	static uint16_t _currentVerb;
+	static uint16_t _currentClass;
 
 	ContextType _type;
 	vector<Declaration *> *_declarations;
