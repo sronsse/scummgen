@@ -37,6 +37,7 @@ vector<string> assemblyTokens;
 %token <string> T_STRING
 %token T_CONST
 %token T_VAR
+%token T_ENUM
 %token T_ACTOR
 %token T_VERB
 %token T_CLASS
@@ -270,6 +271,22 @@ declarations:
 	}
 	;
 
+enum:
+	T_ENUM '{' enums '}' ';'
+
+enums:
+	enums ',' T_IDENTIFIER
+	{
+		Declaration *declaration = new Declaration(DECLARATION_CONST, $3, declarationCollector.size());
+		declarationCollector.push_back(declaration);
+	}
+	| T_IDENTIFIER
+	{
+		Declaration *declaration = new Declaration(DECLARATION_CONST, $1, declarationCollector.size());
+		declarationCollector.push_back(declaration);
+	}
+	;
+
 expression:
 	assignable
 	| T_NUMBER
@@ -493,6 +510,15 @@ fileItem:
 		Declaration *declaration = declarationCollector.back();
 		declarations.push_back(declaration);
 		declarationCollector.pop_back();
+	}
+	| enum
+	{
+		while (!declarationCollector.empty())
+		{
+			Declaration *declaration = declarationCollector.back();
+			declarations.push_back(declaration);
+			declarationCollector.pop_back();
+		}
 	}
 	| function
 	;
