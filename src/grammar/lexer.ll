@@ -28,6 +28,7 @@ int parseString();
 \"								return parseString();
 "const"							return T_CONST;
 "var"							return T_VAR;
+"enum"							return T_ENUM;
 "actor"							return T_ACTOR;
 "verb"							return T_VERB;
 "class"							return T_CLASS;
