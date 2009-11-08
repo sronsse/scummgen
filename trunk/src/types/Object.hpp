@@ -21,8 +21,8 @@ private:
 	vector<Image *> _images;
 	uint16_t _imageX;
 	uint16_t _imageY;
-	vector<int16_t> _hotspotXs;
-	vector<int16_t> _hotspotYs;
+	int16_t _hotspotX;
+	int16_t _hotspotY;
 	uint16_t _x;
 	uint16_t _y;
 	uint16_t _width;
@@ -48,9 +48,8 @@ public:
 	Image *getImage(uint16_t index) { return _images[index]; }
 	uint16_t getImageX() { return _imageX; }
 	uint16_t getImageY() { return _imageY; }
-	uint16_t getNumberOfHotspots() { return _hotspotXs.size(); }
-	int16_t getHotspotX(uint16_t index) { return _hotspotXs[index]; }
-	int16_t getHotspotY(uint16_t index) { return _hotspotYs[index]; }
+	int16_t getHotspotX() { return _hotspotX; }
+	int16_t getHotspotY() { return _hotspotY; }
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
 	uint16_t getWidth() { return _width; }

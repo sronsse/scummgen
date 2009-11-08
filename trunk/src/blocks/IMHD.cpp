@@ -12,6 +12,7 @@ IMHD::IMHD(Object *object)
 	_nZPlanesPerImage = _nImages == 0 ? 0 : object->getImage(0)->getNumberOfZPlanePaths();
 	_x = object->getImageX();
 	_y = object->getImageY();
+
 	if (_nImages == 0)
 	{
 		_width = 0;
@@ -22,11 +23,10 @@ IMHD::IMHD(Object *object)
 		_width = object->getImage(0)->getWidth();
 		_height = object->getImage(0)->getHeight();
 	}
-	for (int i = 0; i < object->getNumberOfHotspots(); i++)
-	{
-		_hotspotXs.push_back(object->getHotspotX(i));
-		_hotspotYs.push_back(object->getHotspotY(i));
-	}
+
+	// Only one hotspot is now supported
+	_hotspotXs.push_back(object->getHotspotX());
+	_hotspotYs.push_back(object->getHotspotY());
 }
 
 uint32_t IMHD::getSize()
