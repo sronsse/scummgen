@@ -50,20 +50,11 @@ void Object::load(string dirPath)
 	_imageY = rootNode->getChild("imageY")->getIntegerContent();
 	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
 
-	int i = 0;
-	XMLNode *child;
-	while ((child = rootNode->getChild("hotspotX", i++)) != NULL)
-		_hotspotXs.push_back(child->getIntegerContent());
+	_hotspotX = rootNode->getChild("hotspotX")->getIntegerContent();
+	Log::write(LOG_INFO, "hotspotX: %u\n", _hotspotX);
 
-	i = 0;
-	while ((child = rootNode->getChild("hotspotY", i++)) != NULL)
-		_hotspotYs.push_back(child->getIntegerContent());
-	
-	for (i = 0; i < _hotspotXs.size(); i++)
-	{
-		Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotXs[i]);
-		Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotYs[i]);
-	}
+	_hotspotY = rootNode->getChild("hotspotY")->getIntegerContent();
+	Log::write(LOG_INFO, "hotspotY: %u\n", _hotspotY);
 
 	_x = rootNode->getChild("x")->getIntegerContent();
 	Log::write(LOG_INFO, "x: %u\n", _x);
@@ -92,13 +83,18 @@ void Object::load(string dirPath)
 	_classData = rootNode->getChild("classData")->getIntegerContent();
 	Log::write(LOG_INFO, "classData: %x\n", _classData);
 
-	i = 0;
+	int i = 0;
+	XMLNode *child;
 	while ((child = rootNode->getChild("image", i++)) != NULL)
 	{
 		Image *image = new Image();
 		image->load(dirPath + child->getStringContent() + "/");
 		_images.push_back(image);
 	}
+
+	// Change hotspots from absolute to relative positions
+	_hotspotX -= _x;
+	_hotspotY -= _y;
 
 	Log::unIndent();
 }
@@ -107,6 +103,10 @@ void Object::save(string dirPath)
 {
 	Log::write(LOG_INFO, "Object\n");
 	Log::indent();
+
+	// Change hotspots from relative to absolute positions
+	_hotspotX += _x;
+	_hotspotY += _y;
 
 	if (!IO::createDirectory(dirPath))
 		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
@@ -127,17 +127,11 @@ void Object::save(string dirPath)
 	rootNode->addChild(new XMLNode("imageY", _imageY));
 	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
 
-	for (int i = 0; i < _hotspotXs.size(); i++)
-		rootNode->addChild(new XMLNode("hotspotX", _hotspotXs[i]));
+	rootNode->addChild(new XMLNode("hotspotX", _hotspotX));
+	Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotX);
 
-	for (int i = 0; i < _hotspotYs.size(); i++)
-		rootNode->addChild(new XMLNode("hotspotY", _hotspotYs[i]));
-	
-	for (int i = 0; i < _hotspotXs.size(); i++)
-	{
-		Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotXs[i]);
-		Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotYs[i]);
-	}
+	rootNode->addChild(new XMLNode("hotspotY", _hotspotY));
+	Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotY);
 
 	rootNode->addChild(new XMLNode("x", _x));
 	Log::write(LOG_INFO, "x: %u\n", _x);
