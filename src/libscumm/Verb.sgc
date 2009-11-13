@@ -1,0 +1,214 @@
+inline function Verb_activate(var activate)
+{
+	if (activate)
+		asm
+		{
+			verbOps verbOn
+		}
+	else
+		asm
+		{
+			verbOps verbOff
+		}
+}
+
+inline function Verb_center()
+{
+	asm
+	{
+		verbOps verbCenter
+	}
+}
+
+inline function Verb_delete()
+{
+	asm
+	{
+		verbOps verbDelete
+	}
+}
+
+inline function Verb_dim()
+{
+	asm
+	{
+		verbOps verbDim
+	}
+}
+
+inline function Verb_doSentence(var vrb, var objA, var objB)
+{
+	asm
+	{
+		pushWordVar .word vrb
+		pushWordVar .word objA
+		pushByte .byte 0
+		pushWordVar .word objB
+		doSentence
+	}
+}
+
+inline function Verb_draw()
+{
+	asm
+	{
+		verbOps verbDraw
+	}
+}
+
+inline function Verb_getEntryPoint(var obj, var entry)
+{
+	var entryPoint;
+	asm
+	{
+		pushWordVar .word obj
+		pushWordVar .word entry
+		getVerbEntryPoint
+		writeWordVar .word entryPoint
+	}
+	return entryPoint;
+}
+
+inline function Verb_getFromXY(var x, var y)
+{
+	var over;
+	asm
+	{
+		pushWordVar .word x
+		pushWordVar .word y
+		getVerbFromXY
+		writeWordVar .word over
+	}
+	return over;
+}
+
+inline function Verb_new()
+{
+	asm
+	{
+		verbOps verbNew
+	}
+}
+
+inline function Verb_restore(var from, var to, var id)
+{
+	asm
+	{
+		pushWordVar .word from
+		pushWordVar .word to
+		pushWordVar .word id
+		saveRestoreVerbs restoreVerbs
+	}
+}
+
+inline function Verb_save(var from, var to, var id)
+{
+	asm
+	{
+		pushWordVar .word from
+		pushWordVar .word to
+		pushWordVar .word id
+		saveRestoreVerbs saveVerbs
+	}
+}
+
+inline function Verb_setBackColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		verbOps verbBackColor
+	}
+}
+
+inline function Verb_setColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		verbOps verbColor
+	}
+}
+
+inline function Verb_setCurrent(var vrb)
+{
+	asm
+	{
+		pushWordVar .word vrb
+		verbOps verbSetCurrent
+	}
+}
+
+inline function Verb_setDimColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		verbOps verbDimColor
+	}
+}
+
+inline function Verb_setHiColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		verbOps verbHiColor
+	}
+}
+
+inline function Verb_setImageInCurrentRoom(var obj)
+{
+	asm
+	{
+		pushWordVar .word obj
+		verbOps verbImage
+	}
+}
+
+inline function Verb_setImage(var obj)
+{
+	const ROOM = 1; // Verb images should always be in room 1
+	asm
+	{
+		pushWordVar .word obj
+		pushWord .word ROOM
+		verbOps verbImageInRoom
+	}
+}
+
+inline function Verb_setKey(var key)
+{
+	asm
+	{
+		pushWordVar .word key
+		verbOps verbKey
+	}
+}
+
+inline function Verb_setNameString(var name)
+{
+	asm
+	{
+		pushWordVar .word name
+		verbOps verbNameStr
+	}
+}
+
+inline function Verb_setPos(var left, var top)
+{
+	asm
+	{
+		pushWordVar .word left
+		pushWordVar .word top
+		verbOps verbAt
+	}
+}
+
+inline function Verb_stopSentence()
+{
+	asm
+	{
+		stopSentence
+	}
+}

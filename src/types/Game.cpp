@@ -32,6 +32,16 @@ const string Game::XML_FILE_NAME = "game.xml";
 const char *Game::INDEX_FILE_EXTENSION = ".000";
 const char *Game::RESOURCE_FILE_EXTENSION = ".001";
 const char *Game::VOICE_FILE_NAME = "MONSTER.SOU";
+const string Game::LIB_SCUMM_DIR_PATH = "libscumm/";
+const string Game::ACTOR_SCRIPT_NAME = "Actor.sgc";
+const string Game::INTERFACE_SCRIPT_NAME = "Interface.sgc";
+const string Game::OBJECT_SCRIPT_NAME = "Object.sgc";
+const string Game::ROOM_SCRIPT_NAME = "Room.sgc";
+const string Game::SCRIPT_SCRIPT_NAME = "Script.sgc";
+const string Game::SOUND_SCRIPT_NAME = "Sound.sgc";
+const string Game::UTIL_SCRIPT_NAME = "Util.sgc";
+const string Game::VARS_SCRIPT_NAME = "vars.sgc";
+const string Game::VERB_SCRIPT_NAME = "Verb.sgc";
 
 const uint8_t Game::N_DEFAULT_ACTORS = 12;
 const uint16_t Game::MAX_WORD_VARIABLES = 8192;
@@ -476,10 +486,13 @@ void Game::prepare()
 	Log::unIndent();
 }
 
-void Game::parse()
+void Game::parse(string programDirPath)
 {
 	Log::write(LOG_INFO, "Parsing game...\n");
 	Log::indent();
+
+	// Parse libscumm first
+	parseLibScumm(programDirPath);
 
 	bool foundMain = false;
 	uint16_t id = 2; // id 1 is reserved for the main function
@@ -579,6 +592,41 @@ void Game::parse()
 	Log::unIndent();
 }
 
+void Game::parseLibScumm(string programDirPath)
+{
+	// Create libscumm scripts first
+	Script actorScript(programDirPath + LIB_SCUMM_DIR_PATH + ACTOR_SCRIPT_NAME);
+	Script interfaceScript(programDirPath + LIB_SCUMM_DIR_PATH + INTERFACE_SCRIPT_NAME);
+	Script objectScript(programDirPath + LIB_SCUMM_DIR_PATH + OBJECT_SCRIPT_NAME);
+	Script roomScript(programDirPath + LIB_SCUMM_DIR_PATH + ROOM_SCRIPT_NAME);
+	Script scriptScript(programDirPath + LIB_SCUMM_DIR_PATH + SCRIPT_SCRIPT_NAME);
+	Script soundScript(programDirPath + LIB_SCUMM_DIR_PATH + SOUND_SCRIPT_NAME);
+	Script utilScript(programDirPath + LIB_SCUMM_DIR_PATH + UTIL_SCRIPT_NAME);
+	Script varsScript(programDirPath + LIB_SCUMM_DIR_PATH + VARS_SCRIPT_NAME);
+	Script verbScript(programDirPath + LIB_SCUMM_DIR_PATH + VERB_SCRIPT_NAME);
+
+	// Regroup scripts in a new list
+	vector<Script *> libscumm;
+	libscumm.push_back(&actorScript);
+	libscumm.push_back(&interfaceScript);
+	libscumm.push_back(&objectScript);
+	libscumm.push_back(&roomScript);
+	libscumm.push_back(&scriptScript);
+	libscumm.push_back(&soundScript);
+	libscumm.push_back(&utilScript);
+	libscumm.push_back(&varsScript);
+	libscumm.push_back(&verbScript);
+
+	// Parse scripts
+	for (int i = 0; i < libscumm.size(); i++)
+	{
+		vector<Function *> functions;
+		libscumm[i]->parse(_declarations, functions);
+		for (int j = 0; j < functions.size(); j++)
+			_functions.push_back(functions[j]);
+	}
+}
+
 void Game::compile()
 {
 	Log::write(LOG_INFO, "Compiling game...\n");
@@ -656,11 +704,11 @@ void Game::generate(string outputDirPath)
 	Log::unIndent();
 }
 
-void Game::build(string outputDirPath)
+void Game::build(string programDirPath, string outputDirPath)
 {
 	// Prepare, parse, compile, and generate the game
 	prepare();
-	parse();
+	parse(programDirPath);
 	compile();
 	generate(outputDirPath);
 }

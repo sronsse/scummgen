@@ -1,0 +1,283 @@
+// Array types
+const ARRAY_INT = 199;
+const ARRAY_STRING = 203;
+
+inline function Util_copyString(var string)
+{
+	var length;
+	var i;
+
+	length = Util_getStringLength(string);
+	returnValue = Util_dimArray(ARRAY_STRING, length);
+	for (i = 0; i < length; i++)
+		returnValue[i] = string[i];
+
+	// We wrote directly to returnValue, so no need to explicitely return it
+}
+
+inline function Util_dimArray(var type, var size)
+{
+	returnValue = 0;
+	if (type == ARRAY_INT)
+		asm
+		{
+			pushWordVar .word size
+			dimArray intArray .word returnValue
+		}
+	else if (type == ARRAY_STRING)
+		asm
+		{
+			pushWordVar .word size
+			dimArray stringArray .word returnValue
+		}
+	else
+	{
+		Util_printDebug("Util_dimArray: type %i{type} unknown !");
+		Util_quit();
+	}
+	// We wrote directly to returnValue, so no need to explicitely return it
+}
+
+inline function Util_drawBox(var x1, var y1, var x2, var y2, var color)
+{
+	asm
+	{
+		pushWordVar .word x1
+		pushWordVar .word y1
+		pushWordVar .word x2
+		pushWordVar .word y2
+		pushWordVar .word color
+		drawBox
+	}
+}
+
+inline function Util_getAbsoluteValue(var number)
+{
+	var absValue;
+	asm
+	{
+		pushWordVar .word number
+		abs
+		writeWordVar .word absValue
+	}
+	return absValue;
+}
+
+inline function Util_getObjToObjDistance(var obj1, var obj2)
+{
+	var dist;
+	asm
+	{
+		pushWordVar .word obj1
+		pushWordVar .word obj2
+		distObjectObject
+		writeWordVar .word dist
+	}
+	return dist;
+}
+
+inline function Util_getObjToPointDistance(var obj, var x, var y)
+{
+	var dist;
+	asm
+	{
+		pushWordVar .word obj
+		pushWordVar .word x
+		pushWordVar .word y
+		distObjectPt
+		writeWordVar .word dist
+	}
+	return dist;
+}
+
+inline function Util_getPixel(var x, var y)
+{
+	var pixel;
+	asm
+	{
+		pushWordVar .word x
+		pushWordVar .word y
+		getPixel
+		writeWordVar .word pixel
+	}
+	return pixel;
+}
+
+inline function Util_getPointToPointDistance(var x1, var y1, var x2, var y2)
+{
+	var dist;
+	asm
+	{
+		pushWordVar .word x1
+		pushWordVar .word y1
+		pushWordVar .word x2
+		pushWordVar .word y2
+		distPtPt
+		writeWordVar .word dist
+	}
+	return dist;
+}
+
+inline function Util_getRandomNumber(var max)
+{
+	var number;
+	asm
+	{
+		pushWordVar .word max
+		getRandomNumber
+		writeWordVar .word number
+	}
+	return number;
+}
+
+inline function Util_getRandomNumberRange(var min, var max)
+{
+	var number;
+	asm
+	{
+		pushWordVar .word min
+		pushWordVar .word max
+		getRandomNumberRange
+		writeWordVar .word number
+	}
+	return number;
+}
+
+inline function Util_getStringLength(var string)
+{
+	const STRING_OPCODE = 0xFF;
+	const VOICE_MESSAGE = 10;
+
+	returnValue = 0;
+	while(string[returnValue] != 0)
+		if (string[returnValue] == STRING_OPCODE)
+		{
+			returnValue += 2; // STRING_OPCODE and message type
+			if (string[returnValue - 1] == VOICE_MESSAGE)
+				returnValue += 12;
+			returnValue += 2; // value
+		}
+		else
+			returnValue++;
+
+	// We wrote directly to returnValue, so no need to explicitely return it
+}
+
+inline function Util_isAnyOf(var val, var list, var nItems)
+{
+	var item;
+	var i;
+
+	// Push value to be checked
+	asm
+	{
+		pushWordVar .word val
+	}
+
+	// Push items
+	for (i = 0; i < nItems; i++)
+	{
+		item = list[i];
+		asm
+		{
+			pushWordVar .word item
+		}
+	}
+
+	// Push number of items, call opcode and write return value
+	asm
+	{
+		pushWordVar .word nItems
+		isAnyOf
+		writeWordVar .word returnValue
+	}
+
+	// We wrote directly to returnValue, so no need to explicitely return it
+}
+
+inline function Util_nukeArray(var array)
+{
+	asm
+	{
+		dimArray undimArray .word array
+	}
+}
+
+inline function Util_pause()
+{
+	asm
+	{
+		systemOps pause
+	}
+}
+
+// TODO
+inline function Util_pickOneOf()
+{
+}
+
+// TODO
+inline function Util_pickOneOfDefault()
+{
+}
+
+// TODO
+inline function Util_pickVarRandom()
+{
+}
+
+inline function Util_printDebug(var string)
+{
+	asm
+	{
+		printDebug textString .string "%s{string}"
+	}
+}
+
+inline function Util_printSystem(var string)
+{
+	asm
+	{
+		printSystem textString .string "%s{string}"
+	}
+}
+
+inline function Util_quit()
+{
+	asm
+	{
+		systemOps quit
+	}
+}
+
+inline function Util_redraw()
+{
+	asm
+	{
+		pushByte .byte 6
+		pushByte .byte 0
+		pushByte .byte 2
+		kernelSetFunctions
+	}
+}
+
+inline function Util_restart()
+{
+	asm
+	{
+		systemOps restart
+	}
+}
+
+// TODO
+inline function Util_shuffle()
+{
+}
+
+inline function Util_updateDate()
+{
+	asm
+	{
+		getDateTime
+	}
+}

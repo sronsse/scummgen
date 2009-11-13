@@ -1,0 +1,51 @@
+inline function Sound_isRunning(var sound)
+{
+	var running;
+	asm
+	{
+		pushWordVar .word sound
+		isSoundRunning
+		writeWordVar .word running
+	}
+	return running;
+}
+
+// TODO
+inline function Sound_kludge()
+{
+}
+
+inline function Sound_startMusic(var music)
+{
+	asm
+	{
+		pushWordVar .word music
+		startMusic
+	}
+}
+
+inline function Sound_stopMusic()
+{
+	asm
+	{
+		stopMusic
+	}
+}
+
+inline function Sound_startSound(var sound)
+{
+	asm
+	{
+		pushWordVar .word sound
+		startSound
+	}
+}
+
+inline function Sound_stopSound(var sound)
+{
+	asm
+	{
+		pushWordVar .word sound
+		stopSound
+	}
+}

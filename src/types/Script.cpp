@@ -13,8 +13,8 @@ extern int yyparse(vector<Declaration *> &declarations, vector<Function *> &func
 extern int yylex();
 extern int yylineno;
 
-Script::Script():
-_scriptPath("")
+Script::Script(string scriptPath):
+_scriptPath(scriptPath)
 {
 }
 
@@ -73,6 +73,8 @@ void Script::parse(vector<Declaration *> &declarations, vector<Function *> &func
 	Log::write(LOG_INFO, "Parsing \"%s\"...\n", _scriptPath.c_str());
 
 	yyin = fopen(_scriptPath.c_str(), "r");
+	if (yyin == NULL)
+		Log::write(LOG_ERROR, "Could not open script \"%s\" !", _scriptPath.c_str());
 
 	yylineno = 1;
 	if (yyparse(declarations, functions))
