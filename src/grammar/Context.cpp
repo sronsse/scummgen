@@ -47,13 +47,16 @@ void Context::pushContext(Context *context)
 			contextType = "switch";
 			break;
 		case CONTEXT_VERB:
-			contextType = "switch";
+			contextType = "verb";
 			break;
 		case CONTEXT_FOR:
 			contextType = "for";
 			break;
 		case CONTEXT_WHILE:
 			contextType = "while";
+			break;
+		case CONTEXT_DO_WHILE:
+			contextType = "do while";
 	}
 	Log::write(LOG_INFO, "Pushing context (%s)...\n", contextType.c_str());
 	Log::indent();

@@ -42,6 +42,7 @@ int parseString();
 "default"						return T_DEFAULT;
 "for"	         				return T_FOR;
 "while"         				return T_WHILE;
+"do"         					return T_DO;
 "continue"						return T_CONTINUE;
 "break"							return T_BREAK;
 "return"          				return T_RETURN;

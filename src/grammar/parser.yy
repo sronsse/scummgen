@@ -51,6 +51,7 @@ vector<string> assemblyTokens;
 %token T_DEFAULT
 %token T_FOR
 %token T_WHILE
+%token T_DO
 %token T_CONTINUE
 %token T_BREAK
 %token T_RETURN
@@ -678,6 +679,15 @@ statement:
 		statementCollector.pop_back();
 		WhileStatement *whileStatement = new WhileStatement(expression, statement);
 		statementCollector.push_back(whileStatement);
+	}
+	| T_DO statement T_WHILE '(' expression ')' ';'
+	{
+		Statement *statement = statementCollector.back();
+		statementCollector.pop_back();
+		Expression *expression = expressionCollector.back();
+		expressionCollector.pop_back();
+		DoWhileStatement *doWhileStatement = new DoWhileStatement(statement, expression);
+		statementCollector.push_back(doWhileStatement);
 	}
 	| T_CONTINUE ';'
 	{

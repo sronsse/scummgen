@@ -478,6 +478,52 @@ WhileStatement::~WhileStatement()
 	delete _statement;
 }
 
+DoWhileStatement::DoWhileStatement(Statement *s, Expression *e)
+{
+	_statement = s;
+	_expression = e;
+}
+
+void DoWhileStatement::compile(vector<Instruction *> &instructions)
+{
+	ostringstream oss;
+
+	// Prepare labels first
+	uint32_t labelCounter = Context::labelCounter;
+	Context::labelCounter += 3;
+
+	// label
+	instructions.push_back(new Instruction(labelCounter));
+
+	Context context(CONTEXT_DO_WHILE, NULL, NULL, labelCounter + 1, labelCounter + 2, -1);
+	Context::pushContext(&context);
+
+	// do statement
+	_statement->compile(instructions);
+
+	Context::popContext();
+
+	// label
+	instructions.push_back(new Instruction(labelCounter + 1));
+
+	// while condition
+	_expression->compile(instructions);
+
+	// if instruction
+	oss << "LABEL_" << labelCounter;
+	instructions.push_back(new Instruction("if"));
+	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+
+	// label
+	instructions.push_back(new Instruction(labelCounter + 2));
+}
+
+DoWhileStatement::~DoWhileStatement()
+{
+	delete _statement;
+	delete _expression;
+}
+
 ContinueStatement::ContinueStatement()
 {
 }
