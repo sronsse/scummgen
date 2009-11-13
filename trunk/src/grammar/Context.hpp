@@ -22,7 +22,8 @@ typedef enum
 	CONTEXT_SWITCH,
 	CONTEXT_VERB,
 	CONTEXT_FOR,
-	CONTEXT_WHILE
+	CONTEXT_WHILE,
+	CONTEXT_DO_WHILE
 } ContextType;
 
 typedef enum

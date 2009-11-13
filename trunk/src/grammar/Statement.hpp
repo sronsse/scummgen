@@ -131,6 +131,17 @@ public:
 	~WhileStatement();
 };
 
+class DoWhileStatement: public Statement
+{
+private:
+	Statement * _statement;
+	Expression *_expression;
+public:
+	DoWhileStatement(Statement *s, Expression *e);
+	void compile(vector<Instruction *> &instructions);
+	~DoWhileStatement();
+};
+
 class ContinueStatement: public Statement
 {
 public:
