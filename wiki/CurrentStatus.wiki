@@ -4,6 +4,20 @@ You can follow ScummGEN's advancement on this page.
 
 ----
 
+== November 13, 2009 ==
+
+Eight months since the last update ! Wow, time flies too quickly... Anyway, here is an update concerning what happened to the project for the past three seasons.
+
+First of all, there hasn't been a lot of progress concerning editors. This is for me not as interesting as the rest of the project, and I keep postponing this task. Also, it is not very hard to manually edit XML files and add BMP files to the game folder hierarchy, which is why this part of ScummGEN is not as important in my opinion. I have modified the build system to allow the use of editors though, and made some heavy code changes in order to be able to load and save a whole game to disk.
+
+The compiler has been improved a lot. I added a few new statements (enums, do/while loops) and new declaration types (actors, verbs, classes). Some other bugs were fixed making the compiler in a perfectly usable state.
+
+The room palettes can now be optimized if certain objects use already existing colors. This functionality is critical as SCUMM v6 is limited to 256 colors.
+
+The greatest addition to the project is probably "libscumm", a set of functions allowing scripts to call SCUMM opcodes at a higher level. Previously, if one wanted to use SCUMM opcodes, including asm statements in scripts was needed. Now, it is easy to do anything SCUMM-specific from scripts. For instance, Room_load(_roomName_) will load a new room - pretty straightforward isn't it ?
+
+A greater list of bugs have been fixed, but no need to enter into details here. I have been busy working on my own game using ScummGEN, making it easy to spot those and fix them. If you have questions or comments about the project, don't hesitate to shoot me an email !
+
 == March 23, 2009 ==
 
 Happy new year to everyone ! Yes, I'm a bit late, sorry about that. These past months have seen a lot of improvements for the project.
