@@ -1,0 +1,316 @@
+// Colors
+const COLOR_BLACK = 0;
+const COLOR_DARK_BLUE = 1;
+const COLOR_JAPANESE_LAUREL = 2;
+const COLOR_PERSIAN_GREEN = 3;
+const COLOR_BRIGHT_RED = 4;
+const COLOR_FLIRT = 5;
+const COLOR_CHELSEA_GEM = 6;
+const COLOR_SILVER_CHALICE = 7;
+const COLOR_SCORPION = 8;
+const COLOR_DODGER_BLUE = 9;
+const COLOR_SCREAMIN_GREEN = 10;
+const COLOR_AQUAMARINE = 11;
+const COLOR_PERSIMMON = 12;
+const COLOR_PINK_FLAMINGO = 13;
+const COLOR_GORSE = 14;
+const COLOR_WHITE = 15;
+
+inline function Interface_activateCursor(var activate)
+{
+	if (activate)
+		asm
+		{
+			cursorCommand cursorOn
+		}
+	else
+		asm
+		{
+			cursorCommand cursorOff
+		}
+}
+
+inline function Interface_activateCursorSoft(var activate)
+{
+	if (activate)
+		asm
+		{
+			cursorCommand cursorSoftOn
+		}
+	else
+		asm
+		{
+			cursorCommand cursorSoftOff
+		}
+}
+
+inline function Interface_activateUserput(var activate)
+{
+	if (activate)
+		asm
+		{
+			cursorCommand userputOn
+		}
+	else
+		asm
+		{
+			cursorCommand userputOff
+		}
+}
+
+inline function Interface_activateUserputSoft(var activate)
+{
+	if (activate)
+		asm
+		{
+			cursorCommand userputSoftOn
+		}
+	else
+		asm
+		{
+			cursorCommand userputSoftOff
+		}
+}
+
+inline function Interface_panCameraTo(var x)
+{
+	asm
+	{
+		pushWordVar .word x
+		panCameraTo
+	}
+}
+
+inline function Interface_printLine(var string)
+{
+	asm
+	{
+		printLine textString .string "%s{string}"
+	}
+}
+
+inline function Interface_printLineAt(var x, var y)
+{
+	asm
+	{
+		pushWordVar .word x
+		pushWordVar .word y
+		printLine at
+	}
+}
+
+inline function Interface_printLineCenter()
+{
+	asm
+	{
+		printLine center
+	}
+}
+
+inline function Interface_printLineClipped(var right)
+{
+	asm
+	{
+		pushWordVar .word right
+		printLine clipped
+	}
+}
+
+inline function Interface_printLineColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		printLine color
+	}
+}
+
+inline function Interface_printLineLeft()
+{
+	asm
+	{
+		printLine left
+	}
+}
+
+inline function Interface_printLineLoadDefault()
+{
+	asm
+	{
+		printLine loadDefault
+	}
+}
+
+inline function Interface_printLineMumble()
+{
+	asm
+	{
+		printLine mumble
+	}
+}
+
+inline function Interface_printLineOverhead()
+{
+	asm
+	{
+		printLine overhead
+	}
+}
+
+inline function Interface_printLineSaveDefault()
+{
+	asm
+	{
+		printLine saveDefault
+	}
+}
+
+inline function Interface_printText(var string)
+{
+	asm
+	{
+		printText textString .string "%s{string}"
+	}
+}
+
+inline function Interface_printTextAt(var x, var y)
+{
+	asm
+	{
+		pushWordVar .word x
+		pushWordVar .word y
+		printText at
+	}
+}
+
+inline function Interface_printTextCenter()
+{
+	asm
+	{
+		printText center
+	}
+}
+
+inline function Interface_printTextClipped(var right)
+{
+	asm
+	{
+		pushWordVar .word right
+		printText clipped
+	}
+}
+
+inline function Interface_printTextColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		printText color
+	}
+}
+
+inline function Interface_printTextLeft()
+{
+	asm
+	{
+		printText left
+	}
+}
+
+inline function Interface_printTextLoadDefault()
+{
+	asm
+	{
+		printText loadDefault
+	}
+}
+
+inline function Interface_printTextMumble()
+{
+	asm
+	{
+		printText mumble
+	}
+}
+
+inline function Interface_printTextOverhead()
+{
+	asm
+	{
+		printText overhead
+	}
+}
+
+inline function Interface_printTextSaveDefault()
+{
+	asm
+	{
+		printText saveDefault
+	}
+}
+
+inline function Interface_setCameraAt(var at)
+{
+	asm
+	{
+		pushWordVar .word at
+		setCameraAt
+	}
+}
+
+inline function Interface_setCharset(var charset)
+{
+	asm
+	{
+		pushWordVar .word charset
+		cursorCommand charsetSet
+	}
+}
+
+inline function Interface_setCharsetColors(var colors, var nColors)
+{
+	var i;
+	var color;
+	for (i = 0; i < nColors; i++)
+	{
+		color = colors[i];
+		asm
+		{
+			pushWordVar .word color
+		}
+	}
+	asm
+	{
+		pushWordVar .word nColors
+		cursorCommand charsetColor
+	}
+}
+
+inline function Interface_setCursorHotspot(var x, var y)
+{
+	asm
+	{
+		pushWordVar .word x
+		pushWordVar .word y
+		cursorCommand cursorHotspot
+	}
+}
+
+inline function Interface_setCursorImage(var obj, var room)
+{
+	asm
+	{
+		pushWordVar .word obj
+		pushWordVar .word room
+		cursorCommand cursorImage
+	}
+}
+
+inline function Interface_setCursorTransparentColor(var color)
+{
+	asm
+	{
+		pushWordVar .word color
+		cursorCommand cursorTransparent
+	}
+}

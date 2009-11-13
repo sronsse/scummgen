@@ -1,0 +1,226 @@
+// Room fade effects
+const ROOM_FADE_NO_EFFECT = 0;
+const ROOM_FADE_TRANSITION_IRIS_EFFECT = 1;
+const ROOM_FADE_TRANSITION_BOX_WIPE_1 = 2;
+const ROOM_FADE_TRANSITION_BOX_WIPE_2 = 3;
+const ROOM_FADE_TRANSITION_INVERSE_BOX_WIPE = 4;
+const ROOM_FADE_TRANSITION_INVERSE_IRIS_EFFECT = 5;
+const ROOM_FADE_TRANSITION_HORIZONTAL_WIPE = 6;
+const ROOM_FADE_SCROLL_EFFECT_RIGHT = 130;
+const ROOM_FADE_SCROLL_EFFECT_LEFT = 131;
+const ROOM_FADE_SCROLL_EFFECT_DOWN = 132;
+const ROOM_FADE_SCROLL_EFFECT_UP = 133;
+const ROOM_FADE_DISSOLVE_EFFECT_1 = 134;
+const ROOM_FADE_DISSOLVE_EFFECT_2 = 135;
+
+inline function Room_createBoxMatrix()
+{
+	asm
+	{
+		createBoxMatrix
+	}
+}
+
+inline function Room_fade(var outEffect, var inEffect)
+{
+	const FADE_OUT_MULTIPLIER = 256;
+	var effect;
+	effect = (outEffect * FADE_OUT_MULTIPLIER) | inEffect;
+	asm
+	{
+		pushWordVar .word effect
+		roomOps roomFade
+	}
+}
+
+inline function Room_load(var room)
+{
+	asm
+	{
+		pushWordVar .word room
+		loadRoom
+	}
+}
+
+inline function Room_loadWithEgo(var object, var room, var x, var y)
+{
+	asm
+	{
+		pushWordVar .word object
+		pushWordVar .word room
+		pushWordVar .word x
+		pushWordVar .word y
+		loadRoomWithEgo
+	}
+}
+
+// TODO
+inline function Room_pseudo()
+{
+}
+
+inline function Room_resourceLoad(var room)
+{
+	asm
+	{
+		pushWordVar .word room
+		resourceRoutines loadRoom2
+	}
+}
+
+inline function Room_resourceLock(var room)
+{
+	asm
+	{
+		pushWordVar .word room
+		resourceRoutines lockRoom
+	}
+}
+
+inline function Room_resourceNuke(var room)
+{
+	asm
+	{
+		pushWordVar .word room
+		resourceRoutines nukeRoom
+	}
+}
+
+inline function Room_resourceUnlock(var room)
+{
+	asm
+	{
+		pushWordVar .word room
+		resourceRoutines unlockRoom
+	}
+}
+
+inline function Room_saveGame(var flag, var slot)
+{
+	asm
+	{
+		pushWordVar .word flag
+		pushWordVar .word slot
+		roomOps roomSaveGame
+	}
+}
+
+// TODO
+inline function Room_setBoxFlags()
+{
+}
+
+inline function Room_setCurrentPalette(var index)
+{
+	asm
+	{
+		pushWordVar .word index
+		roomOps roomNewPalette
+	}
+}
+
+inline function Room_setCycleSpeed(var cycle, var delay)
+{
+	asm
+	{
+		pushWordVar .word cycle
+		pushWordVar .word delay
+		roomOps cycleSpeed
+	}
+}
+
+inline function Room_setIntensity(var intensity, var startIndex, var endIndex)
+{
+	asm
+	{
+		pushWordVar .word intensity
+		pushWordVar .word startIndex
+		pushWordVar .word endIndex
+		roomOps roomIntensity
+	}
+}
+
+inline function Room_setIntensityRGB(var intensityR, var intensityG, var intensityB, var startIndex, var endIndex)
+{
+	asm
+	{
+		pushWordVar .word intensityR
+		pushWordVar .word intensityG
+		pushWordVar .word intensityB
+		pushWordVar .word startIndex
+		pushWordVar .word endIndex
+		roomOps
+		rgbRoomIntensity
+	}
+}
+
+inline function Room_setPalette(var index, var r, var g, var b)
+{
+	asm
+	{
+		pushWordVar .word r
+		pushWordVar .word g
+		pushWordVar .word b
+		pushWordVar .word index
+		roomOps roomPalette
+	}
+}
+
+inline function Room_setScreen(var top, var bottom)
+{
+	asm
+	{
+		pushWordVar .word top
+		pushWordVar .word bottom
+		roomOps roomScreen
+	}
+}
+
+inline function Room_setScrolling(var minX, var maxX)
+{
+	asm
+	{
+		pushWordVar .word minX
+		pushWordVar .word maxX
+		roomOps roomScroll
+	}
+}
+
+inline function Room_setShaking(var shaking)
+{
+	if (shaking)
+		asm
+		{
+			roomOps roomShakeOn
+		}
+	else
+		asm
+		{
+			roomOps roomShakeOff
+		}
+}
+
+inline function Room_shadow(var rScale, var gScale, var bScale, var startIndex, var endIndex)
+{
+	asm
+	{
+		pushWordVar .word rScale
+		pushWordVar .word gScale
+		pushWordVar .word bScale
+		pushWordVar .word startIndex
+		pushWordVar .word endIndex
+		roomOps roomShadow
+	}
+}
+
+inline function Room_transform(var resID, var start, var end, var time)
+{
+	asm
+	{
+		pushWordVar .word resID
+		pushWordVar .word start
+		pushWordVar .word end
+		pushWordVar .word time
+		roomOps roomTransform
+	}
+}

@@ -1,0 +1,200 @@
+inline function Script_break()
+{
+	asm
+	{
+		breakHere
+	}
+}
+
+inline function Script_delay(var ticks)
+{
+	asm
+	{
+		pushWordVar .word ticks
+		delay
+	}
+}
+
+inline function Script_delayFrames(var count)
+{
+	asm
+	{
+		pushWordVar .word count
+		delayFrames
+	}
+}
+
+inline function Script_delayMinutes(var minutes)
+{
+	asm
+	{
+		pushWordVar .word minutes
+		delayMinutes
+	}
+}
+
+inline function Script_delaySeconds(var seconds)
+{
+	asm
+	{
+		pushWordVar .word seconds
+		delaySeconds
+	}
+}
+
+inline function Script_freeze(var flag)
+{
+	asm
+	{
+		pushWordVar .word flag
+		freezeUnfreeze
+	}
+}
+
+inline function Script_isRoomScriptRunning(var script)
+{
+	var running;
+	asm
+	{
+		pushWordVar .word script
+		isRoomScriptRunning
+		writeWordVar .word running
+	}
+	return running;
+}
+
+inline function Script_isRunning(var script)
+{
+	var running;
+	asm
+	{
+		pushWordVar .word script
+		isScriptRunning
+		writeWordVar .word running
+	}
+	return running;
+}
+
+// TODO
+inline function Script_jumpTo()
+{
+}
+
+// TODO
+inline function Script_start()
+{
+}
+
+// TODO
+inline function Script_startObjectScript()
+{
+}
+
+inline function Script_startObjectScriptQuick(var obj, var vrb, var argv, var argc)
+{
+	var i;
+	var arg;
+	asm
+	{
+		pushWordVar .word obj
+		pushWordVar .word vrb
+	}
+	for (i = 0; i < argc; i++)
+	{
+		arg = argv[i];
+		asm
+		{
+			pushWordVar .word arg
+		}
+	}
+	asm
+	{
+		pushWordVar .word argc
+		startObjectQuick
+	}
+}
+
+// TODO
+inline function Script_startQuick()
+{
+}
+
+// TODO
+inline function Script_startQuick2()
+{
+}
+
+inline function Script_stop(var script)
+{
+	asm
+	{
+		pushWordVar .word script
+		stopScript
+	}
+}
+
+inline function Script_stopObjectScript(var obj)
+{
+	asm
+	{
+		pushWordVar .word obj
+		stopObjectScript
+	}
+}
+
+inline function Script_waitForActor(var act)
+{
+	const OFFSET = 0xFFF9;
+	asm
+	{
+		pushWordVar .word act
+		wait waitForActor
+		.word OFFSET
+	}
+}
+
+inline function Script_waitForAnimation(var act)
+{
+	const OFFSET = 0xFFF9;
+	asm
+	{
+		pushWordVar .word act
+		wait waitForAnimation
+		.word OFFSET
+	}
+}
+
+inline function Script_waitForCamera()
+{
+	asm
+	{
+		wait waitForCamera
+	}
+}
+
+inline function Script_waitForMessage()
+{
+	asm
+	{
+		wait waitForMessage
+	}
+}
+
+inline function Script_waitForSentence()
+{
+	asm
+	{
+		wait waitForSentence
+	}
+}
+
+inline function Script_waitForTurn(var act)
+{
+	const OFFSET = 0xFFF9;
+	asm
+	{
+		pushWordVar .word act
+		wait waitForTurn
+		.word OFFSET
+	}
+}

@@ -42,6 +42,16 @@ private:
 	static const char *INDEX_FILE_EXTENSION;
 	static const char *RESOURCE_FILE_EXTENSION;
 	static const char *VOICE_FILE_NAME;
+	static const string LIB_SCUMM_DIR_PATH;
+	static const string ACTOR_SCRIPT_NAME;
+	static const string INTERFACE_SCRIPT_NAME;
+	static const string OBJECT_SCRIPT_NAME;
+	static const string ROOM_SCRIPT_NAME;
+	static const string SCRIPT_SCRIPT_NAME;
+	static const string SOUND_SCRIPT_NAME;
+	static const string UTIL_SCRIPT_NAME;
+	static const string VARS_SCRIPT_NAME;
+	static const string VERB_SCRIPT_NAME;
 
 	string _name;
 	string _description;
@@ -72,7 +82,8 @@ private:
 	void saveCharsets(string dirPath, XMLNode *node);
 	void saveVoices(string dirPath, XMLNode *node);
 	void prepare();
-	void parse();
+	void parse(string programDirPath);
+	void parseLibScumm(string programDirPath);
 	void compile();
 	void generate(string outputDirPath);
 public:
@@ -83,7 +94,7 @@ public:
 	Game();
 	void load(string dirPath);
 	void save(string dirPath);
-	void build(string outputDirPath);
+	void build(string programDirPath, string outputDirPath);
 	string getName() { return _name; }
 	string getDescription() { return _description; }
 	uint8_t getKey() { return _key; }

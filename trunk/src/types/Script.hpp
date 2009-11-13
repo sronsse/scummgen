@@ -18,7 +18,7 @@ private:
 	string _name;
 	string _scriptPath;
 public:
-	Script();
+	Script(string scriptPath = "");
 	void load(string dirPath);
 	void save(string dirPath);
 	void parse(vector<Declaration *> &declarations, vector<Function *> &functions);
