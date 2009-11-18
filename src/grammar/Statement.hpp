@@ -50,7 +50,7 @@ class IfStatement: public Statement
 {
 private:
 	Expression *_expression;
-	Statement * _statement;
+	Statement *_statement;
 public:
 	IfStatement(Expression *e, Statement *s);
 	void compile(vector<Instruction *> &instructions);
@@ -61,8 +61,8 @@ class IfElseStatement: public Statement
 {
 private:
 	Expression *_expression;
-	Statement * _ifStatement;
-	Statement * _elseStatement;
+	Statement *_ifStatement;
+	Statement *_elseStatement;
 public:
 	IfElseStatement(Expression *e, Statement *ifS, Statement *elseS);
 	void compile(vector<Instruction *> &instructions);
@@ -113,7 +113,7 @@ private:
 	ExpressionStatement *_initExpressionStatement;
 	Expression *_conditionExpression;
 	ExpressionStatement *_increaseExpressionStatement;
-	Statement * _statement;
+	Statement *_statement;
 public:
 	ForStatement(ExpressionStatement *initES, Expression *conditionE, ExpressionStatement *increaseES, Statement *s);
 	void compile(vector<Instruction *> &instructions);
@@ -124,7 +124,7 @@ class WhileStatement: public Statement
 {
 private:
 	Expression *_expression;
-	Statement * _statement;
+	Statement *_statement;
 public:
 	WhileStatement(Expression *e, Statement *s);
 	void compile(vector<Instruction *> &instructions);
@@ -134,7 +134,7 @@ public:
 class DoWhileStatement: public Statement
 {
 private:
-	Statement * _statement;
+	Statement *_statement;
 	Expression *_expression;
 public:
 	DoWhileStatement(Statement *s, Expression *e);
@@ -165,6 +165,62 @@ public:
 	ReturnStatement(Expression *e = NULL);
 	void compile(vector<Instruction *> &instructions);
 	~ReturnStatement();
+};
+
+class CutsceneStatement: public Statement
+{
+private:
+	Statement *_statement;
+	vector<Expression *> _parameters;
+public:
+	CutsceneStatement(Statement *s);
+	void addParameter(Expression *parameter) { _parameters.push_back(parameter); }
+	void compile(vector<Instruction *> &instructions);
+	~CutsceneStatement();
+};
+
+class TryStatement: public Statement
+{
+private:
+	Statement *_statement;
+public:
+	TryStatement(Statement *s);
+	void compile(vector<Instruction *> &instructions);
+	~TryStatement();
+};
+
+class TryCatchStatement: public Statement
+{
+private:
+	Statement *_tryStatement;
+	Statement *_catchStatement;
+public:
+	TryCatchStatement(Statement *tryS, Statement *catchS);
+	void compile(vector<Instruction *> &instructions);
+	~TryCatchStatement();
+};
+
+class TryFinallyStatement: public Statement
+{
+private:
+	Statement *_tryStatement;
+	Statement *_finallyStatement;
+public:
+	TryFinallyStatement(Statement *tryS, Statement *finallyS);
+	void compile(vector<Instruction *> &instructions);
+	~TryFinallyStatement();
+};
+
+class TryCatchFinallyStatement: public Statement
+{
+private:
+	Statement *_tryStatement;
+	Statement *_catchStatement;
+	Statement *_finallyStatement;
+public:
+	TryCatchFinallyStatement(Statement *tryS, Statement *catchS, Statement *finallyS);
+	void compile(vector<Instruction *> &instructions);
+	~TryCatchFinallyStatement();
 };
 
 class AssemblyStatement: public Statement
