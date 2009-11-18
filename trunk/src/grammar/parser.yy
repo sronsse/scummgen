@@ -630,7 +630,7 @@ statement:
 		expressionCollector.pop_back();
 		Statement *statement = statementCollector.back();
 		statementCollector.pop_back();
-		IfStatement *ifStatement = new IfStatement(expression, statement);
+		IfElseStatement *ifStatement = new IfElseStatement(expression, statement, NULL);
 		statementCollector.push_back(ifStatement);
 	}
 	| T_IF '(' expression ')' statement T_ELSE statement
@@ -729,7 +729,7 @@ statement:
 	{
 		Statement *statement = statementCollector.back();
 		statementCollector.pop_back();
-		TryStatement *tryStatement = new TryStatement(statement);
+		TryCatchFinallyStatement *tryStatement = new TryCatchFinallyStatement(statement, NULL, NULL);
 		statementCollector.push_back(tryStatement);
 	}
 	| T_TRY statement T_CATCH statement
@@ -738,7 +738,7 @@ statement:
 		statementCollector.pop_back();
 		Statement *tryStatement = statementCollector.back();
 		statementCollector.pop_back();
-		TryCatchStatement *tryCatchStatement = new TryCatchStatement(tryStatement, catchStatement);
+		TryCatchFinallyStatement *tryCatchStatement = new TryCatchFinallyStatement(tryStatement, catchStatement, NULL);
 		statementCollector.push_back(tryCatchStatement);
 	}
 	| T_TRY statement T_FINALLY statement
@@ -747,7 +747,7 @@ statement:
 		statementCollector.pop_back();
 		Statement *tryStatement = statementCollector.back();
 		statementCollector.pop_back();
-		TryFinallyStatement *tryFinallyStatement = new TryFinallyStatement(tryStatement, finallyStatement);
+		TryCatchFinallyStatement *tryFinallyStatement = new TryCatchFinallyStatement(tryStatement, NULL, finallyStatement);
 		statementCollector.push_back(tryFinallyStatement);
 	}
 	| T_TRY statement T_CATCH statement T_FINALLY statement

@@ -179,38 +179,6 @@ public:
 	~CutsceneStatement();
 };
 
-class TryStatement: public Statement
-{
-private:
-	Statement *_statement;
-public:
-	TryStatement(Statement *s);
-	void compile(vector<Instruction *> &instructions);
-	~TryStatement();
-};
-
-class TryCatchStatement: public Statement
-{
-private:
-	Statement *_tryStatement;
-	Statement *_catchStatement;
-public:
-	TryCatchStatement(Statement *tryS, Statement *catchS);
-	void compile(vector<Instruction *> &instructions);
-	~TryCatchStatement();
-};
-
-class TryFinallyStatement: public Statement
-{
-private:
-	Statement *_tryStatement;
-	Statement *_finallyStatement;
-public:
-	TryFinallyStatement(Statement *tryS, Statement *finallyS);
-	void compile(vector<Instruction *> &instructions);
-	~TryFinallyStatement();
-};
-
 class TryCatchFinallyStatement: public Statement
 {
 private:
