@@ -55,6 +55,10 @@ vector<string> assemblyTokens;
 %token T_CONTINUE
 %token T_BREAK
 %token T_RETURN
+%token T_CUTSCENE
+%token T_TRY
+%token T_CATCH
+%token T_FINALLY
 %token T_ASSEMBLY
 %token <number> T_NUMBER
 %token <string> T_IDENTIFIER
@@ -710,6 +714,52 @@ statement:
 	{
 		ReturnStatement *returnStatement = new ReturnStatement();
 		statementCollector.push_back(returnStatement);
+	}
+	| T_CUTSCENE '(' parameters ')' statement
+	{
+		Statement *statement = statementCollector.back();
+		statementCollector.pop_back();
+		CutsceneStatement *cutsceneStatement = new CutsceneStatement(statement);
+		for (int i = 0; i < expressionListCollector.back().size(); i++)
+			cutsceneStatement->addParameter(expressionListCollector.back()[i]);
+		expressionListCollector.pop_back();
+		statementCollector.push_back(cutsceneStatement);
+	}
+	| T_TRY statement
+	{
+		Statement *statement = statementCollector.back();
+		statementCollector.pop_back();
+		TryStatement *tryStatement = new TryStatement(statement);
+		statementCollector.push_back(tryStatement);
+	}
+	| T_TRY statement T_CATCH statement
+	{
+		Statement *catchStatement = statementCollector.back();
+		statementCollector.pop_back();
+		Statement *tryStatement = statementCollector.back();
+		statementCollector.pop_back();
+		TryCatchStatement *tryCatchStatement = new TryCatchStatement(tryStatement, catchStatement);
+		statementCollector.push_back(tryCatchStatement);
+	}
+	| T_TRY statement T_FINALLY statement
+	{
+		Statement *finallyStatement = statementCollector.back();
+		statementCollector.pop_back();
+		Statement *tryStatement = statementCollector.back();
+		statementCollector.pop_back();
+		TryFinallyStatement *tryFinallyStatement = new TryFinallyStatement(tryStatement, finallyStatement);
+		statementCollector.push_back(tryFinallyStatement);
+	}
+	| T_TRY statement T_CATCH statement T_FINALLY statement
+	{
+		Statement *finallyStatement = statementCollector.back();
+		statementCollector.pop_back();
+		Statement *catchStatement = statementCollector.back();
+		statementCollector.pop_back();
+		Statement *tryStatement = statementCollector.back();
+		statementCollector.pop_back();
+		TryCatchFinallyStatement *tryCatchFinallyStatement = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
+		statementCollector.push_back(tryCatchFinallyStatement);
 	}
 	| T_ASSEMBLY '{' assemblyTokens '}'
 	{

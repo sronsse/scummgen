@@ -46,6 +46,10 @@ int parseString();
 "continue"						return T_CONTINUE;
 "break"							return T_BREAK;
 "return"          				return T_RETURN;
+"cutscene"						return T_CUTSCENE;
+"try"							return T_TRY;
+"catch"							return T_CATCH;
+"finally"						return T_FINALLY;
 "asm"							{ BEGIN ASSEMBLY; return T_ASSEMBLY; }
 ">="            				return T_GE;
 "<="            				return T_LE;
