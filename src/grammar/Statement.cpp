@@ -52,41 +52,6 @@ BlockStatement::~BlockStatement()
 		delete _statements[i];
 }
 
-IfStatement::IfStatement(Expression *e, Statement *s)
-{
-	_expression = e;
-	_statement = s;
-}
-
-void IfStatement::compile(vector<Instruction *> &instructions)
-{
-	ostringstream oss;
-
-	// Prepare label first
-	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter++;
-
-	// if condition
-	_expression->compile(instructions);
-
-	// ifNot instruction
-	oss << "LABEL_" << labelCounter;
-	instructions.push_back(new Instruction("ifNot"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-
-	// if statement
-	_statement->compile(instructions);
-
-	// label
-	instructions.push_back(new Instruction(labelCounter));
-}
-
-IfStatement::~IfStatement()
-{
-	delete _expression;
-	delete _statement;
-}
-
 IfElseStatement::IfElseStatement(Expression *e, Statement *ifS, Statement *elseS)
 {
 	_expression = e;
@@ -100,7 +65,7 @@ void IfElseStatement::compile(vector<Instruction *> &instructions)
 
 	// Prepare labels first
 	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter += 2;
+	Context::labelCounter += _elseStatement != NULL ? 2 : 1;
 
 	// if condition
 	_expression->compile(instructions);
@@ -113,27 +78,36 @@ void IfElseStatement::compile(vector<Instruction *> &instructions)
 	// if statement
 	_ifStatement->compile(instructions);
 
-	// jump instruction
-	oss.str("");
-	oss << "LABEL_" << labelCounter + 1;
-	instructions.push_back(new Instruction("jump"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	// The following code is generated only if an else statement is present
+	if (_elseStatement != NULL)
+	{
+		// jump instruction
+		oss.str("");
+		oss << "LABEL_" << labelCounter + 1;
+		instructions.push_back(new Instruction("jump"));
+		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	}
 
 	// label
 	instructions.push_back(new Instruction(labelCounter));
 
-	// else statement
-	_elseStatement->compile(instructions);
+	// The following code is generated only if an else statement is present
+	if (_elseStatement != NULL)
+	{
+		// else statement
+		_elseStatement->compile(instructions);
 
-	// label
-	instructions.push_back(new Instruction(labelCounter + 1));
+		// label
+		instructions.push_back(new Instruction(labelCounter + 1));
+	}
 }
 
 IfElseStatement::~IfElseStatement()
 {
 	delete _expression;
 	delete _ifStatement;
-	delete _elseStatement;
+	if (_elseStatement != NULL)
+		delete _elseStatement;
 }
 
 CaseStatement::CaseStatement(Expression *e)
@@ -641,142 +615,6 @@ CutsceneStatement::~CutsceneStatement()
 	delete _statement;
 }
 
-TryStatement::TryStatement(Statement *s)
-{
-	_statement = s;
-}
-
-void TryStatement::compile(vector<Instruction *> &instructions)
-{
-	ostringstream oss;
-
-	// Prepare labels first
-	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter++;
-
-	// beginOverride instruction
-	instructions.push_back(new Instruction("beginOverride"));
-
-	// jump instruction
-	oss << "LABEL_" << labelCounter;
-	instructions.push_back(new Instruction("jump"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-	
-	// try statement
-	_statement->compile(instructions);
-
-	// label
-	instructions.push_back(new Instruction(labelCounter));
-
-	// endOverride instruction
-	instructions.push_back(new Instruction("endOverride"));
-}
-
-TryStatement::~TryStatement()
-{
-	delete _statement;
-}
-
-TryCatchStatement::TryCatchStatement(Statement *tryS, Statement *catchS)
-{
-	_tryStatement = tryS;
-	_catchStatement = catchS;
-}
-
-void TryCatchStatement::compile(vector<Instruction *> &instructions)
-{
-	ostringstream oss;
-
-	// Prepare labels first
-	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter += 2;
-
-	// beginOverride instruction
-	instructions.push_back(new Instruction("beginOverride"));
-
-	// jump instruction
-	oss << "LABEL_" << labelCounter;
-	instructions.push_back(new Instruction("jump"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-	
-	// try statement
-	_tryStatement->compile(instructions);
-
-	// label
-	instructions.push_back(new Instruction(labelCounter));
-
-	// Push VAR_OVERRIDE value
-	uint32_t value;
-	SymbolType symbolType;
-	Context::resolveSymbol("VAR_OVERRIDE", value, symbolType);
-	oss.str("");
-	oss << value;
-	instructions.push_back(new Instruction("pushWordVar"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-
-	// ifNot instruction
-	oss.str("");
-	oss << "LABEL_" << labelCounter + 1;
-	instructions.push_back(new Instruction("ifNot"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-
-	// catch statement
-	_catchStatement->compile(instructions);
-
-	// label
-	instructions.push_back(new Instruction(labelCounter + 1));
-
-	// endOverride instruction
-	instructions.push_back(new Instruction("endOverride"));
-}
-
-TryCatchStatement::~TryCatchStatement()
-{
-	delete _tryStatement;
-	delete _catchStatement;
-}
-
-TryFinallyStatement::TryFinallyStatement(Statement *tryS, Statement *finallyS)
-{
-	_tryStatement = tryS;
-	_finallyStatement = finallyS;
-}
-
-void TryFinallyStatement::compile(vector<Instruction *> &instructions)
-{
-	ostringstream oss;
-
-	// Prepare labels first
-	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter++;
-
-	// beginOverride instruction
-	instructions.push_back(new Instruction("beginOverride"));
-
-	// jump instruction
-	oss << "LABEL_" << labelCounter;
-	instructions.push_back(new Instruction("jump"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
-	
-	// try statement
-	_tryStatement->compile(instructions);
-
-	// label
-	instructions.push_back(new Instruction(labelCounter));
-
-	// finally statement
-	_finallyStatement->compile(instructions);
-
-	// endOverride instruction
-	instructions.push_back(new Instruction("endOverride"));
-}
-
-TryFinallyStatement::~TryFinallyStatement()
-{
-	delete _tryStatement;
-	delete _finallyStatement;
-}
-
 TryCatchFinallyStatement::TryCatchFinallyStatement(Statement *tryS, Statement *catchS, Statement *finallyS)
 {
 	_tryStatement = tryS;
@@ -790,7 +628,7 @@ void TryCatchFinallyStatement::compile(vector<Instruction *> &instructions)
 
 	// Prepare labels first
 	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter += 2;
+	Context::labelCounter += _catchStatement != NULL ? 2 : 1;
 
 	// beginOverride instruction
 	instructions.push_back(new Instruction("beginOverride"));
@@ -806,29 +644,34 @@ void TryCatchFinallyStatement::compile(vector<Instruction *> &instructions)
 	// label
 	instructions.push_back(new Instruction(labelCounter));
 
-	// Push VAR_OVERRIDE value
-	uint32_t value;
-	SymbolType symbolType;
-	Context::resolveSymbol("VAR_OVERRIDE", value, symbolType);
-	oss.str("");
-	oss << value;
-	instructions.push_back(new Instruction("pushWordVar"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+	// The following code is generated only if a catch statement is present
+	if (_catchStatement != NULL)
+	{
+		// Push VAR_OVERRIDE value
+		uint32_t value;
+		SymbolType symbolType;
+		Context::resolveSymbol("VAR_OVERRIDE", value, symbolType);
+		oss.str("");
+		oss << value;
+		instructions.push_back(new Instruction("pushWordVar"));
+		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 
-	// ifNot instruction
-	oss.str("");
-	oss << "LABEL_" << labelCounter + 1;
-	instructions.push_back(new Instruction("ifNot"));
-	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
+		// ifNot instruction
+		oss.str("");
+		oss << "LABEL_" << labelCounter + 1;
+		instructions.push_back(new Instruction("ifNot"));
+		instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 
-	// catch statement
-	_catchStatement->compile(instructions);
+		// catch statement
+		_catchStatement->compile(instructions);
 
-	// label
-	instructions.push_back(new Instruction(labelCounter + 1));
+		// label
+		instructions.push_back(new Instruction(labelCounter + 1));
+	}
 
-	// finally statement
-	_finallyStatement->compile(instructions);
+	// finally statement (if present)
+	if (_finallyStatement != NULL)
+		_finallyStatement->compile(instructions);
 
 	// endOverride instruction
 	instructions.push_back(new Instruction("endOverride"));
@@ -837,8 +680,10 @@ void TryCatchFinallyStatement::compile(vector<Instruction *> &instructions)
 TryCatchFinallyStatement::~TryCatchFinallyStatement()
 {
 	delete _tryStatement;
-	delete _catchStatement;
-	delete _finallyStatement;
+	if (_catchStatement != NULL)
+		delete _catchStatement;
+	if (_finallyStatement != NULL)
+		delete _finallyStatement;
 }
 
 AssemblyStatement::AssemblyStatement()
