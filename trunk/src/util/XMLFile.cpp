@@ -5,8 +5,6 @@
 #include "Log.hpp"
 using namespace std;
 
-const uint8_t XMLFile::INDENT_WIDTH = 4;
-
 XMLNode::XMLNode(string name, string content)
 {
 	_name = name;
@@ -77,9 +75,9 @@ void XMLFile::write(XMLNode *srcNode, xmlNode *&destNode, uint8_t indent)
 	for (int i = 0; i < srcNode->getNumberOfChildren(); i++)
 	{
 		// Add new line if the current child is not the last one
-		space = "\n";
-		for (int j = 0; j < (indent + 1) * INDENT_WIDTH; j++)
-			space += ' ';
+		space = '\n';
+		for (int j = 0; j < (indent + 1); j++)
+			space += '\t';
 		childTextNode = xmlNewText((const xmlChar *)space.c_str());
 		xmlAddChild(destNode, childTextNode);
 
@@ -94,8 +92,8 @@ void XMLFile::write(XMLNode *srcNode, xmlNode *&destNode, uint8_t indent)
 	if (srcNode->getNumberOfChildren() > 0)
 	{
 		space = '\n';
-		for (int i = 0; i < indent * INDENT_WIDTH; i++)
-			space += ' ';
+		for (int i = 0; i < indent; i++)
+			space += '\t';
 		childTextNode = xmlNewText((const xmlChar *)space.c_str());
 		xmlAddChild(destNode, childTextNode);
 	}

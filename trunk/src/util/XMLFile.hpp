@@ -31,8 +31,6 @@ public:
 class XMLFile
 {
 private:
-	static const uint8_t INDENT_WIDTH;
-
 	XMLNode *_rootNode;
 
 	void read(xmlNode *srcNode, XMLNode *&destNode);
