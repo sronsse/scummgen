@@ -104,10 +104,6 @@ void Object::save(string dirPath)
 	Log::write(LOG_INFO, "Object\n");
 	Log::indent();
 
-	// Change hotspots from relative to absolute positions
-	_hotspotX += _x;
-	_hotspotY += _y;
-
 	if (!IO::createDirectory(dirPath))
 		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
 
@@ -127,8 +123,9 @@ void Object::save(string dirPath)
 	rootNode->addChild(new XMLNode("imageY", _imageY));
 	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
 
-	rootNode->addChild(new XMLNode("hotspotX", _hotspotX));
-	Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotX);
+	// Change hotspots from relative to absolute positions when saving them
+	rootNode->addChild(new XMLNode("hotspotX", _hotspotX + x));
+	Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotX + y);
 
 	rootNode->addChild(new XMLNode("hotspotY", _hotspotY));
 	Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotY);
