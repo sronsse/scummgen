@@ -58,7 +58,7 @@ public:
 	void load(XMLNode *node, string dirPath);
 	void save(XMLNode *node, string dirPath);
 	void prepare();
-	void setPalette(Palette *palette, bool transparent, bool optimizable, bool global, vector<uint8_t> &redirectionPalette);
+	void fillPalette(Palette *palette, bool transparent, bool global, vector<uint8_t> &redirectionPalette);
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
 	uint16_t getWidth() { return _width; }
@@ -77,7 +77,6 @@ private:
 	uint16_t _id;
 	string _name;
 	bool _transparent;
-	bool _optimizable;
 	uint16_t _width;
 	uint16_t _height;
 	bool _mirror;
@@ -89,7 +88,7 @@ public:
 	void load(string dirPath);
 	void save(string dirPath);
 	void prepare();
-	void setPalette(Palette *palette, bool global);
+	void fillPalette(Palette *palette, bool global);
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
 	string getName() { return _name; }

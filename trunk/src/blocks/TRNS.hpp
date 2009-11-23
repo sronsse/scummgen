@@ -10,7 +10,7 @@ class Palette;
 class TRNS
 {
 private:
-	uint8_t _transparentIndex;
+	static const uint8_t TRANSPARENT_INDEX;
 public:
 	TRNS(Palette *palette);
 	uint32_t getSize();

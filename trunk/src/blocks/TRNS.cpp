@@ -2,9 +2,10 @@
 #include "util/IO.hpp"
 #include "types/Palette.hpp"
 
+const uint8_t TRNS::TRANSPARENT_INDEX = 0;
+
 TRNS::TRNS(Palette *palette)
 {
-	_transparentIndex = palette->getTransparentIndex();
 }
 
 uint32_t TRNS::getSize()
@@ -26,9 +27,9 @@ void TRNS::write(fstream &f)
 	IO::writeU32BE(f, getSize());
 
 	// Transparent index
-	IO::writeU8(f, _transparentIndex);
+	IO::writeU8(f, TRANSPARENT_INDEX);
 
-	// End the block with a 0
+	// End the block with 0
 	IO::writeU8(f, 0);
 }
 

@@ -414,7 +414,7 @@ void Game::prepare()
 	{
 		_objects[i]->prepare();
 		for (int j = 0; j < _rooms.size(); j++)
-			_objects[i]->setPalette(_rooms[j]->getPalette(), true);
+			_objects[i]->fillPalette(_rooms[j]->getPalette(), true);
 	}
 
 	// Prepare costumes and fill the room palettes accordingly
@@ -422,7 +422,7 @@ void Game::prepare()
 	{
 		_costumes[i]->prepare();
 		for (int j = 0; j < _rooms.size(); j++)
-			_costumes[i]->setPalette(_rooms[j]->getPalette(), true);
+			_costumes[i]->fillPalette(_rooms[j]->getPalette(), true);
 	}
 
 	// Set resource IDs
