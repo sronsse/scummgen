@@ -124,8 +124,8 @@ void Object::save(string dirPath)
 	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
 
 	// Change hotspots from relative to absolute positions when saving them
-	rootNode->addChild(new XMLNode("hotspotX", _hotspotX + x));
-	Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotX + y);
+	rootNode->addChild(new XMLNode("hotspotX", _hotspotX + _x));
+	Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotX + _y);
 
 	rootNode->addChild(new XMLNode("hotspotY", _hotspotY));
 	Log::write(LOG_INFO, "hotspotY: %d\n", _hotspotY);
@@ -179,11 +179,11 @@ void Object::prepare()
 	}
 }
 
-void Object::setPalette(Palette *palette, bool global)
+void Object::fillPalette(Palette *palette, bool global)
 {
 	// Fill palette given as a parameter
 	for (int i = 0; i < _images.size(); i++)
-		_images[i]->setPalette(palette, global);
+		_images[i]->fillPalette(palette, global);
 }
 
 void Object::compile()

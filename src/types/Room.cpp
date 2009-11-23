@@ -129,7 +129,6 @@ void Room::load(string dirPath)
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
 	_palette = new Palette();
-	_palette->load(dirPath);
 
 	_background = new Image();
 	_background->load(dirPath + rootNode->getChild("background")->getStringContent() + '/');
@@ -159,8 +158,6 @@ void Room::save(string dirPath)
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_palette->save(dirPath);
-
 	_background->save(dirPath + _background->getName() + '/');
 	rootNode->addChild(new XMLNode("background", _background->getName()));
 
@@ -182,7 +179,7 @@ void Room::prepare()
 	_palette->prepare();
 
 	// Set background palette
-	_background->setPalette(_palette, false);
+	_background->fillPalette(_palette, false);
 
 	// Prepare map
 	_map->prepare();
@@ -191,14 +188,14 @@ void Room::prepare()
 	for (int i = 0; i < _objects.size(); i++)
 	{
 		_objects[i]->prepare();
-		_objects[i]->setPalette(_palette, false);
+		_objects[i]->fillPalette(_palette, false);
 	}
 
 	// Prepare costumes and fill the room palette accordingly
 	for (int i = 0; i < _costumes.size(); i++)
 	{
 		_costumes[i]->prepare();
-		_costumes[i]->setPalette(_palette, false);
+		_costumes[i]->fillPalette(_palette, false);
 	}
 
 	// Clear declarations and functions

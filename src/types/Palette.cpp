@@ -1,9 +1,10 @@
 #include "Palette.hpp"
+#include "Image.hpp"
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
 
-const string Palette::XML_FILE_NAME = "palette.xml";
+const uint8_t Palette::MAX_CYCLES = 4;
 const uint8_t Palette::N_COMMON_COLORS = 16;
 
 // Common palette colors (names obtained from http://chir.ag/projects/name-that-color/)
@@ -26,130 +27,103 @@ const Color Palette::COLOR_WHITE = { 255, 255, 255 };
 
 const uint16_t Palette::MAX_COLORS = 256;
 
-Cycle::Cycle():
-_id(0),
-_name(),
-_start(0),
-_end(0),
-_delay(0),
-_forward(true)
-{}
-
-void Cycle::load(XMLNode *node)
-{
-	Log::write(LOG_INFO, "Cycle\n");
-	Log::indent();
-
-	_name = node->getChild("name")->getStringContent();
-	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	_start = node->getChild("start")->getIntegerContent();
-	Log::write(LOG_INFO, "start: %u\n", _start);
-
-	_end = node->getChild("end")->getIntegerContent();
-	Log::write(LOG_INFO, "end: %u\n", _end);
-
-	_delay = node->getChild("delay")->getIntegerContent();
-	Log::write(LOG_INFO, "delay: %u\n", _delay);
-
-	_forward = node->getChild("forward")->getBooleanContent();
-	Log::write(LOG_INFO, "forward: %s\n", _forward ? "true" : "false");
-
-	Log::unIndent();
-}
-
-void Cycle::save(XMLNode *node)
-{
-	Log::write(LOG_INFO, "Cycle\n");
-	Log::indent();
-
-	node->addChild(new XMLNode("name", _name));
-	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
-
-	node->addChild(new XMLNode("start", _start));
-	Log::write(LOG_INFO, "start: %u\n", _start);
-
-	node->addChild(new XMLNode("end", _end));
-	Log::write(LOG_INFO, "end: %u\n", _end);
-
-	node->addChild(new XMLNode("delay", _delay));
-	Log::write(LOG_INFO, "delay: %u\n", _delay);
-
-	node->addChild(new XMLNode("forward", _forward));
-	Log::write(LOG_INFO, "forward: %s\n", _forward ? "true" : "false");
-
-	Log::unIndent();
-}
-
-Cycle::~Cycle()
-{
-}
-
 Palette::Palette():
-_transparentIndex(0),
 _startCursor(0),
 _endCursor(0)
 {
 }
 
-void Palette::load(string dirPath)
+uint8_t Palette::addColor(Color *c, bool reserved, bool fromStart)
 {
-	Log::write(LOG_INFO, "Palette\n");
-	Log::indent();
+	uint8_t index;
 
-	XMLFile xmlFile;
-	xmlFile.open(dirPath + XML_FILE_NAME);
-	XMLNode *rootNode = xmlFile.getRootNode();
+	// Check if palette is fully filled already
+	if (_startCursor == _endCursor)
+		Log::write(LOG_ERROR, "Palette contains too many colors !\n");
 
-	_transparentIndex = rootNode->getChild("transparentIndex")->getIntegerContent();
-	Log::write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
-
-	int i = 0;
-	XMLNode *child;
-	while ((child = rootNode->getChild("cycle", i++)) != NULL)
+	// Compute right index
+	if (fromStart)
 	{
-		Cycle *cycle = new Cycle();
-		cycle->load(child);
-		_cycles.push_back(cycle);
+		index = _startCursor;
+		_startCursor++;
+	}
+	else
+	{
+		_endCursor--;
+		index = _endCursor;
 	}
 
-	Log::unIndent();
+	// Add color at the right position and fill the correponding reserved entry
+	_colors[index] = *c;
+	_reserved[index] = reserved;
+
+	// Return index
+	return index;
 }
 
-void Palette::save(string dirPath)
+int16_t Palette::addCycle(vector<Color> *colors, Cycle *cycle, bool fromStart)
 {
-	Log::write(LOG_INFO, "Palette\n");
-	Log::indent();
+	// Check if the maximum number of cycles has been reached
+	if (_cycles.size() == MAX_CYCLES)
+		Log::write(LOG_ERROR, "Rooms can't have more than %u palette cycles !\n", MAX_CYCLES);
 
-	if (!IO::createDirectory(dirPath))
-		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
+	// Compute cycle offset
+	int16_t offset;
+	if (fromStart)
+		offset = _startCursor - cycle->getStart();
+	else
+		offset = _endCursor - cycle->getEnd() - cycle->getStart() - 1;
 
-	XMLFile xmlFile;
-	XMLNode *rootNode = new XMLNode("palette");
-	xmlFile.setRootNode(rootNode);
+	// Add cycle colors to the palette
+	for (int i = cycle->getStart(); i <= cycle->getEnd(); i++)
+		addColor(&(*colors)[i], true, fromStart);
 
-	rootNode->addChild(new XMLNode("transparentIndex", _transparentIndex));
-	Log::write(LOG_INFO, "transparentIndex: %u\n", _transparentIndex);
+	// Add cycle to the palette cycles list
+	_cycles.push_back(new Cycle());
+	_cycles.back()->setName(cycle->getName());
+	_cycles.back()->setStart(cycle->getStart() + offset);
+	_cycles.back()->setEnd(cycle->getEnd() + offset);
+	_cycles.back()->setDelay(cycle->getDelay());
+	_cycles.back()->setForward(fromStart ? cycle->isForward() : !cycle->isForward());
+	_cycles.back()->setID(_cycles.size());
 
-	for (int i = 0; i < _cycles.size(); i++)
+	// Return offset
+	return offset;
+}
+
+int16_t Palette::findColor(Color *c, bool fromStart)
+{
+	// Check if color is already present in the palette
+	if (fromStart)
 	{
-		XMLNode *child = new XMLNode("cycle");
-		rootNode->addChild(child);
-		_cycles[i]->save(child);
+		for (int i = 0; i < _startCursor; i++)
+			if (!_reserved[i] && c->r == _colors[i].r && c->g == _colors[i].g && c->b == _colors[i].b)
+				return i;
+	}
+	else
+	{
+		for (int i = MAX_COLORS - 1; i >= _endCursor; i--)
+			if (c->r == _colors[i].r && c->g == _colors[i].g && c->b == _colors[i].b)
+				return i;
 	}
 
-	if (!xmlFile.save(dirPath + XML_FILE_NAME))
-		Log::write(LOG_ERROR, "Couldn't save palette to the specified directory !\n");
+	// Color was not found
+	return -1;
+}
 
-	Log::unIndent();
+int8_t Palette::getPixelCycle(uint8_t pixel, vector<Cycle *> *cycles)
+{
+	// Check if pixel is present in cycles
+	for (int i = 0; i < cycles->size(); i++)
+		if (pixel >= (*cycles)[i]->getStart() && pixel <= (*cycles)[i]->getEnd())
+			return i;
+
+	// Pixel is not included in any cycle
+	return -1;
 }
 
 void Palette::prepare()
 {
-	// Set cycles IDs
-	for (int i = 0; i < _cycles.size(); i++)
-		_cycles[i]->setID(i + 1);
-
 	// Set cursors
 	_startCursor = N_COMMON_COLORS;
 	_endCursor = MAX_COLORS;
@@ -174,101 +148,51 @@ void Palette::prepare()
 	_colors.push_back(COLOR_WHITE);
 	_colors.resize(MAX_COLORS);
 
-	// Clear our optimization array
-	_optimizable.clear();
-	_optimizable.resize(MAX_COLORS);
+	// Clear our reserved array
+	_reserved.clear();
+	_reserved.resize(MAX_COLORS);
 }
 
-void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, bool transparent, bool optimizable, bool fromStart)
+void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, vector<Cycle *> *cycles, bool transparent, bool fromStart)
 {
-	// If we don't need optimization, we just append colors to the palette
-	if (!optimizable)
-	{
-		for (int i = transparent ? 1 : 0; i < colors->size(); i++)
+	vector<int16_t> cycleOffsets;
+
+	// Add cycle colors to the palette first
+	if (cycles != NULL)
+		for (int i = 0; i < cycles->size(); i++)
+			cycleOffsets.push_back(addCycle(colors, (*cycles)[i], fromStart));
+
+	// Cycle through all pixels
+	for (int x = 0; x < pixels.size(); x++)
+		for (int y = 0; y < pixels[x].size(); y++)
 		{
-			if (_startCursor == _endCursor)
-					Log::write(LOG_ERROR, "Palette contains too many colors !\n");
+			// No operation needed if the pixel is transparent
+			if (pixels[x][y] == 0 && transparent)
+				continue;
 
-			if (fromStart)
+			// Check if pixel is included in a cycle
+			if (cycles != NULL)
 			{
-				_colors[_startCursor] = (*colors)[i];
-				_optimizable[_startCursor] = false;
-				_startCursor++;
-			}
-			else
-			{
-				_endCursor--;
-				_colors[_endCursor] = (*colors)[colors->size() - 1 - i + (transparent ? 1 : 0)];
-				_optimizable[_endCursor] = false;
-				
-			}
-		}
-
-		// Update pixels
-		uint8_t paletteIndex = fromStart ? _startCursor - colors->size() + (transparent ? 1 : 0) : _endCursor;
-		for (int x = 0; x < pixels.size(); x++)
-			for (int y = 0; y < pixels[x].size(); y++)
-				if (!transparent || pixels[x][y] != 0)
-					pixels[x][y] += paletteIndex - (transparent ? 1 : 0);
-	}
-	else
-	{
-		Color c;
-		bool found;
-		for (int x = 0; x < pixels.size(); x++)
-			for (int y = 0; y < pixels[x].size(); y++)
-			{
-				// If pixel is equal to 0 and the image is transparent, the pixel
-				// should be kept as is and the palette should not be updated
-				if (transparent && pixels[x][y] == 0)
+				int8_t cycle = getPixelCycle(pixels[x][y], cycles);
+				if (cycle != -1)
+				{
+					pixels[x][y] += cycleOffsets[cycle];
 					continue;
-
-				// See if the color already exists and update pixel if needed,
-				// otherwise append the color to the palette
-				c = (*colors)[pixels[x][y]];
-				found = false;
-				if (fromStart)
-				{
-					for (int i = N_COMMON_COLORS; i < _startCursor; i++)
-						if (_optimizable[i] && c.r == _colors[i].r && c.g == _colors[i].g && c.b == _colors[i].b)
-						{
-							pixels[x][y] = i;
-							found = true;
-							break;
-						}
-					if (!found)
-					{
-						if (_startCursor == _endCursor)
-							Log::write(LOG_ERROR, "Palette contains too many colors !\n");
-
-						_colors[_startCursor] = c;
-						pixels[x][y] = _startCursor;
-						_optimizable[_startCursor] = true;
-						_startCursor++;
-					}
-				}
-				else
-				{
-					for (int i = MAX_COLORS; i > _endCursor; i--)
-						if (c.r == _colors[i - 1].r && c.g == _colors[i - 1].g && c.b == _colors[i - 1].b)
-						{
-							pixels[x][y] = i - 1;
-							found = true;
-							break;
-						}
-					if (!found)
-					{
-						if (_endCursor == _startCursor)
-							Log::write(LOG_ERROR, "Palette contains too many colors !\n");
-
-						_endCursor--;
-						_colors[_endCursor] = c;
-						pixels[x][y] = _endCursor;
-						_optimizable[_endCursor] = true;
-					}
 				}
 			}
-	}
+
+			// Check if color already exists in palette
+			Color *c = &((*colors)[pixels[x][y]]);
+			int16_t found = findColor(c, fromStart);
+			if (found != -1)
+			{
+				pixels[x][y] = found;
+				continue;
+			}
+
+			// Add color to the palette
+			pixels[x][y] = addColor(c, false, fromStart);
+		}
 }
 
 Palette::~Palette()

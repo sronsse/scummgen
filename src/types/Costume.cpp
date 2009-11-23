@@ -201,7 +201,7 @@ void Frame::prepare()
 		Log::write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
 }
 
-void Frame::setPalette(Palette *palette, bool transparent, bool optimizable, bool global, vector<uint8_t> &redirectionPalette)
+void Frame::fillPalette(Palette *palette, bool transparent, bool global, vector<uint8_t> &redirectionPalette)
 {
 	// Open original bitmap
 	BMPFile bmpFile;
@@ -225,7 +225,7 @@ void Frame::setPalette(Palette *palette, bool transparent, bool optimizable, boo
 	}
 
 	// Add colors to palette (and update pixels)
-	palette->add(&colors, _pixels, transparent, optimizable, !global);
+	palette->add(&colors, _pixels, NULL, transparent, !global);
 
 	// Modify pixels and update redirection palette
 	for (int x = 0; x < _width; x++)
@@ -255,7 +255,6 @@ Costume::Costume():
 _id(0),
 _name(""),
 _transparent(false),
-_optimizable(false),
 _mirror(true),
 _width(0),
 _height(0)
@@ -276,9 +275,6 @@ void Costume::load(string dirPath)
 
 	_transparent = rootNode->getChild("transparent")->getBooleanContent();
 	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
-
-	_optimizable = rootNode->getChild("optimizable")->getBooleanContent();
-	Log::write(LOG_INFO, "optimizable: %s\n", _optimizable ? "true" : "false");
 
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
@@ -320,9 +316,6 @@ void Costume::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("transparent", _transparent));
 	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
-
-	rootNode->addChild(new XMLNode("optimizable", _optimizable));
-	Log::write(LOG_INFO, "optimizable: %s\n", _optimizable ? "true" : "false");
 
 	rootNode->addChild(new XMLNode("mirror", _mirror));
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
@@ -374,14 +367,14 @@ void Costume::prepare()
 	}
 }
 
-void Costume::setPalette(Palette *palette, bool global)
+void Costume::fillPalette(Palette *palette, bool global)
 {
 	// Clear redirection palette and add an entry (for transparency)
 	_redirectionPalette.clear();
 	_redirectionPalette.push_back(0);
 
 	for (int i = 0; i < _frames.size(); i++)
-		_frames[i]->setPalette(palette, _transparent, _optimizable, global, _redirectionPalette);
+		_frames[i]->fillPalette(palette, _transparent, global, _redirectionPalette);
 }
 
 Costume::~Costume()

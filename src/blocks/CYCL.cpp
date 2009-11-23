@@ -1,5 +1,6 @@
 #include "CYCL.hpp"
 #include "util/IO.hpp"
+#include "types/Image.hpp"
 #include "types/Palette.hpp"
 
 const uint16_t CYCL::FREQUENCY = 0x4000;
