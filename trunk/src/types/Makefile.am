@@ -1,6 +1,7 @@
 noinst_LTLIBRARIES = libtypes.la
 libtypes_la_SOURCES = Charset.cpp Charset.hpp \
                       Costume.cpp Costume.hpp \
+                      Cycle.cpp Cycle.hpp \
                       Game.cpp Game.hpp \
                       Image.cpp Image.hpp \
                       Map.cpp Map.hpp \

@@ -5,12 +5,14 @@
 #include "grammar/Context.hpp"
 #include "grammar/Declaration.hpp"
 #include "grammar/Statement.hpp"
-#include "Image.hpp"
-#include "Palette.hpp"
-#include "Object.hpp"
-#include "Map.hpp"
-#include "Script.hpp"
 #include "Costume.hpp"
+#include "Cycle.hpp"
+#include "Image.hpp"
+#include "Map.hpp"
+#include "Object.hpp"
+#include "Palette.hpp"
+#include "Script.hpp"
+
 
 const string Room::XML_FILE_NAME = "room.xml";
 const uint8_t Room::MIN_LOCAL_SCRIPT_ID = 200;

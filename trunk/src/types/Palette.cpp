@@ -1,5 +1,5 @@
 #include "Palette.hpp"
-#include "Image.hpp"
+#include "Cycle.hpp"
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
