@@ -111,8 +111,16 @@ void Image::save(string dirPath)
 	Log::unIndent();
 }
 
-void Image::fillPalette(Palette *palette, bool global)
+void Image::fillPalette(Palette *palette, vector<Cycle *> *cycles, bool global)
 {
+	// Append local cycles to the input cycles list in a new cycles list
+	vector<Cycle *> c;
+	for (int i = 0; i < _cycles.size(); i++)
+		c.push_back(_cycles[i]);
+	if (cycles != NULL)
+		for (int i = 0; i < cycles->size(); i++)
+			c.push_back((*cycles)[i]);
+
 	// Open original bitmap
 	BMPFile bmpFile;
 	bmpFile.open(_bitmapPath);
@@ -135,7 +143,7 @@ void Image::fillPalette(Palette *palette, bool global)
 	}
 
 	// Add colors to palette (and update pixels)
-	palette->add(&colors, _pixels, &_cycles, _transparent, !global);
+	palette->add(&colors, _pixels, &c, _transparent, !global);
 }
 
 Image::~Image()

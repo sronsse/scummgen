@@ -26,7 +26,7 @@ public:
 	Image();
 	void load(string dirPath);
 	void save(string dirPath);
-	void fillPalette(Palette *palette, bool global);
+	void fillPalette(Palette *palette, vector<Cycle *> *cycles, bool global);
 	string getName() { return _name; }
 	bool isTransparent() { return _transparent; }
 	uint16_t getNumberOfZPlanePaths() { return _zPlanePaths.size(); }

@@ -6,8 +6,9 @@
 #include <vector>
 using namespace std;
 
-class XMLNode;
+class Cycle;
 class Palette;
+class XMLNode;
 
 typedef enum
 {
@@ -58,7 +59,7 @@ public:
 	void load(XMLNode *node, string dirPath);
 	void save(XMLNode *node, string dirPath);
 	void prepare();
-	void fillPalette(Palette *palette, bool transparent, bool global, vector<uint8_t> &redirectionPalette);
+	void fillPalette(Palette *palette, vector<Cycle *> *cycles, bool transparent, bool global, vector<uint8_t> &redirectionPalette);
 	uint16_t getX() { return _x; }
 	uint16_t getY() { return _y; }
 	uint16_t getWidth() { return _width; }
@@ -80,6 +81,7 @@ private:
 	uint16_t _width;
 	uint16_t _height;
 	bool _mirror;
+	vector<Cycle *> _cycles;
 	vector<Anim *> _anims;
 	vector<Frame *> _frames;
 	vector<uint8_t> _redirectionPalette;

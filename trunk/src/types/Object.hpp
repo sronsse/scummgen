@@ -6,6 +6,7 @@
 #include <vector>
 using namespace std;
 
+class Cycle;
 class Image;
 class Palette;
 class Function;
@@ -32,6 +33,7 @@ private:
 	uint8_t _owner;
 	uint8_t _actorDir;	
 	uint32_t _classData;
+	vector<Cycle *> _cycles;
 	Function *_function;
 public:
 	Object();

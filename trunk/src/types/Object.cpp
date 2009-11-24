@@ -5,6 +5,7 @@
 #include "util/XMLFile.hpp"
 #include "grammar/Function.hpp"
 #include "grammar/Statement.hpp"
+#include "Cycle.hpp"
 #include "Game.hpp"
 #include "Image.hpp"
 
@@ -92,6 +93,14 @@ void Object::load(string dirPath)
 		_images.push_back(image);
 	}
 
+	i = 0;
+	while ((child = rootNode->getChild("cycle", i++)) != NULL)
+	{
+		Cycle *cycle = new Cycle();
+		cycle->load(child);
+		_cycles.push_back(cycle);
+	}
+
 	// Change hotspots from absolute to relative positions
 	_hotspotX -= _x;
 	_hotspotY -= _y;
@@ -163,6 +172,13 @@ void Object::save(string dirPath)
 		rootNode->addChild(new XMLNode("image", _images[i]->getName()));
 	}
 
+	for (int i = 0; i < _cycles.size(); i++)
+	{
+		XMLNode *child = new XMLNode("cycle");
+		rootNode->addChild(child);
+		_cycles[i]->save(child);
+	}
+
 	if (!xmlFile.save(dirPath + XML_FILE_NAME))
 		Log::write(LOG_ERROR, "Couldn't save object to the specified directory !\n");
 
@@ -183,7 +199,7 @@ void Object::fillPalette(Palette *palette, bool global)
 {
 	// Fill palette given as a parameter
 	for (int i = 0; i < _images.size(); i++)
-		_images[i]->fillPalette(palette, global);
+		_images[i]->fillPalette(palette, &_cycles, global);
 }
 
 void Object::compile()
@@ -198,6 +214,8 @@ Object::~Object()
 {
 	for (int i = 0; i < _images.size(); i++)
 		delete _images[i];
+	for (int i = 0; i < _cycles.size(); i++)
+		delete _cycles[i];
 	if (_function != NULL)
 		delete _function;
 }
