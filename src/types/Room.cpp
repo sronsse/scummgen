@@ -13,7 +13,6 @@
 #include "Palette.hpp"
 #include "Script.hpp"
 
-
 const string Room::XML_FILE_NAME = "room.xml";
 const uint8_t Room::MIN_LOCAL_SCRIPT_ID = 200;
 
@@ -181,7 +180,7 @@ void Room::prepare()
 	_palette->prepare();
 
 	// Set background palette
-	_background->fillPalette(_palette, false);
+	_background->fillPalette(_palette, NULL, false);
 
 	// Prepare map
 	_map->prepare();
