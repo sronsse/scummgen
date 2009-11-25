@@ -405,25 +405,27 @@ void Game::prepare()
 	if (_charsets.empty())
 		Log::write(LOG_ERROR, "Game doesn't contain any charset !\n");
 
-	// Prepare rooms
-	for (int i = 0; i < _rooms.size(); i++)
-		_rooms[i]->prepare();
+	// Setup a global palette
+	Palette palette;
+	palette.prepare();
 
-	// Prepare objects and fill the room palettes accordingly
+	// Prepare objects and fill the global palette accordingly
 	for (int i = 0; i < _objects.size(); i++)
 	{
 		_objects[i]->prepare();
-		for (int j = 0; j < _rooms.size(); j++)
-			_objects[i]->fillPalette(_rooms[j]->getPalette(), true);
+		_objects[i]->fillPalette(&palette, true);
 	}
 
-	// Prepare costumes and fill the room palettes accordingly
+	// Prepare costumes and fill the global palette accordingly
 	for (int i = 0; i < _costumes.size(); i++)
 	{
 		_costumes[i]->prepare();
-		for (int j = 0; j < _rooms.size(); j++)
-			_costumes[i]->fillPalette(_rooms[j]->getPalette(), true);
+		_costumes[i]->fillPalette(&palette, true);
 	}
+
+	// Prepare rooms
+	for (int i = 0; i < _rooms.size(); i++)
+		_rooms[i]->prepare(&palette);
 
 	// Set resource IDs
 	uint8_t roomID = 1;

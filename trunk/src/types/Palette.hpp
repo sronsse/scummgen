@@ -14,7 +14,7 @@ class Palette
 private:
 	static const string XML_FILE_NAME;
 	static const uint8_t MAX_CYCLES;
-	static const uint8_t N_COMMON_COLORS;
+	static const uint8_t N_EGA_COLORS;
 	static const Color COLOR_BLACK;
 	static const Color COLOR_DARK_BLUE;
 	static const Color COLOR_JAPANESE_LAUREL;
@@ -51,6 +51,7 @@ public:
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
 	void add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, vector<Cycle *> *cycles, bool transparent, bool fromStart);
+	void dup(Palette *palette);
 	~Palette();
 };
 

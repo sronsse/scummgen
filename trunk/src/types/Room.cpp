@@ -174,10 +174,11 @@ void Room::save(string dirPath)
 	Log::unIndent();
 }
 
-void Room::prepare()
+void Room::prepare(Palette *palette)
 {
-	// Prepare palette
+	// Prepare room and duplicate global palette
 	_palette->prepare();
+	palette->dup(_palette);
 
 	// Set background palette
 	_background->fillPalette(_palette, NULL, false);
