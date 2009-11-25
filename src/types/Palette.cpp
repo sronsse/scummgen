@@ -5,7 +5,7 @@
 #include "util/XMLFile.hpp"
 
 const uint8_t Palette::MAX_CYCLES = 4;
-const uint8_t Palette::N_COMMON_COLORS = 16;
+const uint8_t Palette::N_EGA_COLORS = 16;
 
 // Common palette colors (names obtained from http://chir.ag/projects/name-that-color/)
 const Color Palette::COLOR_BLACK = { 0, 0, 0 };
@@ -86,7 +86,6 @@ int16_t Palette::addCycle(vector<Color> *colors, Cycle *cycle, bool fromStart)
 	_cycles.back()->setDelay(cycle->getDelay());
 	_cycles.back()->setForward(fromStart ? cycle->isForward() : !cycle->isForward());
 	_cycles.back()->setID(_cycles.size());
-
 	// Return offset
 	return offset;
 }
@@ -125,7 +124,7 @@ int8_t Palette::getPixelCycle(uint8_t pixel, vector<Cycle *> *cycles)
 void Palette::prepare()
 {
 	// Set cursors
-	_startCursor = N_COMMON_COLORS;
+	_startCursor = N_EGA_COLORS;
 	_endCursor = MAX_COLORS;
 
 	// Set palette size and default colors
@@ -193,6 +192,37 @@ void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, vecto
 			// Add color to the palette
 			pixels[x][y] = addColor(c, false, fromStart);
 		}
+}
+
+void Palette::dup(Palette *palette)
+{
+	// Copy necessary colors and reserved areas
+	for (int i = N_EGA_COLORS; i < _startCursor; i++)
+	{
+		palette->_colors[i] = _colors[i];
+		palette->_reserved[i] = _reserved[i];
+	}
+	for (int i = _endCursor; i < MAX_COLORS; i++)
+	{
+		palette->_colors[i] = _colors[i];
+		palette->_reserved[i] = _reserved[i];
+	}
+
+	// Copy cycles
+	for (int i = 0; i < _cycles.size(); i++)
+	{
+		palette->_cycles.push_back(new Cycle());
+		palette->_cycles[i]->setID(_cycles[i]->getID()); 
+		palette->_cycles[i]->setName(_cycles[i]->getName());
+		palette->_cycles[i]->setStart(_cycles[i]->getStart());
+		palette->_cycles[i]->setEnd(_cycles[i]->getEnd());
+		palette->_cycles[i]->setDelay(_cycles[i]->getDelay());
+		palette->_cycles[i]->setForward(_cycles[i]->isForward());
+	}
+
+	// Copy cursor positions
+	palette->_startCursor = _startCursor;
+	palette->_endCursor = _endCursor;
 }
 
 Palette::~Palette()

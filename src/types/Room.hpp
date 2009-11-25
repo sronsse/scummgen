@@ -45,13 +45,14 @@ public:
 	Room();
 	void load(string dirPath);
 	void save(string dirPath);
-	void prepare();
+	void prepare(Palette *palette);
 	void parse(vector<Declaration *> &declarations);
 	void compile();
 	uint8_t getID() { return _id; }
 	void setID(uint8_t id) { _id = id; }
 	string getName() { return _name; }
 	Palette *getPalette() { return _palette; }
+	void setPalette(Palette *palette) { _palette = palette; }
 	Image *getBackground() { return _background; }	
 	Map *getMap() { return _map; }
 	uint16_t getNumberOfObjects() { return _objects.size(); }
