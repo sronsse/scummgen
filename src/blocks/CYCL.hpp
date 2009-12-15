@@ -22,7 +22,7 @@ private:
     vector<uint8_t> _starts;
     vector<uint8_t> _ends;
 public:
-	CYCL(Palette *palette);
+	CYCL(Palette *globalPalette, Palette *localPalette);
 	uint32_t getSize();
 	void write(fstream &f);
 	~CYCL();

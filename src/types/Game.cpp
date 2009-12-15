@@ -344,6 +344,8 @@ void Game::load(string dirPath)
 		_arrays.push_back(array);
 	}
 
+	_palette = new Palette(false);
+
 	loadRooms(dirPath, rootNode);
 	loadObjects(dirPath, rootNode);
 	loadMidis(dirPath, rootNode);
@@ -405,27 +407,24 @@ void Game::prepare()
 	if (_charsets.empty())
 		Log::write(LOG_ERROR, "Game doesn't contain any charset !\n");
 
-	// Setup a global palette
-	Palette palette;
-	palette.prepare();
+	// Prepare palette
+	_palette->prepare();
 
-	// Prepare objects and fill the global palette accordingly
+	// Prepare objects
 	for (int i = 0; i < _objects.size(); i++)
-	{
-		_objects[i]->prepare();
-		_objects[i]->fillPalette(&palette, true);
-	}
+		_objects[i]->prepare(_palette);
 
-	// Prepare costumes and fill the global palette accordingly
+	// Prepare costumes
 	for (int i = 0; i < _costumes.size(); i++)
-	{
-		_costumes[i]->prepare();
-		_costumes[i]->fillPalette(&palette, true);
-	}
+		_costumes[i]->prepare(_palette);
 
 	// Prepare rooms
 	for (int i = 0; i < _rooms.size(); i++)
-		_rooms[i]->prepare(&palette);
+	{
+		_rooms[i]->prepare();
+		if (_palette->getCursor() <= _rooms[i]->getPalette()->getCursor())
+			Log::write(LOG_ERROR, "Palette in room \"%s\" contains too many colors !\n", _rooms[i]->getName().c_str());
+	}
 
 	// Set resource IDs
 	uint8_t roomID = 1;
@@ -433,6 +432,7 @@ void Game::prepare()
 	uint16_t midiID = 1;
 	uint16_t costumeID = 1;
 	uint16_t charsetID = 1;
+	uint16_t cycleID = 1;
 	for (int i = 0; i < _objects.size(); i++)
 		_objects[i]->setID(objectID++);
 	for (int i = 0; i < _midis.size(); i++)
@@ -441,6 +441,8 @@ void Game::prepare()
 		_costumes[i]->setID(costumeID++);
 	for (int i = 0; i < _charsets.size(); i++)
 		_charsets[i]->setID(charsetID++);
+	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
+		_palette->getCycle(i)->setID(cycleID++);
 	if (!_voices.empty())
 	{
 		uint32_t voiceID =	0;
@@ -475,6 +477,8 @@ void Game::prepare()
 			_rooms[i]->getObject(j)->setID(objectID++);
 		for (int j = 0; j < _rooms[i]->getNumberOfCostumes(); j++)
 			_rooms[i]->getCostume(j)->setID(costumeID++);
+		for (int j = 0; j < _rooms[i]->getPalette()->getNumberOfCycles(); j++)
+			_rooms[i]->getPalette()->getCycle(j)->setID(cycleID + j);
 	}
 
 	// Clear declarations and functions
@@ -586,6 +590,17 @@ void Game::parse(string programDirPath)
 	// Voice declarations
 	for (int i = 0; i < _voices.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _voices[i]->getName(), _voices[i]->getID()));
+
+	// Areas declarations
+	for (int i = 0; i < _palette->getNumberOfAreas(); i++)
+	{
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getArea(i)->getName() + "_start", _palette->getArea(i)->getStart()));
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getArea(i)->getName() + "_end", _palette->getArea(i)->getEnd()));
+	}
+
+	// Cycles declarations
+	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getCycle(i)->getName(), _palette->getCycle(i)->getID()));
 
 	// Parse rooms
 	for (int i = 0; i < _rooms.size(); i++)
@@ -717,8 +732,8 @@ void Game::build(string programDirPath, string outputDirPath)
 
 Game::~Game()
 {
-	for (int i = 0; i < _arrays.size(); i++)
-		delete _arrays[i];
+	if (_palette != NULL)
+		delete _palette;
 	for (int i = 0; i < _rooms.size(); i++)
 		delete _rooms[i];
 	for (int i = 0; i < _objects.size(); i++)

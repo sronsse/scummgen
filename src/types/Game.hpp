@@ -7,6 +7,7 @@
 using namespace std;
 
 class XMLNode;
+class Palette;
 class Room;
 class Object;
 class Midi;
@@ -56,6 +57,7 @@ private:
 	string _name;
 	string _description;
 	uint8_t _key;
+	Palette *_palette;
 	vector<Array *> _arrays;
 	vector<Room *> _rooms;
 	vector<Object *> _objects;
@@ -98,6 +100,7 @@ public:
 	string getName() { return _name; }
 	string getDescription() { return _description; }
 	uint8_t getKey() { return _key; }
+	Palette *getPalette() { return _palette; }
 	uint16_t getNumberOfArrays() { return _arrays.size(); }
 	Array *getArray(uint16_t index) { return _arrays[index]; }
 	uint8_t getNumberOfRooms() { return _rooms.size(); }

@@ -8,6 +8,7 @@ using namespace std;
 
 class XMLNode;
 class Image;
+class PaletteData;
 class Palette;
 class Object;
 class Map;
@@ -24,6 +25,7 @@ private:
 
 	uint8_t _id;
 	string _name;
+	PaletteData *_paletteData;
 	Palette *_palette;
 	Image *_background;
 	Map *_map;
@@ -45,7 +47,7 @@ public:
 	Room();
 	void load(string dirPath);
 	void save(string dirPath);
-	void prepare(Palette *palette);
+	void prepare();
 	void parse(vector<Declaration *> &declarations);
 	void compile();
 	uint8_t getID() { return _id; }

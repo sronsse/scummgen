@@ -15,7 +15,7 @@ class APAL
 private:
 	vector<Color> _colors;
 public:
-	APAL(Palette *palette);
+	APAL(Palette *globalPalette, Palette *localPalette);
 	uint32_t getSize();
 	void write(fstream &f);
 	~APAL();

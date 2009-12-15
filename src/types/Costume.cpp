@@ -2,7 +2,6 @@
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
-#include "Cycle.hpp"
 #include "Palette.hpp"
 
 const uint8_t Anim::N_DIRECTIONS = 4;
@@ -196,14 +195,11 @@ void Frame::save(XMLNode *node, string dirPath)
 	Log::unIndent();
 }
 
-void Frame::prepare()
+void Frame::prepare(Palette *palette, PaletteData *paletteData, vector<uint8_t> &redirectionPalette)
 {
 	if (_width == 0 || _height == 0)
 		Log::write(LOG_ERROR, "Frame dimensions can't be equal to 0 !\n");
-}
 
-void Frame::fillPalette(Palette *palette, vector<Cycle *> *cycles, bool transparent, bool global, vector<uint8_t> &redirectionPalette)
-{
 	// Open original bitmap
 	BMPFile bmpFile;
 	bmpFile.open(_bitmapPath);
@@ -226,7 +222,7 @@ void Frame::fillPalette(Palette *palette, vector<Cycle *> *cycles, bool transpar
 	}
 
 	// Add colors to palette (and update pixels)
-	palette->add(&colors, _pixels, cycles, transparent, !global);
+	palette->add(&colors, _pixels, paletteData);
 
 	// Modify pixels and update redirection palette
 	for (int x = 0; x < _width; x++)
@@ -246,6 +242,7 @@ void Frame::fillPalette(Palette *palette, vector<Cycle *> *cycles, bool transpar
 				_pixels[x][y] = redirectionPalette.size() - 1;
 			}
 		}
+
 }
 
 Frame::~Frame()
@@ -255,10 +252,10 @@ Frame::~Frame()
 Costume::Costume():
 _id(0),
 _name(""),
-_transparent(false),
 _mirror(true),
 _width(0),
-_height(0)
+_height(0),
+_paletteData(NULL)
 {
 }
 
@@ -274,22 +271,11 @@ void Costume::load(string dirPath)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_transparent = rootNode->getChild("transparent")->getBooleanContent();
-	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
-
 	_mirror = rootNode->getChild("mirror")->getBooleanContent();
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
 
-	int i;
+	int i = 0;
 	XMLNode *child;
-	for (i = 0; i < _cycles.size(); i++)
-	{
-		XMLNode *child = new XMLNode("cycle");
-		rootNode->addChild(child);
-		_cycles[i]->save(child);
-	}
-
-	i = 0;
 	while ((child = rootNode->getChild("anim", i++)) != NULL)
 	{
 		Anim *anim = new Anim();
@@ -304,6 +290,9 @@ void Costume::load(string dirPath)
 		frame->load(child, dirPath);
 		_frames.push_back(frame);
 	}
+
+	_paletteData = new PaletteData();
+	_paletteData->load(dirPath);
 
 	Log::unIndent();
 }
@@ -323,18 +312,8 @@ void Costume::save(string dirPath)
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	rootNode->addChild(new XMLNode("transparent", _transparent));
-	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
-
 	rootNode->addChild(new XMLNode("mirror", _mirror));
 	Log::write(LOG_INFO, "mirror: %d\n", _mirror);
-
-	for (int i = 0; i < _cycles.size(); i++)
-	{
-		XMLNode *child = new XMLNode("cycle");
-		rootNode->addChild(child);
-		_cycles[i]->save(child);
-	}
 
 	for (int i = 0; i < _anims.size(); i++)
 	{
@@ -350,13 +329,15 @@ void Costume::save(string dirPath)
 		_frames[i]->save(child, dirPath);
 	}
 
+	_paletteData->save(dirPath);
+
 	if (!xmlFile.save(dirPath + XML_FILE_NAME))
 		Log::write(LOG_ERROR, "Couldn't save costume to the specified directory !\n");
 
 	Log::unIndent();
 }
 
-void Costume::prepare()
+void Costume::prepare(Palette *palette)
 {
 	if (_anims.empty())
 		Log::write(LOG_ERROR, "Costume doesn't have any animation !\n");
@@ -365,7 +346,7 @@ void Costume::prepare()
 
 	// Prepare frames
 	for (int i = 0; i < _frames.size(); i++)
-		_frames[i]->prepare();
+		_frames[i]->prepare(palette, _paletteData, _redirectionPalette);
 
 	// Set animation IDs
 	for (int i = 0; i < _anims.size(); i++)
@@ -383,22 +364,12 @@ void Costume::prepare()
 	}
 }
 
-void Costume::fillPalette(Palette *palette, bool global)
-{
-	// Clear redirection palette and add an entry (for transparency)
-	_redirectionPalette.clear();
-	_redirectionPalette.push_back(0);
-
-	for (int i = 0; i < _frames.size(); i++)
-		_frames[i]->fillPalette(palette, &_cycles, _transparent, global, _redirectionPalette);
-}
-
 Costume::~Costume()
 {
-	for (int i = 0; i < _cycles.size(); i++)
-		delete _cycles[i];
 	for (int i = 0; i < _anims.size(); i++)
 		delete _anims[i];
 	for (int i = 0; i < _frames.size(); i++)
 		delete _frames[i];
+	if (_paletteData != NULL)
+		delete _paletteData;
 }

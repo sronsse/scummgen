@@ -1,6 +1,5 @@
 #include "CYCL.hpp"
 #include "util/IO.hpp"
-#include "types/Cycle.hpp"
 #include "types/Palette.hpp"
 
 const uint16_t CYCL::FREQUENCY = 0x4000;
@@ -8,15 +7,23 @@ const uint16_t CYCL::FORWARD = 0x0000;
 const uint16_t CYCL::BACKWARD = 0x0002;
 const uint16_t CYCL::UNKNOWN = 0;
 
-CYCL::CYCL(Palette *palette)
+CYCL::CYCL(Palette *globalPalette, Palette *localPalette)
 {
-	for (int i = 0; i < palette->getNumberOfCycles(); i++)
+	for (int i = 0; i < globalPalette->getNumberOfCycles(); i++)
 	{
-		_ids.push_back(palette->getCycle(i)->getID());
-		_freqs.push_back(palette->getCycle(i)->getDelay() != 0 ? FREQUENCY / palette->getCycle(i)->getDelay() : 0);
-		_flags.push_back(palette->getCycle(i)->isForward() ? FORWARD : BACKWARD);
-		_starts.push_back(palette->getCycle(i)->getStart());
-		_ends.push_back(palette->getCycle(i)->getEnd());
+		_ids.push_back(globalPalette->getCycle(i)->getID());
+		_freqs.push_back(globalPalette->getCycle(i)->getDelay() != 0 ? FREQUENCY / globalPalette->getCycle(i)->getDelay() : 0);
+		_flags.push_back(globalPalette->getCycle(i)->isForward() ? FORWARD : BACKWARD);
+		_starts.push_back(globalPalette->getCycle(i)->getStart());
+		_ends.push_back(globalPalette->getCycle(i)->getEnd());
+	}
+	for (int i = 0; i < localPalette->getNumberOfCycles(); i++)
+	{
+		_ids.push_back(localPalette->getCycle(i)->getID());
+		_freqs.push_back(localPalette->getCycle(i)->getDelay() != 0 ? FREQUENCY / localPalette->getCycle(i)->getDelay() : 0);
+		_flags.push_back(localPalette->getCycle(i)->isForward() ? FORWARD : BACKWARD);
+		_starts.push_back(localPalette->getCycle(i)->getStart());
+		_ends.push_back(localPalette->getCycle(i)->getEnd());
 	}
 }
 

@@ -5,14 +5,12 @@
 #include <stdint.h>
 using namespace std;
 
-class Palette;
-
 class TRNS
 {
 private:
 	static const uint8_t TRANSPARENT_INDEX;
 public:
-	TRNS(Palette *palette);
+	TRNS();
 	uint32_t getSize();
 	void write(fstream &f);
 	~TRNS();

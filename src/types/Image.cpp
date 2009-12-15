@@ -1,8 +1,8 @@
 #include "Image.hpp"
+#include "util/BMPFile.hpp"
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/XMLFile.hpp"
-#include "Cycle.hpp"
 #include "Palette.hpp"
 
 const string Image::XML_FILE_NAME = "image.xml";
@@ -28,9 +28,6 @@ void Image::load(string dirPath)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_transparent = rootNode->getChild("transparent")->getBooleanContent();
-	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
-
 	_bitmapPath = dirPath + rootNode->getChild("bitmapName")->getStringContent();
 	Log::write(LOG_INFO, "bitmapPath: %s\n", _bitmapPath.c_str());
 
@@ -38,14 +35,6 @@ void Image::load(string dirPath)
 	XMLNode *child;
 	while ((child = rootNode->getChild("zPlaneName", i++)) != NULL)
 		_zPlanePaths.push_back(dirPath + child->getStringContent());
-
-	i = 0;
-	while ((child = rootNode->getChild("cycle", i++)) != NULL)
-	{
-		Cycle *cycle = new Cycle();
-		cycle->load(child);
-		_cycles.push_back(cycle);
-	}
 
 	// Get width and height from bitmap
 	BMPFile bmpFile;
@@ -71,9 +60,6 @@ void Image::save(string dirPath)
 	rootNode->addChild(new XMLNode("name", _name));
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	rootNode->addChild(new XMLNode("transparent", _transparent));
-	Log::write(LOG_INFO, "transparent: %s\n", _transparent ? "true" : "false");
-
 	string bitmapName = _bitmapPath.substr(_bitmapPath.find_last_of('/') + 1);
 	rootNode->addChild(new XMLNode("bitmapName", bitmapName));
 	string newBitmapPath = dirPath + bitmapName;
@@ -98,28 +84,16 @@ void Image::save(string dirPath)
 		}
 	}
 
-	for (int i = 0; i < _cycles.size(); i++)
-	{
-		XMLNode *child = new XMLNode("cycle");
-		rootNode->addChild(child);
-		_cycles[i]->save(child);
-	}
-
 	if (!xmlFile.save(dirPath + XML_FILE_NAME))
 		Log::write(LOG_ERROR, "Couldn't save image to the specified directory !\n");
 
 	Log::unIndent();
 }
 
-void Image::fillPalette(Palette *palette, vector<Cycle *> *cycles, bool global)
+void Image::prepare(Palette *palette, PaletteData *paletteData)
 {
-	// Append local cycles to the input cycles list in a new cycles list
-	vector<Cycle *> c;
-	for (int i = 0; i < _cycles.size(); i++)
-		c.push_back(_cycles[i]);
-	if (cycles != NULL)
-		for (int i = 0; i < cycles->size(); i++)
-			c.push_back((*cycles)[i]);
+	// Set transparency
+	_transparent = paletteData->isTransparent();
 
 	// Open original bitmap
 	BMPFile bmpFile;
@@ -143,11 +117,9 @@ void Image::fillPalette(Palette *palette, vector<Cycle *> *cycles, bool global)
 	}
 
 	// Add colors to palette (and update pixels)
-	palette->add(&colors, _pixels, &c, _transparent, !global);
+	palette->add(&colors, _pixels, paletteData);
 }
 
 Image::~Image()
 {
-	for (int i = 0; i < _cycles.size(); i++)
-		delete _cycles[i];
 }
