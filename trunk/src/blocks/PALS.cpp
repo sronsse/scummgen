@@ -2,9 +2,9 @@
 #include "util/IO.hpp"
 #include "WRAP.hpp"
 
-PALS::PALS(Palette *palette)
+PALS::PALS(Palette *globalPalette, Palette *localPalette)
 {
-	_wrap = new WRAP(palette);
+	_wrap = new WRAP(globalPalette, localPalette);
 }
 
 uint32_t PALS::getSize()

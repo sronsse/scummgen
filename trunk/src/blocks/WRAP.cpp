@@ -3,9 +3,9 @@
 #include "OFFS.hpp"
 #include "APAL.hpp"
 
-WRAP::WRAP(Palette *palette)
+WRAP::WRAP(Palette *globalPalette, Palette *localPalette)
 {
-	_apals.push_back(new APAL(palette));
+	_apals.push_back(new APAL(globalPalette, localPalette));
 	_offs = new OFFS(_apals);
 }
 

@@ -2,10 +2,13 @@
 #include "util/IO.hpp"
 #include "types/Palette.hpp"
 
-APAL::APAL(Palette *palette)
+APAL::APAL(Palette *globalPalette, Palette *localPalette)
 {
-	for (int i = 0; i < Palette::MAX_COLORS; i++)
-		_colors.push_back(palette->getColor(i));
+	_colors.resize(Palette::MAX_COLORS);
+	for (int i = 0; i < localPalette->getCursor(); i++)
+		_colors[i] = localPalette->getColor(i);
+	for (int i = Palette::MAX_COLORS - 1; i >= globalPalette->getCursor(); i--)
+		_colors[i] = globalPalette->getColor(i);
 }
 
 uint32_t APAL::getSize()

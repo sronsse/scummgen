@@ -14,7 +14,7 @@ class PALS
 private:
 	WRAP *_wrap;
 public:
-	PALS(Palette *palette);
+	PALS(Palette *globalPalette, Palette *localPalette);
 	uint32_t getSize();
 	void write(fstream &f);
 	~PALS();

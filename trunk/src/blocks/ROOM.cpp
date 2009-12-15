@@ -23,9 +23,9 @@ ROOM::ROOM(Game *game, uint8_t roomIndex)
 	Room *room = game->getRoom(roomIndex);
 
 	_rmhd = new RMHD(game, roomIndex);
-	_cycl = new CYCL(room->getPalette());
-	_trns = new TRNS(room->getPalette());
-	_pals = new PALS(room->getPalette());
+	_cycl = new CYCL(game->getPalette(), room->getPalette());
+	_trns = new TRNS();
+	_pals = new PALS(game->getPalette(), room->getPalette());
 	_rmim = new RMIM(room->getBackground());
 
 	// Add global objects to the first room

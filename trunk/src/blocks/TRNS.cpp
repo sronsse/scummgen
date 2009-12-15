@@ -1,10 +1,9 @@
 #include "TRNS.hpp"
 #include "util/IO.hpp"
-#include "types/Palette.hpp"
 
 const uint8_t TRNS::TRANSPARENT_INDEX = 0;
 
-TRNS::TRNS(Palette *palette)
+TRNS::TRNS()
 {
 }
 

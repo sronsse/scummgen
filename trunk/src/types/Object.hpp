@@ -6,9 +6,9 @@
 #include <vector>
 using namespace std;
 
-class Cycle;
 class Image;
 class Palette;
+class PaletteData;
 class Function;
 
 class Object
@@ -33,14 +33,13 @@ private:
 	uint8_t _owner;
 	uint8_t _actorDir;	
 	uint32_t _classData;
-	vector<Cycle *> _cycles;
+	PaletteData *_paletteData;
 	Function *_function;
 public:
 	Object();
 	void load(string dirName);
 	void save(string dirName);
-	void prepare();
-	void fillPalette(Palette *palette, bool global);
+	void prepare(Palette *palette);
 	void compile();
 	uint16_t getID() { return _id; }
 	void setID(uint16_t id) { _id = id; }
@@ -67,4 +66,3 @@ public:
 };
 
 #endif
-

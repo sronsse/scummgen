@@ -6,7 +6,6 @@
 #include "grammar/Declaration.hpp"
 #include "grammar/Statement.hpp"
 #include "Costume.hpp"
-#include "Cycle.hpp"
 #include "Image.hpp"
 #include "Map.hpp"
 #include "Object.hpp"
@@ -20,6 +19,7 @@ Room::Room():
 _id(0),
 _name(""),
 _background(NULL),
+_paletteData(NULL),
 _palette(NULL),
 _map(NULL),
 _entryFunction(NULL),
@@ -129,7 +129,7 @@ void Room::load(string dirPath)
 	_name = rootNode->getChild("name")->getStringContent();
 	Log::write(LOG_INFO, "name: %s\n", _name.c_str());
 
-	_palette = new Palette();
+	_palette = new Palette(true);
 
 	_background = new Image();
 	_background->load(dirPath + rootNode->getChild("background")->getStringContent() + '/');
@@ -140,6 +140,9 @@ void Room::load(string dirPath)
 	loadObjects(dirPath, rootNode);
 	loadScripts(dirPath, rootNode);
 	loadCostumes(dirPath, rootNode);
+
+	_paletteData = new PaletteData();
+	_paletteData->load(dirPath);
 
 	Log::unIndent();
 }
@@ -168,37 +171,32 @@ void Room::save(string dirPath)
 	saveScripts(dirPath, rootNode);
 	saveCostumes(dirPath, rootNode);
 
+	_paletteData->save(dirPath);
+
 	if (!xmlFile.save(dirPath + XML_FILE_NAME))
 		Log::write(LOG_ERROR, "Couldn't save room to the specified directory !\n");
 
 	Log::unIndent();
 }
 
-void Room::prepare(Palette *palette)
+void Room::prepare()
 {
-	// Prepare room and duplicate global palette
+	// Prepare palette
 	_palette->prepare();
-	palette->dup(_palette);
 
-	// Set background palette
-	_background->fillPalette(_palette, NULL, false);
+	// Prepare background
+	_background->prepare(_palette, _paletteData);
 
 	// Prepare map
 	_map->prepare();
 
-	// Prepare objects and fill the room palette accordingly
+	// Prepare objects
 	for (int i = 0; i < _objects.size(); i++)
-	{
-		_objects[i]->prepare();
-		_objects[i]->fillPalette(_palette, false);
-	}
+		_objects[i]->prepare(_palette);
 
-	// Prepare costumes and fill the room palette accordingly
+	// Prepare costumes
 	for (int i = 0; i < _costumes.size(); i++)
-	{
-		_costumes[i]->prepare();
-		_costumes[i]->fillPalette(_palette, false);
-	}
+		_costumes[i]->prepare(_palette);
 
 	// Clear declarations and functions
 	for (int i = 0; i < _declarations.size(); i++)
@@ -301,6 +299,13 @@ void Room::parse(vector<Declaration *> &declarations)
 			_objects[i]->setFunction(f);
 		}
 
+	// Areas declarations
+	for (int i = 0; i < _palette->getNumberOfAreas(); i++)
+	{
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getArea(i)->getName() + "_start", _palette->getArea(i)->getStart()));
+		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getArea(i)->getName() + "_end", _palette->getArea(i)->getEnd()));
+	}
+
 	// Cycles declarations
 	for (int i = 0; i < _palette->getNumberOfCycles(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _palette->getCycle(i)->getName(), _palette->getCycle(i)->getID()));
@@ -350,6 +355,8 @@ Room::~Room()
 {
 	if (_background != NULL)
 		delete _background;
+	if (_paletteData != NULL)
+		delete _paletteData;
 	if (_palette != NULL)
 		delete _palette;
 	for (int i = 0; i < _objects.size(); i++)

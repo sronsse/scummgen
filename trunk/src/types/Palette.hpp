@@ -7,7 +7,74 @@
 #include "util/BMPFile.hpp"
 using namespace std;
 
-class Cycle;
+class XMLNode;
+
+class Area
+{
+private:
+	string _name;
+	uint8_t _start;
+	uint8_t _end;
+public:
+	Area();
+	void load(XMLNode *node);
+	void save(XMLNode *node);
+	string getName() { return _name; }
+	void setName(string name) { _name = name; }
+	uint8_t getStart()  { return _start; }
+	void setStart(uint8_t start) { _start = start; }
+	uint8_t getEnd() { return _end; }
+	void setEnd(uint8_t end) { _end = end; }
+	~Area();
+};
+
+class Cycle
+{
+private:
+	uint8_t _id;
+	string _name;
+	uint8_t _start;
+	uint8_t _end;
+	uint8_t _delay;
+	bool _forward;
+public:
+	Cycle();
+	void load(XMLNode *node);
+	void save(XMLNode *node);
+	uint8_t getID() { return _id; }
+	void setID(uint8_t id) { _id = id; }
+	string getName() { return _name; }
+	void setName(string name) { _name = name; }
+	uint8_t getStart()  { return _start; }
+	void setStart(uint8_t start) { _start = start; }
+	uint8_t getEnd() { return _end; }
+	void setEnd(uint8_t end) { _end = end; }
+	uint8_t getDelay()  { return _delay; }
+	void setDelay(uint8_t delay)  { _delay = delay; }
+	bool isForward() { return _forward; }
+	void setForward(bool forward)  { _forward = forward; }
+	~Cycle();
+};
+
+class PaletteData
+{
+private:
+	static const string XML_FILE_NAME;
+
+	bool _transparent;
+	vector<Area *> _areas;
+	vector<Cycle *> _cycles;
+public:
+	PaletteData();
+	void load(string dirName);
+	void save(string dirName);
+	bool isTransparent() { return _transparent; }
+	uint8_t getNumberOfAreas() { return _areas.size(); }
+	Area *getArea(uint8_t index) { return _areas[index]; }
+	uint8_t getNumberOfCycles() { return _cycles.size(); }
+	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
+	~PaletteData();
+};
 
 class Palette
 {
@@ -32,26 +99,27 @@ private:
 	static const Color COLOR_GORSE;
 	static const Color COLOR_WHITE;
 
+	bool _local;
 	vector<Color> _colors;
+	vector<Area *> _areas;
 	vector<Cycle *> _cycles;
-	uint16_t _startCursor;
-	uint16_t _endCursor;
+	uint16_t _cursor;
 	vector<bool> _reserved;
 
-	uint8_t addColor(Color *c, bool fromStart, bool reserved);
-	int16_t addCycle(vector<Color> *colors, Cycle *cycle, bool fromStart);
-	int16_t findColor(Color *c, bool fromStart);
-	int8_t getPixelCycle(uint8_t pixel, vector<Cycle *> *cycles);
+	uint8_t addColor(Color *c, bool reserved);
+	int16_t findColor(Color *c);
 public:
 	static const uint16_t MAX_COLORS;
 
-	Palette();
+	Palette(bool local);
 	void prepare();
+	void add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, PaletteData *paletteData);
 	Color getColor(uint8_t index) { return _colors[index]; }
+	uint8_t getNumberOfAreas() { return _areas.size(); }
+	Area *getArea(uint8_t index) { return _areas[index]; }
 	uint8_t getNumberOfCycles() { return _cycles.size(); }
 	Cycle *getCycle(uint8_t index) { return _cycles[index]; }
-	void add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, vector<Cycle *> *cycles, bool transparent, bool fromStart);
-	void dup(Palette *palette);
+	uint16_t getCursor() { return _cursor; }
 	~Palette();
 };
 

@@ -5,8 +5,8 @@
 #include <vector>
 using namespace std;
 
-class Cycle;
 class Palette;
+class PaletteData;
 class XMLNode;
 
 class Image
@@ -21,12 +21,11 @@ private:
 	uint32_t _width;
 	uint32_t _height;
 	vector<vector<uint8_t> > _pixels;
-	vector<Cycle *> _cycles;
 public:
 	Image();
 	void load(string dirPath);
 	void save(string dirPath);
-	void fillPalette(Palette *palette, vector<Cycle *> *cycles, bool global);
+	void prepare(Palette *palette, PaletteData *paletteData);
 	string getName() { return _name; }
 	bool isTransparent() { return _transparent; }
 	uint16_t getNumberOfZPlanePaths() { return _zPlanePaths.size(); }

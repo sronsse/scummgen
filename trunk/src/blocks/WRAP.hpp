@@ -16,7 +16,7 @@ private:
 	OFFS *_offs;
 	vector<APAL *> _apals;
 public:
-	WRAP(Palette *palette);
+	WRAP(Palette *globalPalette, Palette *localPalette);
 	uint32_t getSize();
 	void write(fstream &f);
 	~WRAP();
