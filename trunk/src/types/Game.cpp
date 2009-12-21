@@ -547,17 +547,6 @@ void Game::parse(string programDirPath)
 	if (!foundMain)
 		Log::write(LOG_ERROR, "Couldn't find the main function !\n");
 
-	// Add empty object functions if necessary
-	for (int i = 0; i < _objects.size(); i++)
-		if (_objects[i]->getFunction() == NULL)
-		{
-			VerbStatement *vs = new VerbStatement();
-			BlockStatement *bs = new BlockStatement();
-			bs->addStatement(vs);
-			Function *f = new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", bs);
-			_objects[i]->setFunction(f);
-		}
-
 	// Room declarations
 	for (int i = 0; i < _rooms.size(); i++)
 		_declarations.push_back(new Declaration(DECLARATION_CONST, _rooms[i]->getName(), _rooms[i]->getID()));
@@ -605,6 +594,27 @@ void Game::parse(string programDirPath)
 	// Parse rooms
 	for (int i = 0; i < _rooms.size(); i++)
 		_rooms[i]->parse(_declarations);
+
+	// Add empty object functions if necessary
+	for (int i = 0; i < _objects.size(); i++)
+		if (_objects[i]->getFunction() == NULL)
+		{
+			ActionStatement *as = new ActionStatement();
+			BlockStatement *bs = new BlockStatement();
+			bs->addStatement(as);
+			Function *f = new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", bs);
+			_objects[i]->setFunction(f);
+		}
+	for (int i = 0; i < _rooms.size(); i++)
+		for (int j = 0; j < _rooms[i]->getNumberOfObjects(); j++)
+			if (_rooms[i]->getObject(j)->getFunction() == NULL)
+			{
+				ActionStatement *as = new ActionStatement();
+				BlockStatement *bs = new BlockStatement();
+				bs->addStatement(as);
+				Function *f = new Function(FUNCTION_NORMAL, _rooms[i]->getObject(j)->getName() + "_verb", bs);
+				_rooms[i]->getObject(j)->setFunction(f);
+			}
 
 	Log::unIndent();
 }

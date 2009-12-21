@@ -95,16 +95,16 @@ public:
 	~SwitchStatement();
 };
 
-class VerbStatement: public Statement
+class ActionStatement: public Statement
 {
 private:
 	static const uint8_t HEADER_SIZE;
 	vector<CaseStatement *> _caseStatements;
 public:
-	VerbStatement();
+	ActionStatement();
 	void addCaseStatement(CaseStatement *caseS) { _caseStatements.push_back(caseS); }
 	void compile(vector<Instruction *> &instructions);
-	~VerbStatement();
+	~ActionStatement();
 };
 
 class ForStatement: public Statement
