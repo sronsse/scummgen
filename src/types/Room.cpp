@@ -288,17 +288,6 @@ void Room::parse(vector<Declaration *> &declarations)
 		_exitFunction = new Function(FUNCTION_NORMAL, "exit", new BlockStatement());
 	}
 
-	// Add empty object functions if necessary
-	for (int i = 0; i < _objects.size(); i++)
-		if (_objects[i]->getFunction() == NULL)
-		{
-			VerbStatement *vs = new VerbStatement();
-			BlockStatement *bs = new BlockStatement();
-			bs->addStatement(vs);
-			Function *f = new Function(FUNCTION_NORMAL, _objects[i]->getName() + "_verb", bs);
-			_objects[i]->setFunction(f);
-		}
-
 	// Areas declarations
 	for (int i = 0; i < _palette->getNumberOfAreas(); i++)
 	{

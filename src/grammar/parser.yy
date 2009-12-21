@@ -47,6 +47,7 @@ vector<string> assemblyTokens;
 %token T_IF
 %token T_ELSE
 %token T_SWITCH
+%token T_ACTION
 %token T_CASE
 %token T_DEFAULT
 %token T_FOR
@@ -83,36 +84,6 @@ vector<string> assemblyTokens;
 %start file
 
 %%
-
-actionStatement:
-	expression ':' statements
-	{
-		Expression *expression = expressionCollector.back();
-		expressionCollector.pop_back();
-		CaseStatement *caseStatement = new CaseStatement(expression);
-		for (int i = 0; i < statementListCollector.back().size(); i++)
-			caseStatement->addStatement(statementListCollector.back()[i]);
-		statementListCollector.pop_back();
-		statementCollector.push_back(caseStatement);
-	}
-	;
-
-actionStatements:
-	actionStatements actionStatement
-	{
-		CaseStatement *caseStatement = (CaseStatement *)statementCollector.back();
-		statementListCollector.back().push_back(caseStatement);
-		statementCollector.pop_back();
-	}
-	| actionStatement
-	{
-		vector<Statement *> v;
-		CaseStatement *caseStatement = (CaseStatement *)statementCollector.back();
-		v.push_back(caseStatement);
-		statementCollector.pop_back();
-		statementListCollector.push_back(v);
-	}
-	;
 
 arg:
 	T_VAR T_IDENTIFIER
@@ -654,13 +625,13 @@ statement:
 		statementListCollector.pop_back();
 		statementCollector.push_back(switchStatement);
 	}
-	| actionStatements
+	| T_ACTION '{' caseStatements '}'
 	{
-		VerbStatement *verbStatement = new VerbStatement();
+		ActionStatement *actionStatement = new ActionStatement();
 		for (int i = 0; i < statementListCollector.back().size(); i++)
-			verbStatement->addCaseStatement((CaseStatement *)statementListCollector.back()[i]);
+			actionStatement->addCaseStatement((CaseStatement *)statementListCollector.back()[i]);
 		statementListCollector.pop_back();
-		statementCollector.push_back(verbStatement);
+		statementCollector.push_back(actionStatement);
 	}
 	| T_FOR '(' expression ';' expression ';' expression ')' statement
 	{

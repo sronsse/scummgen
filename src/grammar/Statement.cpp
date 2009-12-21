@@ -7,7 +7,7 @@
 #include "Expression.hpp"
 #include "Instruction.hpp"
 
-const uint8_t VerbStatement::HEADER_SIZE = 8;
+const uint8_t ActionStatement::HEADER_SIZE = 8;
 
 ExpressionStatement::ExpressionStatement(Expression *e)
 {
@@ -249,11 +249,11 @@ SwitchStatement::~SwitchStatement()
 		delete _caseStatements[i];
 }
 
-VerbStatement::VerbStatement()
+ActionStatement::ActionStatement()
 {
 }
 
-void VerbStatement::compile(vector<Instruction *> &instructions)
+void ActionStatement::compile(vector<Instruction *> &instructions)
 {
 	ostringstream oss;
 
@@ -268,7 +268,6 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 	Context::pushContext(&context);
 
 	// We first consider all the case conditions
-	CaseStatement *defaultStatement = NULL;
 	Expression *caseExpression;
 	set<int16_t> caseValues;
 	for (int i = 0; i < _caseStatements.size(); i++)
@@ -277,15 +276,7 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 
 		// Check if it's not the default statement
 		if (caseExpression == NULL)
-		{
-			if (defaultStatement != NULL)
-				Log::write(LOG_ERROR, "Only one default statement is allowed in switch statements !\n");
-			defaultStatement = _caseStatements[i];
-			// Default statements are equivalent to a verb of value 0xFF
-			instructions.push_back(new Instruction(VALUE_BYTE, "255"));
-			instructions.push_back(new Instruction(VALUE_WORD, "0"));
-			continue;
-		}
+			Log::write(LOG_ERROR, "Default statements are not allowed in action statements !\n");
 
 		// We check that the case expression is constant
 		uint32_t value;
@@ -310,14 +301,11 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 			Log::write(LOG_ERROR, "Case value \"%d\" already used !\n", value);
 
 		// Add verb table entry (the address is filled later)
+		oss.str("");
 		oss << value;
 		instructions.push_back(new Instruction(VALUE_BYTE, oss.str()));
 		instructions.push_back(new Instruction(VALUE_WORD, "0"));
-		oss.str("");
 	}
-
-	if (defaultStatement == NULL)
-		Log::write(LOG_WARNING, "Verb statement has no default case !\n");
 
 	// End of table index
 	instructions.push_back(new Instruction(VALUE_BYTE, "0"));
@@ -326,10 +314,10 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 	for (int i = 0; i < _caseStatements.size(); i++)
 	{
 		// Replace the verb address with a correct value
+		oss.str("");
 		oss << Context::currentAddress + HEADER_SIZE;
 		instructions[verbTableIndex + i * 2 + 1]->setValue(oss.str());
 		_caseStatements[i]->compile(instructions);
-		oss.str("");
 	}
 
 	Context::popContext();
@@ -338,7 +326,7 @@ void VerbStatement::compile(vector<Instruction *> &instructions)
 	instructions.push_back(new Instruction(labelCounter));
 }
 
-VerbStatement::~VerbStatement()
+ActionStatement::~ActionStatement()
 {
 	for (int i = 0; i < _caseStatements.size(); i++)
 		delete _caseStatements[i];

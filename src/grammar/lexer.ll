@@ -38,6 +38,7 @@ int parseString();
 "if"            				return T_IF;
 "else"          				return T_ELSE;
 "switch"						return T_SWITCH;
+"action"						return T_ACTION;
 "case"							return T_CASE;
 "default"						return T_DEFAULT;
 "for"	         				return T_FOR;

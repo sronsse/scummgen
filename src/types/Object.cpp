@@ -197,8 +197,10 @@ void Object::prepare(Palette *palette)
 void Object::compile()
 {
 	// Check the first function statement is a verb statement and compile it
-	if (typeid(*_function->getBlockStatement()->getStatement(0)) != typeid(VerbStatement))
-		Log::write(LOG_ERROR, "Object \"%s\" should start with a verb statement !\n", _name.c_str());
+	if (_function->getBlockStatement()->getNumberOfStatements() > 1)
+		Log::write(LOG_ERROR, "Object \"%s\" should only include one statement !\n", _name.c_str());
+	if (_function->getBlockStatement()->getNumberOfStatements() == 1 && typeid(*_function->getBlockStatement()->getStatement(0)) != typeid(ActionStatement))
+		Log::write(LOG_ERROR, "Object \"%s\" first statement should be an action statement !\n", _name.c_str());
 	_function->compile();
 }
 
