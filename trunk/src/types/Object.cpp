@@ -182,6 +182,9 @@ void Object::save(string dirPath)
 
 void Object::prepare(Palette *palette)
 {
+	Log::write(LOG_INFO, "Preparing object \"%s\"...\n", _name.c_str());
+	Log::indent();
+
 	// Prepare images
 	for (int i = 0; i < _images.size(); i++)
 		_images[i]->prepare(palette, _paletteData);
@@ -192,6 +195,9 @@ void Object::prepare(Palette *palette)
 		delete _function;
 		_function = NULL;
 	}
+
+	Log::write(LOG_INFO, "Palette cursor: %u...\n", palette->getCursor());
+	Log::unIndent();
 }
 
 void Object::compile()

@@ -372,6 +372,9 @@ void Map::save(string dirPath)
 
 void Map::prepare()
 {
+	Log::write(LOG_INFO, "Preparing map...\n");
+	Log::indent();
+
 	// Prepapre and set boxes IDs
 	for (int i = 0; i < _boxes.size(); i++)
 	{
@@ -383,6 +386,8 @@ void Map::prepare()
 	if (_matrix != NULL)
 		delete _matrix;
 	_matrix = new Matrix(&_boxes);
+
+	Log::unIndent();
 }
 
 Map::~Map()

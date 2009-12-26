@@ -339,6 +339,9 @@ void Costume::save(string dirPath)
 
 void Costume::prepare(Palette *palette)
 {
+	Log::write(LOG_INFO, "Preparing costume \"%s\"...\n", _name.c_str());
+	Log::indent();
+
 	if (_anims.empty())
 		Log::write(LOG_ERROR, "Costume doesn't have any animation !\n");
 	if (_frames.empty())
@@ -362,6 +365,9 @@ void Costume::prepare(Palette *palette)
 		if (_height < _frames[i]->getHeight())
 			_height = _frames[i]->getHeight();
 	}
+
+	Log::write(LOG_INFO, "Palette cursor: %u...\n", palette->getCursor());
+	Log::unIndent();
 }
 
 Costume::~Costume()

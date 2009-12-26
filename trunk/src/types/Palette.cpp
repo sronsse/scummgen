@@ -224,7 +224,7 @@ uint8_t Palette::addColor(Color *c, bool reserved)
 	uint8_t index;
 
 	// Check if palette is fully filled already
-	if ((_local && (_cursor == MAX_COLORS - 1)) || (_cursor == 0))
+	if ((_local && _cursor == MAX_COLORS - 1) || (!_local && _cursor == N_EGA_COLORS))
 		Log::write(LOG_ERROR, "Palette contains too many colors !\n");
 
 	// Compute right index
@@ -269,6 +269,9 @@ int16_t Palette::findColor(Color *c)
 
 void Palette::prepare()
 {
+	Log::write(LOG_INFO, "Preparing palette...\n");
+	Log::indent();
+
 	// Set cursor
 	_cursor = _local ? N_EGA_COLORS : MAX_COLORS;
 
@@ -302,6 +305,9 @@ void Palette::prepare()
 	// Clear our reserved array
 	_reserved.clear();
 	_reserved.resize(MAX_COLORS);
+
+	Log::write(LOG_INFO, "Palette cursor: %u...\n", _cursor);
+	Log::unIndent();
 }
 
 void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, PaletteData *paletteData)
@@ -317,15 +323,28 @@ void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, Palet
 		// Compute area start
 		uint8_t start = _local ? _cursor : _cursor - (area->getEnd() - area->getStart()) - 1;
 
-		// Add area colors to the palette
-		for (int j = area->getStart(); j <= area->getEnd(); j++)
-			addColor(&(*colors)[_local ? j : area->getStart() + area->getEnd() - j], true);
+		// Check if area is already present
+		bool found = false;
+		for (int j = 0; j < _areas.size(); j++)
+			if (area->getName() == _areas[j]->getName())
+			{
+				found = true;
+				break;
+			}
 
-		// Add cycle to the palette cycles list
-		_areas.push_back(new Area());
-		_areas.back()->setName(area->getName());
-		_areas.back()->setStart(start);
-		_areas.back()->setEnd(area->getEnd() - area->getStart() + start);
+		// Only add the area if it's not existing already
+		if (!found)
+		{
+			// Add area colors to the palette
+			for (int j = area->getStart(); j <= area->getEnd(); j++)
+				addColor(&(*colors)[_local ? j : area->getStart() + area->getEnd() - j], true);
+
+			// Add area to the palette area list
+			_areas.push_back(new Area());
+			_areas.back()->setName(area->getName());
+			_areas.back()->setStart(start);
+			_areas.back()->setEnd(area->getEnd() - area->getStart() + start);
+		}
 
 		// Add offset
 		areaOffsets.push_back((int16_t)start - (int16_t)area->getStart());
@@ -348,20 +367,35 @@ void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, Palet
 			}
 
 		// Add cycle colors if cycle is not included in an area
+		bool found = false;
 		if (start == -1)
 		{
 			start = _local ? _cursor : _cursor - (cycle->getEnd() - cycle->getStart()) - 1;
-			for (int j = cycle->getStart(); j <= cycle->getEnd(); j++)
-				addColor(&(*colors)[_local ? j : cycle->getStart() + cycle->getEnd() - j], true);
+
+			// Check if cycle is already present
+			for (int j = 0; j < _cycles.size(); j++)
+				if (cycle->getName() == _cycles[j]->getName())
+				{
+					found = true;
+					break;
+				}
+
+			// Add colors if cycle is not existing already
+			if (!found)
+				for (int j = cycle->getStart(); j <= cycle->getEnd(); j++)
+					addColor(&(*colors)[_local ? j : cycle->getStart() + cycle->getEnd() - j], true);
 		}
 
-		// Add cycle to the palette cycles list
-		_cycles.push_back(new Cycle());
-		_cycles.back()->setName(cycle->getName());
-		_cycles.back()->setStart(start);
-		_cycles.back()->setEnd(cycle->getEnd() - cycle->getStart() + start);
-		_cycles.back()->setDelay(cycle->getDelay());
-		_cycles.back()->setForward(cycle->isForward());
+		// Add cycle to the palette cycles list if it is not existing already
+		if (!found)
+		{
+			_cycles.push_back(new Cycle());
+			_cycles.back()->setName(cycle->getName());
+			_cycles.back()->setStart(start);
+			_cycles.back()->setEnd(cycle->getEnd() - cycle->getStart() + start);
+			_cycles.back()->setDelay(cycle->getDelay());
+			_cycles.back()->setForward(cycle->isForward());
+		}
 
 		// Add offset
 		cycleOffsets.push_back((int16_t)start - (int16_t)cycle->getStart());

@@ -92,6 +92,9 @@ void Image::save(string dirPath)
 
 void Image::prepare(Palette *palette, PaletteData *paletteData)
 {
+	Log::write(LOG_INFO, "Preparing image \"%s\"...\n", _name.c_str());
+	Log::indent();
+
 	// Set transparency
 	_transparent = paletteData->isTransparent();
 
@@ -118,6 +121,9 @@ void Image::prepare(Palette *palette, PaletteData *paletteData)
 
 	// Add colors to palette (and update pixels)
 	palette->add(&colors, _pixels, paletteData);
+
+	Log::write(LOG_INFO, "Palette cursor: %u...\n", palette->getCursor());
+	Log::unIndent();
 }
 
 Image::~Image()
