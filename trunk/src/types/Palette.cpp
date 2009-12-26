@@ -319,9 +319,7 @@ void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, Palet
 	for (int i = 0; i < paletteData->getNumberOfAreas(); i++)
 	{
 		Area *area = paletteData->getArea(i);
-
-		// Compute area start
-		uint8_t start = _local ? _cursor : _cursor - (area->getEnd() - area->getStart()) - 1;
+		uint8_t start;
 
 		// Check if area is already present
 		bool found = false;
@@ -329,12 +327,16 @@ void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, Palet
 			if (area->getName() == _areas[j]->getName())
 			{
 				found = true;
+				start = _areas[j]->getStart();
 				break;
 			}
 
 		// Only add the area if it's not existing already
 		if (!found)
 		{
+			// Compute area start
+			start = _local ? _cursor : _cursor - (area->getEnd() - area->getStart()) - 1;
+
 			// Add area colors to the palette
 			for (int j = area->getStart(); j <= area->getEnd(); j++)
 				addColor(&(*colors)[_local ? j : area->getStart() + area->getEnd() - j], true);
@@ -370,20 +372,25 @@ void Palette::add(vector<Color> *colors, vector<vector<uint8_t> > &pixels, Palet
 		bool found = false;
 		if (start == -1)
 		{
-			start = _local ? _cursor : _cursor - (cycle->getEnd() - cycle->getStart()) - 1;
-
 			// Check if cycle is already present
 			for (int j = 0; j < _cycles.size(); j++)
 				if (cycle->getName() == _cycles[j]->getName())
 				{
 					found = true;
+					start = _cycles[j]->getStart();
 					break;
 				}
 
-			// Add colors if cycle is not existing already
+			// Check if cycle is not existing already and add its colors
 			if (!found)
+			{
+				// Compute cycle start
+				start = _local ? _cursor : _cursor - (cycle->getEnd() - cycle->getStart()) - 1;
+
+				// Add colors
 				for (int j = cycle->getStart(); j <= cycle->getEnd(); j++)
 					addColor(&(*colors)[_local ? j : cycle->getStart() + cycle->getEnd() - j], true);
+			}
 		}
 
 		// Add cycle to the palette cycles list if it is not existing already
