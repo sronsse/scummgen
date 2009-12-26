@@ -181,6 +181,9 @@ void Room::save(string dirPath)
 
 void Room::prepare()
 {
+	Log::write(LOG_INFO, "Preparing room %s...\n", _name.c_str());
+	Log::indent();
+
 	// Prepare palette
 	_palette->prepare();
 
@@ -215,6 +218,9 @@ void Room::prepare()
 	for (int i = 0; i < _functions.size(); i++)
 		delete _functions[i];
 	_functions.clear();
+
+	Log::write(LOG_INFO, "Palette cursor: %u...\n", _palette->getCursor());
+	Log::unIndent();
 }
 
 void Room::parse(vector<Declaration *> &declarations)
