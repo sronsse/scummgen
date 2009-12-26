@@ -151,7 +151,9 @@ inline function Object_getY(var obj)
 
 inline function Object_isClassOf(var obj, var cls)
 {
+	const SET_FLAG = 0x80;
 	var res;
+	cls += SET_FLAG;
 	asm
 	{
 		pushWordVar .word obj
@@ -177,7 +179,7 @@ inline function Object_setClass(var obj, var cls, var set)
 {
 	const SET_FLAG = 0x80;
 	if (set)
-		cls += SET;
+		cls += SET_FLAG;
 	asm
 	{
 		pushWordVar .word obj
