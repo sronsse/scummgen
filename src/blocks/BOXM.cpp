@@ -1,10 +1,9 @@
 #include "BOXM.hpp"
 #include "util/IO.hpp"
-#include "types/Map.hpp"
 
 const uint8_t BOXM::BOX_END = 0xFF;
 
-BOXM::BOXM(Map *map)
+BOXM::BOXM()
 {
 	vector<uint8_t> from;
 	vector<uint8_t> to;
@@ -17,22 +16,6 @@ BOXM::BOXM(Map *map)
 	_from.push_back(from);
 	_to.push_back(to);
 	_dests.push_back(dests);
-
-	for (int i = 0; i < map->getNumberOfBoxes(); i++)
-	{
-		from.clear();
-		to.clear();
-		dests.clear();
-		for (int j = 0; j < map->getMatrix()->getNumberOfEntries(i); j++)
-		{
-			from.push_back(map->getMatrix()->getFrom(i, j));
-			to.push_back(map->getMatrix()->getTo(i, j));
-			dests.push_back(map->getMatrix()->getDest(i, j));
-		}
-		_from.push_back(from);
-		_to.push_back(to);
-		_dests.push_back(dests);
-	}
 }
 
 uint32_t BOXM::getSize()
@@ -69,4 +52,3 @@ void BOXM::write(fstream &f)
 BOXM::~BOXM()
 {
 }
-
