@@ -49,7 +49,7 @@ ROOM::ROOM(Game *game, uint8_t roomIndex)
 		if (room->getFunction(i)->getType() != FUNCTION_INLINED)
 			_lscrs.push_back(new LSCR(room->getFunction(i)));
 	_boxd = new BOXD(room->getMap());
-	_boxm = new BOXM(room->getMap());
+	_boxm = new BOXM();
 	_scal = new SCAL(room->getMap());
 }
 

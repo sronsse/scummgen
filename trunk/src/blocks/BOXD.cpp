@@ -84,4 +84,3 @@ void BOXD::write(fstream &f)
 BOXD::~BOXD()
 {
 }
-
