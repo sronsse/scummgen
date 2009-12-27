@@ -54,4 +54,3 @@ void CDHD::write(fstream &f)
 CDHD::~CDHD()
 {
 }
-
