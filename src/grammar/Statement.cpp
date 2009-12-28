@@ -346,7 +346,7 @@ void ForStatement::compile(vector<Instruction *> &instructions)
 
 	// Prepare labels first
 	uint32_t labelCounter = Context::labelCounter;
-	Context::labelCounter += 2;
+	Context::labelCounter += 3;
 
 	// for initialization
 	_initExpressionStatement->compile(instructions);
@@ -358,17 +358,20 @@ void ForStatement::compile(vector<Instruction *> &instructions)
 	_conditionExpression->compile(instructions);
 
 	// ifNot instruction
-	oss << "LABEL_" << labelCounter + 1;
+	oss << "LABEL_" << labelCounter + 2;
 	instructions.push_back(new Instruction("ifNot"));
 	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 
-	Context context(CONTEXT_FOR, NULL, NULL, labelCounter, labelCounter + 1, -1);
+	Context context(CONTEXT_FOR, NULL, NULL, labelCounter + 1, labelCounter + 2, -1);
 	Context::pushContext(&context);
 
 	// for statement
 	_statement->compile(instructions);
 
 	Context::popContext();
+
+	// label
+	instructions.push_back(new Instruction(labelCounter + 1));
 
 	// for increase
 	_increaseExpressionStatement->compile(instructions);
@@ -380,7 +383,7 @@ void ForStatement::compile(vector<Instruction *> &instructions)
 	instructions.push_back(new Instruction(VALUE_WORD, oss.str()));
 
 	// label
-	instructions.push_back(new Instruction(labelCounter + 1));
+	instructions.push_back(new Instruction(labelCounter + 2));
 }
 
 ForStatement::~ForStatement()
