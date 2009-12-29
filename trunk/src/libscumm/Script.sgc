@@ -114,9 +114,33 @@ inline function Script_startObjectScriptQuick(var obj, var vrb, var argv, var ar
 	}
 }
 
-// TODO
-inline function Script_startQuick()
+inline function Script_startQuick(var script, var args, var nArgs)
 {
+	var i;
+	var arg;
+
+	// Push script
+	asm
+	{
+		pushWordVar .word script
+	}
+
+	// Push arguments
+	for (i = 0; i < nArgs; i++)
+	{
+		arg = args[i];
+		asm
+		{
+			pushWordVar .word arg
+		}
+	}
+
+	// Push number of arguments and call opcode
+	asm
+	{
+		pushWordVar .word nArgs
+		startScriptQuick
+	}
 }
 
 // TODO
