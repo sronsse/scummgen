@@ -1,17 +1,16 @@
-// Object classes
+// Global constants
 const OBJECT_CLASS_NEVER_CLIP = 20;
 const OBJECT_CLASS_ALWAYS_CLIP = 21;
 const OBJECT_CLASS_IGNORE_BOXES= 22;
 const OBJECT_CLASS_Y_FLIP = 29;
 const OBJECT_CLASS_X_FLIP = 30;
 const OBJECT_CLASS_PLAYER = 31;
-
-// Object states
 const OBJECT_STATE_DISABLED = 0;
 const OBJECT_STATE_PICKABLE = 1;
 const OBJECT_STATE_UNTOUCHABLE = 2;
 const OBJECT_STATE_LOCKED = 4;
 const OBJECT_STATE_08 = 8;
+const OBJECT_OWNER_ROOM = 0xF;
 
 inline function Object_draw(var obj, var state)
 {
