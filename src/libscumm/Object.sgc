@@ -199,7 +199,6 @@ inline function Object_setOwner(var obj, var owner)
 	}
 }
 
-
 inline function Object_setState(var obj, var state)
 {
 	asm
