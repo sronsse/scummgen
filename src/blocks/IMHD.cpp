@@ -4,14 +4,14 @@
 #include "types/Image.hpp"
 
 const uint16_t IMHD::UNKNOWN = 0;
+const uint16_t IMHD::X = 0;
+const uint16_t IMHD::Y = 0;
 
 IMHD::IMHD(Object *object)
 {
 	_id = object->getID();
 	_nImages = object->getNumberOfImages();
 	_nZPlanesPerImage = _nImages == 0 ? 0 : object->getImage(0)->getNumberOfZPlanePaths();
-	_x = object->getImageX();
-	_y = object->getImageY();
 
 	if (_nImages == 0)
 	{
@@ -56,8 +56,8 @@ void IMHD::write(fstream &f)
 	IO::writeU16LE(f, _nImages);
 	IO::writeU16LE(f, _nZPlanesPerImage);
 	IO::writeU16LE(f, UNKNOWN);
-	IO::writeU16LE(f, _x);
-	IO::writeU16LE(f, _y);
+	IO::writeU16LE(f, X);
+	IO::writeU16LE(f, Y);
 	IO::writeU16LE(f, _width);
 	IO::writeU16LE(f, _height);
 	IO::writeU16LE(f, _hotspotXs.size());

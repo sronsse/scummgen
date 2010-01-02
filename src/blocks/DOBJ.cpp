@@ -4,35 +4,34 @@
 #include "types/Room.hpp"
 #include "types/Object.hpp"
 
+const uint8_t DOBJ::OWNER_AND_STATE = 0;
+const uint32_t DOBJ::CLASS_DATA = 0;
+
 DOBJ::DOBJ(Game *game)
 {
-	_ownersAndStates.push_back(0);
-	_classData.push_back(0);
+	_ownersAndStates.push_back(OWNER_AND_STATE);
+	_classData.push_back(CLASS_DATA);
 
 	// Actor objects
 	for (int i = 0; i < Game::N_DEFAULT_ACTORS; i++)
 	{
-		_ownersAndStates.push_back(0);
-		_classData.push_back(0);
+		_ownersAndStates.push_back(OWNER_AND_STATE);
+		_classData.push_back(CLASS_DATA);
 	}
 
 	// Game global objects
 	for (int i = 0; i < game->getNumberOfObjects(); i++)
 	{
-		uint8_t ownerAndState = game->getObject(i)->getFlags() << 4;
-		ownerAndState |= game->getObject(i)->getOwner();
-		_ownersAndStates.push_back(ownerAndState);
-		_classData.push_back(game->getObject(i)->getClassData());
+		_ownersAndStates.push_back(OWNER_AND_STATE);
+		_classData.push_back(CLASS_DATA);
 	}
 
 	// Room objects
 	for (int i = 0; i < game->getNumberOfRooms(); i++)
 		for (int j = 0; j < game->getRoom(i)->getNumberOfObjects(); j++)
 		{
-			uint8_t ownerAndState = game->getRoom(i)->getObject(j)->getFlags() << 4;
-			ownerAndState |= game->getRoom(i)->getObject(j)->getOwner();
-			_ownersAndStates.push_back(ownerAndState);
-			_classData.push_back(game->getRoom(i)->getObject(j)->getClassData());
+			_ownersAndStates.push_back(OWNER_AND_STATE);
+			_classData.push_back(CLASS_DATA);
 		}
 
 	_nItems = _ownersAndStates.size();
@@ -63,4 +62,3 @@ void DOBJ::write(fstream &f)
 DOBJ::~DOBJ()
 {
 }
-

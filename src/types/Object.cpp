@@ -15,17 +15,10 @@ Object::Object():
 _id(0),
 _name(""),
 _displayName(""),
-_imageX(0),
-_imageY(0),
 _x(0),
 _y(0),
 _width(0),
 _height(0),
-_flags(0),
-_parent(0),
-_owner(0),
-_actorDir(0),
-_classData(0),
 _paletteData(NULL),
 _function(NULL)
 {
@@ -46,12 +39,6 @@ void Object::load(string dirPath)
 	_displayName = rootNode->getChild("displayName")->getStringContent();
 	Log::write(LOG_INFO, "displayName: %s\n", _displayName.c_str());
 
-	_imageX = rootNode->getChild("imageX")->getIntegerContent();
-	Log::write(LOG_INFO, "imageX: %u\n", _imageX);
-
-	_imageY = rootNode->getChild("imageY")->getIntegerContent();
-	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
-
 	_hotspotX = rootNode->getChild("hotspotX")->getIntegerContent();
 	Log::write(LOG_INFO, "hotspotX: %u\n", _hotspotX);
 
@@ -69,21 +56,6 @@ void Object::load(string dirPath)
 
 	_height = rootNode->getChild("height")->getIntegerContent();
 	Log::write(LOG_INFO, "height: %u\n", _height);
-
-	_flags = rootNode->getChild("flags")->getIntegerContent();
-	Log::write(LOG_INFO, "flags: %u\n", _flags);
-
-	_parent = rootNode->getChild("parent")->getIntegerContent();
-	Log::write(LOG_INFO, "parent: %u\n", _parent);
-
-	_owner = rootNode->getChild("owner")->getIntegerContent();
-	Log::write(LOG_INFO, "owner: %u\n", _owner);
-
-	_actorDir = rootNode->getChild("actorDir")->getIntegerContent();
-	Log::write(LOG_INFO, "actorDir: %u\n", _actorDir);
-
-	_classData = rootNode->getChild("classData")->getIntegerContent();
-	Log::write(LOG_INFO, "classData: %x\n", _classData);
 
 	int i = 0;
 	XMLNode *child;
@@ -125,12 +97,6 @@ void Object::save(string dirPath)
 	rootNode->addChild(new XMLNode("displayName", _displayName));
 	Log::write(LOG_INFO, "displayName: %s\n", _displayName.c_str());
 
-	rootNode->addChild(new XMLNode("imageX", _imageX));
-	Log::write(LOG_INFO, "imageX: %u\n", _imageX);
-
-	rootNode->addChild(new XMLNode("imageY", _imageY));
-	Log::write(LOG_INFO, "imageY: %u\n", _imageY);
-
 	// Change hotspots from relative to absolute positions when saving them
 	rootNode->addChild(new XMLNode("hotspotX", _hotspotX + _x));
 	Log::write(LOG_INFO, "hotspotX: %d\n", _hotspotX + _y);
@@ -149,21 +115,6 @@ void Object::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("height", _height));
 	Log::write(LOG_INFO, "height: %u\n", _height);
-
-	rootNode->addChild(new XMLNode("flags", _flags));
-	Log::write(LOG_INFO, "flags: %u\n", _flags);
-
-	rootNode->addChild(new XMLNode("parent", _parent));
-	Log::write(LOG_INFO, "parent: %u\n", _parent);
-
-	rootNode->addChild(new XMLNode("owner", _owner));
-	Log::write(LOG_INFO, "owner: %u\n", _owner);
-
-	rootNode->addChild(new XMLNode("actorDir", _actorDir));
-	Log::write(LOG_INFO, "actorDir: %u\n", _actorDir);
-
-	rootNode->addChild(new XMLNode("classData", (int)_classData));
-	Log::write(LOG_INFO, "classData: %x\n", _classData);
 
 	for (int i = 0; i < _images.size(); i++)
 	{

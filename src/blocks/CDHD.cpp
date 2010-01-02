@@ -4,6 +4,9 @@
 
 const uint16_t CDHD::UNKNOWN_1 = 0;
 const uint16_t CDHD::UNKNOWN_2 = 0;
+const uint8_t CDHD::FLAGS = 0;
+const uint8_t CDHD::PARENT = 0;
+const uint8_t CDHD::ACTOR_DIR = 0;
 
 CDHD::CDHD(Object *object)
 {
@@ -12,9 +15,6 @@ CDHD::CDHD(Object *object)
 	_y = object->getY();
 	_width = object->getWidth();
 	_height = object->getHeight();
-	_flags = object->getFlags();
-	_parent = object->getParent();
-	_actorDir = object->getActorDir();
 }
 
 uint32_t CDHD::getSize()
@@ -44,11 +44,11 @@ void CDHD::write(fstream &f)
 	IO::writeU16LE(f, _y);
 	IO::writeU16LE(f, _width);
 	IO::writeU16LE(f, _height);
-	IO::writeU8(f, _flags);
-	IO::writeU8(f, _parent);
+	IO::writeU8(f, FLAGS);
+	IO::writeU8(f, PARENT);
 	IO::writeU16LE(f, UNKNOWN_1);
 	IO::writeU16LE(f, UNKNOWN_2);
-	IO::writeU8(f, _actorDir);
+	IO::writeU8(f, ACTOR_DIR);
 }
 
 CDHD::~CDHD()

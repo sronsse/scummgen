@@ -11,6 +11,9 @@ class Game;
 class DOBJ
 {
 private:
+	static const uint8_t OWNER_AND_STATE;
+	static const uint32_t CLASS_DATA;
+
 	uint16_t _nItems;
 	vector<uint8_t> _ownersAndStates;
 	vector<uint32_t> _classData;
@@ -23,4 +26,3 @@ public:
 };
 
 #endif
-
