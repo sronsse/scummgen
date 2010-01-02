@@ -15,6 +15,10 @@ class Object
 {
 private:
 	static const string XML_FILE_NAME;
+	static const uint8_t ACTOR_DIR_WEST;
+	static const uint8_t ACTOR_DIR_EAST;
+	static const uint8_t ACTOR_DIR_SOUTH;
+	static const uint8_t ACTOR_DIR_NORTH;
 
 	uint16_t _id;
 	string _name;
@@ -26,6 +30,7 @@ private:
 	uint16_t _y;
 	uint16_t _width;
 	uint16_t _height;
+	uint8_t _actorDir;
 	PaletteData *_paletteData;
 	Function *_function;
 public:
@@ -46,6 +51,7 @@ public:
 	uint16_t getY() { return _y; }
 	uint16_t getWidth() { return _width; }
 	uint16_t getHeight() { return _height; }
+	uint8_t getActorDir() { return _actorDir; }
 	Function *getFunction() { return _function; }
 	void setFunction(Function *function) { _function = function; }
 	~Object();

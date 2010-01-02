@@ -10,6 +10,10 @@
 #include "Palette.hpp"
 
 const string Object::XML_FILE_NAME = "object.xml";
+const uint8_t Object::ACTOR_DIR_WEST = 0;
+const uint8_t Object::ACTOR_DIR_EAST = 1;
+const uint8_t Object::ACTOR_DIR_SOUTH = 2;
+const uint8_t Object::ACTOR_DIR_NORTH = 3;
 
 Object::Object():
 _id(0),
@@ -19,6 +23,7 @@ _x(0),
 _y(0),
 _width(0),
 _height(0),
+_actorDir(0),
 _paletteData(NULL),
 _function(NULL)
 {
@@ -56,6 +61,19 @@ void Object::load(string dirPath)
 
 	_height = rootNode->getChild("height")->getIntegerContent();
 	Log::write(LOG_INFO, "height: %u\n", _height);
+
+	string actorDir = rootNode->getChild("actorDir")->getStringContent();
+	if (actorDir == "west")
+		_actorDir = ACTOR_DIR_WEST;
+	else if (actorDir == "east")
+		_actorDir = ACTOR_DIR_EAST;
+	else if (actorDir == "south")
+		_actorDir = ACTOR_DIR_SOUTH;
+	else if (actorDir == "north")
+		_actorDir = ACTOR_DIR_NORTH;
+	else
+		Log::write(LOG_ERROR, "Unable to convert actorDir \"%s\" !\n", actorDir.c_str());
+	Log::write(LOG_INFO, "actorDir: %s (%u)\n", actorDir.c_str(), _actorDir);
 
 	int i = 0;
 	XMLNode *child;
@@ -115,6 +133,25 @@ void Object::save(string dirPath)
 
 	rootNode->addChild(new XMLNode("height", _height));
 	Log::write(LOG_INFO, "height: %u\n", _height);
+
+	string actorDir;
+	switch (_actorDir)
+	{
+		case ACTOR_DIR_WEST:
+			actorDir = "west";
+			break;
+		case ACTOR_DIR_EAST:
+			actorDir = "east";
+			break;
+		case ACTOR_DIR_SOUTH:
+			actorDir = "south";
+			break;
+		case ACTOR_DIR_NORTH:
+			actorDir = "north";
+			break;
+	}
+	rootNode->addChild(new XMLNode("actorDir", actorDir));
+	Log::write(LOG_INFO, "actorDir: %s (%u)\n", actorDir.c_str(), _actorDir);
 
 	for (int i = 0; i < _images.size(); i++)
 	{
