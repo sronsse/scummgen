@@ -288,7 +288,7 @@ void Room::compile()
 	Log::write(LOG_INFO, "Compiling room \"%s\"...\n", _name.c_str());
 	Log::indent();
 
-	Context context(CONTEXT_ROOM, &_declarations, &_functions, -1, -1, -1);
+	Context context(CONTEXT_ROOM, &_declarations, NULL, -1, -1, -1);
 	Context::pushContext(&context);
 
 	// Compile the entry and exit functions
