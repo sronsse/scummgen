@@ -29,8 +29,8 @@ private:
 	Palette *_palette;
 	Image *_background;
 	Map *_map;
+	Script *_script;
 	vector<Object *> _objects;
-	vector<Script *> _scripts;
 	vector<Costume *> _costumes;
 	vector<Declaration *> _declarations;
 	vector<Function *> _functions;
@@ -38,10 +38,8 @@ private:
 	Function *_exitFunction;
 
 	void loadObjects(string dirPath, XMLNode *node);
-	void loadScripts(string dirPath, XMLNode *node);
 	void loadCostumes(string dirPath, XMLNode *node);
 	void saveObjects(string dirPath, XMLNode *node);
-	void saveScripts(string dirPath, XMLNode *node);
 	void saveCostumes(string dirPath, XMLNode *node);
 public:
 	Room();
