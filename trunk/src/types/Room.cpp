@@ -22,6 +22,7 @@ _background(NULL),
 _paletteData(NULL),
 _palette(NULL),
 _map(NULL),
+_script(NULL),
 _entryFunction(NULL),
 _exitFunction(NULL)
 {	
@@ -38,20 +39,6 @@ void Room::loadObjects(string dirPath, XMLNode *node)
 		Object *object = new Object();
 		object->load(dirPath + child->getStringContent() + '/');
 		_objects.push_back(object);
-	}
-}
-
-void Room::loadScripts(string dirPath, XMLNode *node)
-{
-	dirPath += "scripts/";
-
-	int i = 0;
-	XMLNode *child;
-	while ((child = node->getChild("script", i++)) != NULL)
-	{
-		Script *script = new Script();
-		script->load(dirPath + child->getStringContent() + '/');
-		_scripts.push_back(script);
 	}
 }
 
@@ -82,22 +69,6 @@ void Room::saveObjects(string dirPath, XMLNode *node)
 	{
 		_objects[i]->save(dirPath + _objects[i]->getName() + '/');
 		node->addChild(new XMLNode("object", _objects[i]->getName()));
-	}
-}
-
-void Room::saveScripts(string dirPath, XMLNode *node)
-{
-	if (_scripts.empty())
-		return;
-
-	dirPath += "scripts/";
-	if (!IO::createDirectory(dirPath))
-		Log::write(LOG_ERROR, "Could not create directory \"%s\" !\n", dirPath.c_str());
-
-	for (int i = 0; i < _scripts.size(); i++)
-	{
-		_scripts[i]->save(dirPath + _scripts[i]->getName() + '/');
-		node->addChild(new XMLNode("script", _scripts[i]->getName()));
 	}
 }
 
@@ -137,8 +108,10 @@ void Room::load(string dirPath)
 	_map = new Map;
 	_map->load(dirPath);
 
+	_script = new Script();
+	_script->load(dirPath + rootNode->getChild("script")->getStringContent() + '/');
+
 	loadObjects(dirPath, rootNode);
-	loadScripts(dirPath, rootNode);
 	loadCostumes(dirPath, rootNode);
 
 	_paletteData = new PaletteData();
@@ -167,8 +140,10 @@ void Room::save(string dirPath)
 
 	_map->save(dirPath);
 
+	_script->save(dirPath + _script->getName() + '/');
+	rootNode->addChild(new XMLNode("script", _script->getName()));
+
 	saveObjects(dirPath, rootNode);
-	saveScripts(dirPath, rootNode);
 	saveCostumes(dirPath, rootNode);
 
 	_paletteData->save(dirPath);
@@ -228,67 +203,55 @@ void Room::parse(vector<Declaration *> &declarations)
 	Log::write(LOG_INFO, "Parsing room \"%s\"...\n", _name.c_str());
 	Log::indent();
 
-	bool foundEntry = false;
-	bool foundExit = false;
 	uint16_t id = MIN_LOCAL_SCRIPT_ID;
 
-	// Parse all the local scripts
-	for (int i = 0; i < _scripts.size(); i++)
-	{
-		vector<Function *> functions;
-		_scripts[i]->parse(declarations, functions);
+	// Parse the local script
+	vector<Function *> functions;
+	_script->parse(declarations, functions);
 
-		// Check if local variables have fixed addresses
-		for (int j = 0; j < declarations.size(); j++)
-			if (declarations[i]->hasFixedAddress())
-				Log::write(LOG_ERROR, "Local variables can't have fixed addresses !\n");
-
-		for (int j = 0; j < functions.size(); j++)
-			if (functions[j]->getName() == "entry")
-			{
-				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::write(LOG_ERROR, "Function \"entry\" can't be inlined !\n");
-				_entryFunction = functions[j];
-				foundEntry = true;
-			}
-			else if (functions[j]->getName() == "exit")
-			{
-				if (functions[j]->getType() == FUNCTION_INLINED)
-					Log::write(LOG_ERROR, "Function \"exit\" can't be inlined !\n");
-				_exitFunction = functions[j];
-				foundExit = true;
-			}
-			else
-			{
-				bool foundObject = false;
-				for (int k = 0; k < _objects.size(); k++)
-					if (functions[j]->getName() == _objects[k]->getName() + "_verb")
-					{
-						if (functions[j]->getType() == FUNCTION_INLINED)
-							Log::write(LOG_ERROR, "Function \"%s\" can't be inlined !\n", functions[j]->getName().c_str());
-						Log::write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[k]->getName().c_str());
-						_objects[k]->setFunction(functions[j]);
-						foundObject = true;
-						break;
-					}
-
-				// The current function is a simple local function
-				if (!foundObject)
+	for (int i = 0; i < functions.size(); i++)
+		if (functions[i]->getName() == _name + "_entry")
+		{
+			if (functions[i]->getType() == FUNCTION_INLINED)
+				Log::write(LOG_ERROR, "Function \"entry\" can't be inlined !\n");
+			_entryFunction = functions[i];
+		}
+		else if (functions[i]->getName() == _name + "_exit")
+		{
+			if (functions[i]->getType() == FUNCTION_INLINED)
+				Log::write(LOG_ERROR, "Function \"exit\" can't be inlined !\n");
+			_exitFunction = functions[i];
+		}
+		else
+		{
+			bool foundObject = false;
+			for (int j = 0; j < _objects.size(); j++)
+				if (functions[i]->getName() == _objects[j]->getName() + "_verb")
 				{
-					if (functions[j]->getType() != FUNCTION_INLINED)
-						functions[j]->setID(id++);
-					_functions.push_back(functions[j]);
+					if (functions[i]->getType() == FUNCTION_INLINED)
+						Log::write(LOG_ERROR, "Function \"%s\" can't be inlined !\n", functions[i]->getName().c_str());
+					Log::write(LOG_INFO, "Attaching \"verb\" to object \"%s\"...\n", _objects[j]->getName().c_str());
+					_objects[j]->setFunction(functions[i]);
+					foundObject = true;
+					break;
 				}
+
+			// The current function is a simple local function
+			if (!foundObject)
+			{
+				if (functions[i]->getType() != FUNCTION_INLINED)
+					functions[i]->setID(id++);
+				_functions.push_back(functions[i]);
 			}
-	}
+		}
 
 	// If no entry or exit function has been specified, we create empty ones
-	if (!foundEntry)
+	if (_entryFunction == NULL)
 	{
 		Log::write(LOG_WARNING, "Couldn't find the entry function !\n");
 		_entryFunction = new Function(FUNCTION_NORMAL, "entry", new BlockStatement());
 	}
-	if (!foundExit)
+	if (_exitFunction == NULL)
 	{
 		Log::write(LOG_WARNING, "Couldn't find the exit function !\n");
 		_exitFunction = new Function(FUNCTION_NORMAL, "exit", new BlockStatement());
@@ -358,8 +321,8 @@ Room::~Room()
 		delete _objects[i];
 	if (_map != NULL)
 		delete _map;
-	for (int i = 0; i < _scripts.size(); i++)
-		delete _scripts[i];
+	if (_script != NULL)
+		delete _script;
 	for (int i = 0; i < _costumes.size(); i++)
 		delete _costumes[i];
 	for (int i = 0; i < _declarations.size(); i++)
