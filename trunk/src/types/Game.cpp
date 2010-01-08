@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include <algorithm>
 #include "util/IO.hpp"
 #include "util/Log.hpp"
 #include "util/WAVFile.hpp"
@@ -659,7 +660,14 @@ void Game::compile()
 	Log::write(LOG_INFO, "Compiling game...\n");
 	Log::indent();
 
-	Context context(CONTEXT_GAME, &_declarations, &_functions, -1, -1, -1);
+	// Generate a list of global and local functions
+	vector<Function *> functions;
+	copy(_functions.begin(), _functions.end(), back_inserter(functions));
+	for (int i = 0; i < _rooms.size(); i++)
+		for (int j = 0; j < _rooms[i]->getNumberOfFunctions(); j++)
+			functions.push_back(_rooms[i]->getFunction(j));
+
+	Context context(CONTEXT_GAME, &_declarations, &functions, -1, -1, -1);
 	Context::pushContext(&context);
 
 	// Compile global functions
