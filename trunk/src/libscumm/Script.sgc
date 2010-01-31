@@ -51,12 +51,12 @@ inline function Script_freeze(var flag)
 	}
 }
 
-inline function Script_isRoomScriptRunning(var script)
+inline function Script_isRoomScriptRunning(var obj)
 {
 	var running;
 	asm
 	{
-		pushWordVar .word script
+		pushWordVar .word obj
 		isRoomScriptRunning
 		writeWordVar .word running
 	}
