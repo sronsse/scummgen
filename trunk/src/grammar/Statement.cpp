@@ -604,6 +604,8 @@ void CutsceneStatement::compile(vector<Instruction *> &instructions)
 CutsceneStatement::~CutsceneStatement()
 {
 	delete _statement;
+	for (int i = 0; i < _parameters.size(); i++)
+		delete _parameters[i];
 }
 
 TryCatchFinallyStatement::TryCatchFinallyStatement(Statement *tryS, Statement *catchS, Statement *finallyS)
