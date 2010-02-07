@@ -366,7 +366,7 @@ void Costume::prepare(Palette *palette)
 			_height = _frames[i]->getHeight();
 	}
 
-	Log::write(LOG_INFO, "Palette cursor: %u...\n", palette->getCursor());
+	Log::write(LOG_INFO, "Palette cursor: %u\n", palette->getCursor());
 	Log::unIndent();
 }
 

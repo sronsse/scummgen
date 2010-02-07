@@ -252,7 +252,7 @@ int16_t Palette::findColor(Color *c)
 	// Check if color is already present in the palette
 	if (_local)
 	{
-		for (int i = _cursor - 1; i >= 0 ; i--)
+		for (int i = _cursor - 1; i >= N_EGA_COLORS ; i--)
 			if (!_reserved[i] && c->r == _colors[i].r && c->g == _colors[i].g && c->b == _colors[i].b)
 		return i;
 	}
@@ -306,7 +306,7 @@ void Palette::prepare()
 	_reserved.clear();
 	_reserved.resize(MAX_COLORS);
 
-	Log::write(LOG_INFO, "Palette cursor: %u...\n", _cursor);
+	Log::write(LOG_INFO, "Palette cursor: %u\n", _cursor);
 	Log::unIndent();
 }
 

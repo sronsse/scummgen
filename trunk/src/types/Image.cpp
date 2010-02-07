@@ -122,7 +122,7 @@ void Image::prepare(Palette *palette, PaletteData *paletteData)
 	// Add colors to palette (and update pixels)
 	palette->add(&colors, _pixels, paletteData);
 
-	Log::write(LOG_INFO, "Palette cursor: %u...\n", palette->getCursor());
+	Log::write(LOG_INFO, "Palette cursor: %u\n", palette->getCursor());
 	Log::unIndent();
 }
 

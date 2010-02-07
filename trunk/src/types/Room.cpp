@@ -170,7 +170,7 @@ void Room::prepare()
 
 	// Prepare objects
 	for (int i = 0; i < _objects.size(); i++)
-		_objects[i]->prepare(_palette);
+		_objects[i]->prepare(_palette);	
 
 	// Prepare costumes
 	for (int i = 0; i < _costumes.size(); i++)
@@ -194,7 +194,7 @@ void Room::prepare()
 		delete _functions[i];
 	_functions.clear();
 
-	Log::write(LOG_INFO, "Palette cursor: %u...\n", _palette->getCursor());
+	Log::write(LOG_INFO, "Palette cursor: %u\n", _palette->getCursor());
 	Log::unIndent();
 }
 
