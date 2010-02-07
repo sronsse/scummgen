@@ -184,7 +184,7 @@ void Object::prepare(Palette *palette)
 		_function = NULL;
 	}
 
-	Log::write(LOG_INFO, "Palette cursor: %u...\n", palette->getCursor());
+	Log::write(LOG_INFO, "Palette cursor: %u\n", palette->getCursor());
 	Log::unIndent();
 }
 
