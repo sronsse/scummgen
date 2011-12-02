@@ -1,6 +1,7 @@
 #ifndef _MIDFILE_HPP_
 #define _MIDFILE_HPP_
 
+#include <stdint.h>
 #include <string>
 #include <vector>
 using namespace std;
