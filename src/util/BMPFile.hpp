@@ -1,6 +1,7 @@
 #ifndef _BMPFILE_HPP_
 #define _BMPFILE_HPP_
 
+#include <stdint.h>
 #include <string>
 #include <vector>
 using namespace std;
