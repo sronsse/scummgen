@@ -1,4 +1,4 @@
-BUILT_SOURCES = parser.h
+BUILT_SOURCES = parser.hh
 AM_YFLAGS = -d
 AM_LFLAGS = -o$(LEX_OUTPUT_ROOT).c
 

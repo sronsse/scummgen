@@ -5,7 +5,7 @@
 #include "Expression.hpp"
 #include "Function.hpp"
 #include "Statement.hpp"
-#include "parser.h"
+#include "parser.hh"
 
 // Local declarations
 int commentCaller;
