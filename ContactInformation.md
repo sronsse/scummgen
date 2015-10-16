@@ -1,0 +1,1 @@
+If you have comments or questions, you can email me at sronsse@gmail.com. I'm currently the only person working on the project, which is why there is no team email account yet.
